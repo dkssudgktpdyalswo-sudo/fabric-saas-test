@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>보안 규칙 검사 (시험 서버 전용)</title>
+<style>
+  body { font-family: -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; max-width: 640px; margin: 30px auto; padding: 0 16px; color: #2b2b2b; }
+  h1 { font-size: 19px; } .sub { color: #777; font-size: 13px; margin-bottom: 16px; }
+  button { padding: 14px 20px; font-size: 16px; font-weight: 600; border: none; border-radius: 10px; background: #2b2b2b; color: #fff; width: 100%; }
+  button:disabled { background: #aaa; }
+  #out { margin-top: 16px; font-size: 13px; line-height: 1.7; }
+  .ok { color: #1a7a4a; } .bad { color: #c0392b; font-weight: 700; } #sum { font-size: 16px; font-weight: 700; margin-top: 12px; }
+</style>
+</head>
+<body>
+<h1>보안 규칙 자동 검사</h1>
+<div class="sub">fabric-saas-test(시험 서버)에서만 씁니다. 누르면 시험용 가게 2곳(rt-로 시작)과 시험 계정 4개를 만들고, "되어야 할 것은 되고, 막혀야 할 것은 막히는지" 25가지를 확인합니다. 백야 데이터와는 아무 상관이 없습니다.</div>
+<button id="go" onclick="runAll()">검사 시작</button>
+<div id="out"></div><div id="sum"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script>
+const cfg = { apiKey: "AIzaSyCeWjdi2yBaBsiVSydDYHDAmQAT4hsGs6I", authDomain: "fabric-saas-test.firebaseapp.com", projectId: "fabric-saas-test", appId: "1:93481473112:web:5f88067e0e01dfba24e62d" };
+if (cfg.projectId !== 'fabric-saas-test') throw new Error('시험 서버 전용');
+const out = document.getElementById('out');
+let pass = 0, fail = 0;
+const log = (ok, t, extra) => { ok ? pass++ : fail++; out.innerHTML += `<div class="${ok ? 'ok' : 'bad'}">${ok ? '✔' : '✘'} ${t}${extra ? ' <small>(' + extra + ')</small>' : ''}</div>`; };
+const rnd = Math.random().toString(36).slice(2, 7);
+const SA = 'rt-a-' + rnd, SB = 'rt-b-' + rnd;
+let n = 0;
+async function user(label) { // 계정마다 따로 연결
+  const app = firebase.initializeApp(cfg, label + (n++));
+  const email = `${label}-${rnd}@rt.test-fabric`;
+  const cred = await app.auth().createUserWithEmailAndPassword(email, 'rt-' + rnd + '-pw');
+  return { app, db: app.firestore(), uid: cred.user.uid, email };
+}
+async function expectOk(t, fn) { try { await fn(); log(true, t); } catch (e) { log(false, t + ' → 되어야 하는데 막힘', e.code || e.message); } }
+async function expectDenied(t, fn) { try { await fn(); log(false, t + ' → 막혀야 하는데 됨'); } catch (e) { log(e.code === 'permission-denied' || e.message === 'TAKEN', t, e.code || e.message); } }
+async function createShop(u, id, name) { // 앱의 createShop과 같은 방식
+  const shopRef = u.db.collection('shops').doc(id);
+  await u.db.runTransaction(async tx => {
+    const s = await tx.get(shopRef); if (s.exists) throw new Error('TAKEN');
+    const now = new Date().toISOString();
+    tx.set(shopRef, { name, ownerUid: u.uid, plan: 'trial', createdAt: now });
+    tx.set(shopRef.collection('members').doc(u.uid), { role: 'owner', name, email: u.email, active: true, createdAt: now });
+    tx.set(u.db.collection('users').doc(u.uid), { shopId: id });
+  });
+}
+const D = (u, shop, col, id) => u.db.collection('shops').doc(shop).collection(col).doc(id);
+async function runAll() {
+  const btn = document.getElementById('go'); btn.disabled = true; out.innerHTML = ''; pass = fail = 0;
+  try {
+    const A = await user('owner-a'), B = await user('owner-b'), S = await user('staff-a');
+    out.innerHTML += `<div>시험 가게: ${SA}, ${SB}</div>`;
+    await expectOk('1. 사장A가 새 가게를 만든다', () => createShop(A, SA, '시험가게A'));
+    await expectOk('2. 사장B가 새 가게를 만든다', () => createShop(B, SB, '시험가게B'));
+    await expectDenied('3. 사장B가 이미 있는 가게 코드(A)로 또 만들기', () => createShop(B, SA, '가로채기'));
+    await expectDenied('4. 사장B가 A 가게에 자기를 사장으로 끼워넣기', () => D(B, SA, 'members', B.uid).set({ role: 'owner', active: true, name: 'x' }));
+    await expectDenied('5. 사장B가 A 가게에 자기를 직원으로 끼워넣기', () => D(B, SA, 'members', B.uid).set({ role: 'staff', active: true, name: 'x' }));
+    await expectDenied('6. 잘못된 가게 코드(대문자·밑줄) 만들기', () => createShop(B, 'Bad_ID' + rnd, 'x'));
+    await expectOk('7. 사장A가 자기 장부 저장 (stamp 2)', () => D(A, SA, 'data', 'rolls').set({ data: '[]', rev: 1, stamp: 2 }));
+    await expectDenied('8. 사장A가 stamp 없는 저장 (예전 버전 코드 차단)', () => D(A, SA, 'data', 'rolls').set({ data: '[]', rev: 2 }));
+    await expectOk('9. 사장A가 자기 장부 읽기', () => D(A, SA, 'data', 'rolls').get());
+    await expectDenied('10. 사장B가 A 가게 장부 읽기', () => D(B, SA, 'data', 'rolls').get());
+    await expectDenied('11. 사장B가 A 가게 장부 덮어쓰기', () => D(B, SA, 'data', 'rolls').set({ data: '[]', rev: 9, stamp: 2 }));
+    await expectDenied('12. 사장B가 A 가게 백업 읽기', () => D(B, SA, 'backups', 'x').get());
+    await expectDenied('13. 사장A가 매출장부 문서 통째 삭제', () => D(A, SA, 'data', 'shipmentLog').delete());
+    // 직원 등록 (앱의 staffAdd와 같은 방식)
+    await expectOk('14. 사장A가 직원S를 등록', async () => { const b = A.db.batch(); b.set(D(A, SA, 'members', S.uid), { role: 'staff', name: '시험직원', loginId: 's', active: true }); b.set(A.db.collection('users').doc(S.uid), { shopId: SA }); await b.commit(); });
+    await expectOk('15. 직원S가 A 가게 장부 읽기', () => D(S, SA, 'data', 'rolls').get());
+    await expectOk('16. 직원S가 A 가게 장부 저장', () => D(S, SA, 'data', 'rolls').set({ data: '[]', rev: 3, stamp: 2 }));
+    await expectDenied('17. 직원S가 직원 목록 보기', () => S.db.collection('shops').doc(SA).collection('members').get());
+    await expectDenied('18. 직원S가 자기를 사장으로 바꾸기', () => D(S, SA, 'members', S.uid).update({ role: 'owner' }));
+    await expectDenied('19. 직원S가 백업 삭제', () => D(S, SA, 'backups', 'x').delete());
+    await expectDenied('20. 직원S가 다른 계정을 자기 가게에 연결', () => S.db.collection('users').doc(B.uid).set({ shopId: SA }));
+    await expectDenied('21. 사장A가 자기 역할 바꾸기', () => D(A, SA, 'members', A.uid).update({ role: 'staff' }));
+    await expectOk('22. 공개 페이지는 로그인 없이 읽힘', async () => { await D(A, SA, 'public', 'pubIndex').set({ data: '{}' }); const p = firebase.initializeApp(cfg, 'anon' + rnd); await p.firestore().collection('shops').doc(SA).collection('public').doc('pubIndex').get(); });
+    await expectDenied('23. 로그인 안 한 사람이 장부 읽기', () => firebase.app('anon' + rnd).firestore().collection('shops').doc(SA).collection('data').doc('rolls').get());
+    await expectOk('24. 사장A가 직원S 사용 중지', () => D(A, SA, 'members', S.uid).update({ active: false }));
+    await expectDenied('25. 사용 중지된 직원S가 장부 읽기', () => D(S, SA, 'data', 'rolls').get());
+  } catch (e) { log(false, '검사 준비 실패', e.code || e.message); }
+  document.getElementById('sum').innerHTML = fail === 0 ? `<span class="ok">전부 통과 (${pass}개)</span>` : `<span class="bad">실패 ${fail}개 / 통과 ${pass}개</span>`;
+}
+</script>
+</body>
+</html>
