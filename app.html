@@ -367,6 +367,34 @@
 .fx-src { margin-top: 6px; font-size: 11px; color: var(--muted); }
 .fx-src a { color: var(--muted); }
 .fx-flash { outline: 2px solid var(--primary); background: #eaf3f8 !important; transition: background .3s; }
+.rx-types { display: flex; gap: 6px; margin-top: 10px; }
+.rx-type { flex: 1; border: 1px solid var(--border); background: #fff; color: var(--text); border-radius: 10px; padding: 9px 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.rx-type.on { background: var(--primary); border-color: var(--primary); color: #fff; }
+.ft-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 2px; border-bottom: 1px solid var(--border); cursor: pointer; }
+.ft-row b { display: block; font-size: 14px; }
+.ft-row small { display: block; color: var(--muted); font-size: 12px; margin-top: 3px; line-height: 1.45; }
+.ft-row.off { opacity: .55; }
+.ft-sw { appearance: none; -webkit-appearance: none; flex: none; width: 46px !important; height: 26px; border-radius: 13px; background: #cfcac0; position: relative; cursor: pointer; transition: background .2s; margin: 0; padding: 0; border: none; }
+.ft-sw::after { content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: left .2s; box-shadow: 0 1px 3px rgba(0,0,0,.25); }
+.ft-sw:checked { background: var(--primary); }
+.ft-sw:checked::after { left: 23px; }
+  .hdr-right { display: flex; align-items: center; gap: 8px; flex: none; }
+  .ss { font-size: 12px; font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px; color: rgba(255,255,255,.75); transition: opacity .3s, color .3s; }
+  .ss:empty { display: none; }
+  .ss.saving { color: #fff; }
+  .ss.saved { color: #9be3b4; }
+  .ss.idle { color: rgba(255,255,255,.55); }
+  .ss.fail, .ss.offline { color: #2b1a00; background: #ffd27a; border-radius: 10px; padding: 2px 8px; }
+  .ss-dot { width: 7px; height: 7px; border-radius: 50%; background: #fff; animation: savingPulse 1s infinite; }
+  @media (max-width: 480px) { .ss.idle .ss-t { display: none; } }
+  .cl-list { margin-top: 10px; }
+  .cl-day { font-size: 12px; font-weight: 700; color: var(--primary-dark); margin: 12px 0 4px; }
+  .cl-item { border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; margin-bottom: 6px; background: #fff; }
+  .cl-h { font-size: 13px; display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+  .cl-role { font-size: 11px; color: var(--muted); }
+  .cl-tm { margin-left: auto; font-size: 12px; color: var(--muted); }
+  .cl-l { font-size: 13px; line-height: 1.5; padding: 2px 0; }
+  .cl-tag { display: inline-block; font-size: 10px; font-weight: 700; color: var(--primary-dark); background: var(--b-info); border-radius: 6px; padding: 1px 6px; margin-right: 6px; vertical-align: 1px; }
 </style>
 </head>
 <body>
@@ -417,7 +445,7 @@
 </div>
 
 <header>
-  <div class="hdr-top"><h1 id="page-title">재고</h1><div id="acctBar"></div></div>
+  <div class="hdr-top"><h1 id="page-title">재고</h1><div class="hdr-right"><span id="saveState" class="ss" role="status" aria-live="polite"></span><div id="acctBar"></div></div></div>
   <div class="stats" id="stats">불러오는 중...</div>
   <div class="tabs">
     <button class="tab-btn active" id="tab-today" onclick="switchTab('today')">홈</button>
@@ -516,7 +544,7 @@
     <label>입고날짜</label>
     <input id="f-date" type="date">
     <label>품번</label>
-    <input id="f-item" placeholder="예: 350" autocomplete="off" oninput="showItemSuggestions(this)" onfocus="showItemSuggestions(this)" onblur="hideItemSuggestionsDelayed()">
+    <input id="f-item" placeholder="예: 350" autocomplete="off" oninput="showItemSuggestions(this); syncBlockFormWraps()" onfocus="showItemSuggestions(this)" onblur="hideItemSuggestionsDelayed()">
 
     <label style="margin-top:10px;">컬러별로 입고</label>
     <div id="f-color-blocks"></div>
@@ -547,23 +575,28 @@
 <div class="modal-overlay" id="costModal">
   <div class="modal">
     <h3 id="costModalTitle">원가 등록</h3>
-    <label>분류 (예: 0~9, ㄱ~ㅍ)</label>
-    <input id="c-cat" placeholder="예: ㄱ">
     <label>품목(품번)</label>
     <input id="c-item" placeholder="예: 글로우 또는 350" autocomplete="off" oninput="showItemSuggestions(this)" onfocus="showItemSuggestions(this)" onblur="hideItemSuggestionsDelayed()">
-    <label>구분</label>
+    <div id="c-type-wrap"><label>구분</label>
     <div class="row2">
-      <div><label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text);"><input type="radio" name="c-type" value="import" checked style="width:auto;" onchange="onCostTypeChange()"> 수입(중국산)</label></div>
-      <div><label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text);"><input type="radio" name="c-type" value="domestic" style="width:auto;" onchange="onCostTypeChange()"> 국내산</label></div>
-    </div>
+      <div><label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text);"><input type="radio" name="c-type" value="import" checked style="width:auto;" onchange="onCostTypeChange()"> 수입 (해외)</label></div>
+      <div><label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text);"><input type="radio" name="c-type" value="domestic" style="width:auto;" onchange="onCostTypeChange()"> 국내</label></div>
+    </div></div>
     <div id="c-supplier-wrap"><label>발주처</label><select id="c-supplier" onchange="onCostTypeChange()"></select></div>
     <label id="c-price-label">중국단가 (위안/미터)</label>
     <input id="c-price" type="number" step="0.1" placeholder="예: 12.5">
+    <div id="c-cut-wrap"><label>컷 단가 (선택 · 컷으로 사면 단가가 다를 때만)</label>
+    <input id="c-price-cut" type="number" step="0.1" placeholder="비우면 위 단가와 같음"></div>
     <p id="c-price-hint" style="font-size:12px;color:var(--muted);">최종원가 = 중국단가 × 환율 × 야드환산 + 운임비 (자동 계산됩니다)</p>
+    <button type="button" id="c-more-btn" class="rx-link" onclick="toggleCostMore(true)">+ 더 입력 (분류·혼용률<span id="c-more-w">·중량</span>)</button>
+    <div id="c-more" style="display:none;">
+    <label>분류 (비우면 품번 첫 글자로 자동)</label>
+    <input id="c-cat" placeholder="예: ㄱ">
     <label>혼용률 (선택)</label>
     <input id="c-mix" maxlength="40" placeholder="예: 폴리 95 스판 5" autocomplete="off">
-    <label>중량 (g/y, 선택 - kg당 가공비 계산에 씀)</label>
-    <input id="c-weight" type="number" step="1" placeholder="예: 280">
+    <div id="c-weight-wrap"><label>중량 (g/y, 선택 - kg당 가공비 계산에 씀)</label>
+    <input id="c-weight" type="number" step="1" placeholder="예: 280"></div>
+    </div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeCostModal()">취소</button>
       <button class="btn-save" onclick="saveCost()">저장</button>
@@ -686,6 +719,7 @@
     <label>발주수량</label>
     <input id="china-qty" placeholder="예: 21y, 2절, 반절 등 자유롭게">
     <label style="display:flex; align-items:center; gap:6px; margin-top:10px;"><input type="checkbox" id="china-urgent" style="width:auto;"> 급송(항공) 건입니다</label>
+    <label id="china-cut-wrap" style="display:none; align-items:center; gap:6px; margin-top:6px;"><input type="checkbox" id="china-cut" style="width:auto;"> 컷 단가로 사는 건입니다 <small style="color:var(--muted);font-weight:400;">(원가표의 컷 단가 적용)</small></label>
     <label>비고</label>
     <input id="china-note" placeholder="선택사항">
     </div>
@@ -726,8 +760,10 @@
         <h3>원가 계산</h3>
         <p id="cost-calc-context" style="font-size:12px;color:var(--muted);margin-top:-6px;"></p>
         <p id="cost-calc-std" style="font-size:14px;font-weight:600;background:#f3f6f9;border-radius:8px;padding:8px 10px;margin:6px 0;"></p>
+        <div id="cost-calc-sp-wrap" class="hidden"><label>발주처</label><select id="cost-calc-sp" onchange="onCostCalcSpChange()"></select></div>
         <label id="cost-calc-extra-label">추가 가공비</label>
         <input id="cost-calc-extra" type="number" step="1" oninput="updateCostCalcPreview()">
+        <p id="cost-calc-detail" style="font-size:11px;color:var(--muted);margin:4px 0 0;"></p>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:14px;">
           <span style="color:var(--muted);">계산 결과</span>
           <span id="cost-calc-total" style="font-weight:700;color:var(--primary-dark);">-</span>
@@ -1402,10 +1438,8 @@
       <div id="sale-edit-cost-hint" style="font-size:11px;color:var(--muted);margin-top:2px;"></div>
       <button type="button" id="sale-edit-cost-calc-toggle" onclick="toggleSaleCostCalc()" style="border:none;background:var(--b-ok);color:#2f6b46;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:600;margin-top:6px;">단가로 계산하기 (중국산/국내산 + 가공비) ▾</button>
       <div id="sale-edit-cost-calc" class="hidden" style="background:#f3f6f9;border-radius:10px;padding:10px;margin-top:6px;">
-        <div class="row2">
-          <div><label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text);"><input type="radio" name="sce-type" value="import" checked style="width:auto;" onchange="onSaleCostTypeChange()"> 수입(중국산)</label></div>
-          <div><label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text);"><input type="radio" name="sce-type" value="domestic" style="width:auto;" onchange="onSaleCostTypeChange()"> 국내산</label></div>
-        </div>
+        <label>발주처</label>
+        <select id="sce-sp" onchange="onSaleCostTypeChange()"></select>
         <label id="sce-price-label">중국단가 (위안/미터)</label>
         <input id="sce-price" type="number" step="0.1" placeholder="예: 12.5" oninput="updateSaleCostCalcPreview()">
         <label>가공비 추가 (원/y, 선택 · 텐타가공 등)</label>
@@ -1527,6 +1561,7 @@
       <input id="roll-edit-cost" type="number" step="1" placeholder="비워두면 원가표 기본값 사용" style="flex:1;">
       <button type="button" onclick="calcCostForRollEdit()" style="border:none;background:var(--b-sub);color:#555;border-radius:8px;padding:8px 10px;font-size:12px;flex:none;">원가 계산</button>
     </div>
+    <div id="roll-edit-form-wrap" class="cost-ui" style="display:none;"><label>단가</label><select id="roll-edit-form"><option value="roll">절 단가</option><option value="cut">컷 단가</option></select></div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeRollEditModal()">취소</button>
       <button class="btn-save" onclick="saveRollEdit()">저장</button>
@@ -2065,7 +2100,7 @@ function toggleAcctMenu(ev) {
   const m = document.createElement('div'); m.className = 'acct-menu';
   const it = (label, fn, cls) => `<button type="button" class="${cls || ''}" onclick="closeAcctMenu();${fn}">${label}</button>`;
   m.innerHTML = `<div class="who"><b>${esc(shopDisplayName() || SHOP_ID)}</b><small>가게 코드 ${esc(SHOP_ID)} · ${esc(ME.name || '')} (${ROLE_LABEL[ROLE] || ''})</small></div>`
-    + (isOwner() ? it('가게 정보 설정', 'openBizInfoModal()') + it('직원 관리', 'openStaffModal()') + it('엑셀로 장부 넣기', 'openImportModal()') : '')
+    + (isOwner() ? it('가게 정보 설정', 'openBizInfoModal()') + it('기능 설정', 'openFeatureModal()') + it('직원 관리', 'openStaffModal()') + it('변경 기록', 'openChangeLog()') + it('엑셀로 장부 넣기', 'openImportModal()') : '')
     + (ROLE !== 'owner' || (firebase.auth().currentUser && !/google/.test(((firebase.auth().currentUser.providerData || [])[0] || {}).providerId || '')) ? it('비밀번호 변경', 'changeMyPassword()') : '')
     + (isInstalledApp() ? '' : it('앱으로 설치', 'installApp()'))
     + it('로그아웃', 'logout()', 'out');
@@ -3276,18 +3311,37 @@ async function backupIfNeededInTx(tx, key, currentJSON) {
   } catch (e) { /* 백업 실패는 무시하고 진행 */ }
 }
 let pendingWriteCount = 0; // 지금 서버로 저장 중인 작업 개수 - 0보다 크면 화면을 벗어나려 할 때 경고함
+// 저장 상태 표시: 머리말 오른쪽에 작게 "저장 중… → ✓ 저장됨" (큰 검은 띠는 저장이 1.5초 넘게 걸릴 때만)
+let _saveFailedInBatch = false, _badgeTimer = null, _ssFadeTimer = null;
+function setSaveState(state) {
+  const el = document.getElementById('saveState'); if (!el) return;
+  clearTimeout(_ssFadeTimer);
+  const T = { saving: ['saving', '<i class="ss-dot"></i><span class="ss-t">저장 중</span>'], saved: ['saved', '✓<span class="ss-t"> 저장됨</span>'], idle: ['idle', '✓<span class="ss-t"> 저장됨</span>'],
+    fail: ['fail', '!<span class="ss-t"> 저장 안 됨</span>'], offline: ['offline', '<span class="ss-t">오프라인 · </span>저장 안 됨'] };
+  const [cls, html] = T[state] || ['', ''];
+  el.className = 'ss ' + cls; el.innerHTML = html;
+  el.title = state === 'fail' ? '마지막 저장이 실패했습니다. 인터넷 연결을 확인하고 다시 시도해 주세요' : state === 'offline' ? '인터넷이 끊겼습니다. 연결되면 다시 저장할 수 있습니다' : state === 'saving' ? '서버에 저장하는 중입니다' : '모든 변경 사항이 서버에 저장됐습니다';
+  if (state === 'saved') _ssFadeTimer = setTimeout(() => setSaveState('idle'), 2500);
+}
+function markSaveFailed() { _saveFailedInBatch = true; }
 function beginWrite() {
   pendingWriteCount++;
-  const badge = document.getElementById('savingBadge');
-  if (badge) badge.style.display = 'flex';
+  setSaveState('saving');
+  clearTimeout(_badgeTimer);
+  _badgeTimer = setTimeout(() => { if (pendingWriteCount > 0) { const badge = document.getElementById('savingBadge'); if (badge) badge.style.display = 'flex'; } }, 1500); // 느릴 때만 "나가지 마세요" 띠
 }
 function endWrite() {
   pendingWriteCount = Math.max(0, pendingWriteCount - 1);
   if (pendingWriteCount === 0) {
+    clearTimeout(_badgeTimer);
     const badge = document.getElementById('savingBadge');
     if (badge) badge.style.display = 'none';
+    setSaveState(_saveFailedInBatch ? 'fail' : (navigator.onLine === false ? 'offline' : 'saved'));
+    _saveFailedInBatch = false;
   }
 }
+window.addEventListener('offline', () => setSaveState('offline'));
+window.addEventListener('online', () => { const el = document.getElementById('saveState'); if (el && /offline/.test(el.className)) setSaveState(pendingWriteCount > 0 ? 'saving' : ''); });
 // 숫자 입력칸에 포커스된 상태로 마우스 휠(스크롤)을 돌리면 값이 실수로 바뀌는 걸 막음
 document.addEventListener('wheel', (e) => {
   if (document.activeElement && document.activeElement.tagName === 'INPUT' && document.activeElement.type === 'number') {
@@ -3333,6 +3387,7 @@ async function persistGuarded(docId, key, dataArray) {
     uiAlert(`⚠️ "${docId}" 데이터양이 저장 한도에 가까워지고 있습니다 (${Math.round(storedBytes / 1024)}KB / ${Math.round(FIRESTORE_DOC_LIMIT / 1024)}KB).\n계속 쌓이면 어느 순간 저장 자체가 안 될 수 있습니다.\n매출장부라면 "내보내기 및 정리" 기능으로 오래된 건들을 정리해 주세요.`);
   }
   const ref = shopCol('data').doc(docId);
+  const clPrev = lastSnapshotJSON[key]; // 변경 기록용: 저장 전 서버 값
   beginWrite();
   try {
     await db.runTransaction(async (tx) => {
@@ -3350,8 +3405,10 @@ async function persistGuarded(docId, key, dataArray) {
       tx.set(ref, { data: newJSON, rev: currentRev + 1, stamp: SCHEMA_STAMP });
     });
     lastSnapshotJSON[key] = newJSON;
+    clQueue(docId, clPrev, newJSON, dataArray);
     return true;
   } catch (e) {
+    markSaveFailed();
     if (e && e.message === 'STALE_WRITE') {
       (await uiAlert('⚠️ 다른 사람이 방금 같은 자료를 먼저 저장했습니다.\n지금 하신 작업은 저장되지 않았습니다 - 화면을 새로고침한 뒤 다시 시도해 주세요.'));
       location.reload();
@@ -3399,6 +3456,7 @@ async function persistSettings() {
   }
   const newJSON = packDoc(JSON.stringify(settings)); // 설정은 작아서 보통 압축 안 됨 (같은 규칙만 따름)
   const ref = shopCol('data').doc('settings');
+  const clPrev = lastSnapshotJSON.settings;
   beginWrite();
   try {
     await db.runTransaction(async (tx) => {
@@ -3415,8 +3473,10 @@ async function persistSettings() {
       tx.set(ref, { data: newJSON, rev: currentRev + 1, stamp: SCHEMA_STAMP });
     });
     lastSnapshotJSON.settings = newJSON;
+    clQueue('settings', clPrev, newJSON);
     return true;
   } catch (e) {
+    markSaveFailed();
     if (e && e.message === 'STALE_WRITE') {
       (await uiAlert('⚠️ 다른 사람이 방금 같은 설정을 먼저 저장했습니다.\n지금 하신 작업은 저장되지 않았습니다 - 화면을 새로고침한 뒤 다시 시도해 주세요.'));
       location.reload();
@@ -3529,7 +3589,7 @@ function supplierCodeLabel(sp) { return (sp && String(sp.codeLabel || '').trim()
 function curLabel(cur) { return CURRENCIES[cur] || cur || ''; }
 function fxRate(cur, rateOverride) { // 원으로 바꾸는 값 (1위안 = 190원 처럼). 위안은 예전부터 쓰던 settings.rate
   if (!cur || cur === 'KRW') return 1;
-  if (cur === 'CNY') return rateOverride ? rateOverride.rate : settings.rate;
+  if (cur === 'CNY') return rateOverride && rateOverride.rate != null ? rateOverride.rate : settings.rate;
   const ro = rateOverride && rateOverride.fx && rateOverride.fx[cur];
   return Number(ro != null ? ro : ((settings.fx || {})[cur] || 0)) || 0;
 }
@@ -3565,11 +3625,13 @@ function fabricBaseCost(c, rateOverride) {
   return c.price * fxRate(sp.currency || 'CNY', rateOverride) * factor + shp;
 }
 function costPriceText(c) { // 원가표에 "중국단가 12.5위안/m" 처럼 보여줄 글자
-  if (c.type === 'domestic') return `국내 ${Number(c.price).toLocaleString()}원/y`;
+  const cut = Number(c.priceCut) > 0 ? ` · 컷 ${Number(c.priceCut).toLocaleString()}` : '';
+  if (c.type === 'domestic') return `국내 ${Number(c.price).toLocaleString()}원/y${cut ? cut + '원' : ''}`;
   const sp = c.supplierId ? supplierById(c.supplierId) : null;
-  if (!sp) return `중국단가 ${c.price}위안/m`;
-  return `${sp.name} ${c.price}${curLabel(sp.currency)}/${sp.priceUnit === 'y' ? 'y' : 'm'}`;
+  if (!sp) return `중국단가 ${c.price}위안/m${cut ? cut + '위안' : ''}`;
+  return `${sp.name} ${c.price}${curLabel(sp.currency)}/${sp.priceUnit === 'y' ? 'y' : 'm'}${cut ? cut + curLabel(sp.currency) : ''}`;
 }
+function hasCutPrice(item) { if (!featureOn('cutPrice')) return false; const c = findCostFor(item); return !!(c && Number(c.priceCut) > 0); }
 
 // ── 가공 (기모·워싱·코팅 등) ──
 // 가공마다: 가공처, 단가 기준(야드당 / kg당), 단가, 로스율(가공하면서 줄어드는 %), 품목별 단가, 자동 적용 키워드, 단가 이력
@@ -3901,11 +3963,23 @@ function openFreightModal(batchId) {
   const sps = getSuppliers().filter(s => s.kind === 'overseas' || (s.currency && s.currency !== 'KRW'));
   if (!sps.length) { uiAlert('운임 정산은 해외 발주처 원단에만 씁니다.\n발주처 관리에서 해외 발주처를 먼저 등록해 주세요.'); return; }
   const b = batchId ? freightBatches().find(x => x.id === batchId) : null;
-  _fr = { spId: b ? b.supplierId : sps[0].id, dates: new Set(b ? b.dates : []), amount: b ? String(b.amount) : '', extra: b ? String(b.extra || '') : '', showExtra: !!(b && b.extra), lengthOverride: b && b.lengthOverride ? String(b.lengthOverride) : '', unit: 'y', editId: b ? b.id : null, note: b ? (b.note || '') : '' };
+  let lastMode = 'after', lastUnit = 'm'; try { lastMode = localStorage.getItem('frMode') || 'after'; lastUnit = localStorage.getItem('frUnit') || 'm'; } catch (e) {}
+  const tomorrow = (() => { const d = new Date(); d.setDate(d.getDate() + 1); return `${String(d.getFullYear()).slice(2)}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`; })();
+  _fr = { spId: b ? b.supplierId : sps[0].id, dates: new Set(b ? b.dates : []), amount: b ? String(b.amount) : '', extra: b ? String(b.extra || '') : '', showExtra: !!(b && b.extra), lengthOverride: b && b.lengthOverride ? String(b.lengthOverride) : '', unit: b ? (b.unit || 'y') : lastUnit, editId: b ? b.id : null, note: b ? (b.note || '') : '',
+    mode: b ? ((b.status === 'pending' && !(b.dates || []).length) ? 'before' : 'after') : (lastMode === 'before' ? 'before' : 'after'), expect: b && b.expectDate ? b.expectDate : tomorrow };
+  if (!b) frPreselectLatest();
   let ov = document.getElementById('freightModal');
   if (!ov) { ov = document.createElement('div'); ov.id = 'freightModal'; ov.className = 'sm-ov'; document.body.appendChild(ov); ov.addEventListener('mousedown', e => { if (e.target === ov) ov.remove(); }); }
   frRender();
 }
+function frGroupLocked(g, editB) { return ((g.usable.length > 0 && g.settled.length === g.usable.length) || (g.usable.length === 0 && g.batch)) && !(editB && g.batch && g.batch.id === editB.id); }
+function frPreselectLatest() { // 원단 들어온 뒤: 아직 정산 안 된 가장 최근 입고일을 미리 체크
+  _fr.dates = new Set();
+  const sp = supplierById(_fr.spId); if (!sp) return;
+  const g = freightDateGroups(sp).find(x => !frGroupLocked(x, null) && x.usable.some(r => !r.freightBatchId));
+  if (g) _fr.dates.add(g.date);
+}
+function frSetMode(m) { _fr.mode = m; try { localStorage.setItem('frMode', m); } catch (e) {} frRender(); }
 function frCalc() {
   const sp = supplierById(_fr.spId); if (!sp) return null;
   const groups = freightDateGroups(sp).filter(g => _fr.dates.has(g.date));
@@ -3918,12 +3992,12 @@ function frCalc() {
   }
   const autoLen = Math.round(groups.reduce((s, g) => s + g.lengthY, 0) * 100) / 100;
   const ov = parseFloat(_fr.lengthOverride);
-  const lengthY = ov > 0 ? (_fr.unit === 'm' ? Math.round(ov / (Number(settings.yard) || 0.9144) * 100) / 100 : ov) : autoLen;
+  const lengthY = ov > 0 ? (_fr.unit === 'm' ? Math.round(ov / (Number(settings.yard) || 0.9144) * 100) / 100 : ov) : (_fr.mode === 'before' ? 0 : autoLen);
   const total = (parseFloat(_fr.amount) || 0) + (parseFloat(_fr.extra) || 0);
   const perY = lengthY > 0 && total > 0 ? Math.round(total / lengthY * 100) / 100 : null;
   const goneY = groups.reduce((s, g) => s + ((g.batch && !(editB && g.batch.id === editB.id)) ? 0 : g.goneY), 0); // 이미 다른 정산에 들어간 입고일의 다 팔린 원단은 빼기
-  const canApply = perY != null && (rollsIn.length > 0 || goneY > 0);
-  return { sp, groups, rollsIn, skipManual, already, autoLen, lengthY, total, perY, est: supplierEstShip(sp), goneY, canApply };
+  const canApply = _fr.mode === 'before' ? (perY != null && !!_fr.expect) : (perY != null && (rollsIn.length > 0 || goneY > 0));
+  return { billLen: ov > 0, sp, groups, rollsIn, skipManual, already, autoLen, lengthY, total, perY, est: supplierEstShip(sp), goneY, canApply };
 }
 function frRender() {
   const ov = document.getElementById('freightModal'); if (!ov || !_fr) return;
@@ -3932,7 +4006,7 @@ function frRender() {
   const groups = freightDateGroups(sp).slice(0, 40);
   const editB = _fr.editId ? freightBatches().find(x => x.id === _fr.editId) : null;
   const rows = groups.map(g => {
-    const fully = ((g.usable.length > 0 && g.settled.length === g.usable.length) || (g.usable.length === 0 && g.batch)) && !(editB && g.batch && g.batch.id === editB.id);
+    const fully = frGroupLocked(g, editB);
     const on = _fr.dates.has(g.date);
     const tag = fully ? `<span style="color:#1e6b3d;font-weight:700;">정산됨 ${Math.round(g.batch ? g.batch.perY : 0).toLocaleString()}원/y</span>` : (g.settled.length ? `<span style="color:#9a5b00;">일부 정산됨</span>` : '<span style="color:#9a5b00;">정산 전</span>');
     return `<div class="rx-row ${on ? 'on' : ''}" ${fully ? 'style="opacity:.55;cursor:default;"' : `onclick="frToggle('${g.date}')"`}><span class="rx-box-ck">${on ? '✓' : ''}</span><div class="rx-txt"><b>${esc(String(g.date).slice(3))} 입고</b><small>${g.tangs ? `${g.tangs}탕` : '다 팔림'} · ${g.lengthY.toLocaleString()}y · ${tag}${g.manual.length ? ` · 탕 원가 직접 ${g.manual.length}개` : ''}</small></div></div>`;
@@ -3944,27 +4018,41 @@ function frRender() {
   const avg = hist.length ? Math.round(hist.reduce((s, b) => s + b.perY, 0) / hist.length) : null;
   ov.innerHTML = `<div class="sm-box rx-box">
     <div class="rx-top"><h3>${editB ? '운임 정산 수정' : '운임 정산'}</h3><button type="button" class="rx-close" onclick="document.getElementById('freightModal').remove()">✕</button></div>
-    <div class="rx-help">운임 청구서가 오면, 그 배로 들어온 원단의 예상 운임(${Math.round(supplierEstShip(sp)).toLocaleString()}원/y)을 실제 운임으로 바꿉니다. 거래처 미수금에는 영향이 없고 원가·순이익만 정확해집니다.</div>
-    ${sps.length > 1 && !editB ? `<label class="rx-l">발주처</label><select class="rx-in" onchange="_fr.spId=this.value; _fr.dates=new Set(); frRender()">${sps.map(s => `<option value="${esc(s.id)}" ${s.id === sp.id ? 'selected' : ''}>${esc(s.name)}</option>`).join('')}</select>` : ''}
-    <div class="rx-l" style="margin-top:12px;">이 운임에 해당하는 입고일 (나눠 들어왔으면 여러 개)</div>
-    <div class="rx-list">${rows || '<div class="rx-empty">최근 120일 안에 이 발주처 원단 입고 기록이 없습니다</div>'}</div>
+    <div class="rx-help">운임 청구서의 실제 운임으로 그 배 원단의 예상 운임(${Math.round(supplierEstShip(sp)).toLocaleString()}원/y)을 바꿉니다. 거래처 미수금에는 영향이 없고 원가·순이익만 정확해집니다.</div>
+    ${editB ? '' : `<div class="rx-types" style="margin-bottom:6px;"><button type="button" class="rx-type ${_fr.mode === 'before' ? 'on' : ''}" onclick="frSetMode('before')">원단 오기 전 (미리 등록)</button><button type="button" class="rx-type ${_fr.mode === 'after' ? 'on' : ''}" onclick="frSetMode('after')">원단 들어온 뒤</button></div>`}
+    ${sps.length > 1 && !editB ? `<label class="rx-l">발주처</label><select class="rx-in" onchange="_fr.spId=this.value; frPreselectLatest(); frRender()">${sps.map(s => `<option value="${esc(s.id)}" ${s.id === sp.id ? 'selected' : ''}>${esc(s.name)}</option>`).join('')}</select>` : ''}
+    ${_fr.mode === 'before' ? `<div class="rx-note" style="margin:8px 0 0;">청구서를 지금 등록해 두면, 도착 예정일 이후 처음 입고하는 이 발주처 원단에 자동으로 붙습니다.</div>
+    <label class="rx-l">도착 예정일</label><input class="rx-in" type="date" value="${esc(toDateInputValue(_fr.expect))}" onchange="_fr.expect=fromDateInputValue(this.value); frSummary()">` : `<div class="rx-l" style="margin-top:12px;">이 운임에 해당하는 입고일 (나눠 들어왔으면 여러 개)</div>
+    <div class="rx-list">${rows || '<div class="rx-empty">최근 120일 안에 이 발주처 원단 입고 기록이 없습니다</div>'}</div>`}
     <label class="rx-l">해상운임 (원)</label><input class="rx-in" type="number" inputmode="numeric" placeholder="예: 1750000" value="${esc(_fr.amount)}" oninput="_fr.amount=this.value; frSummary()">
+    <label class="rx-l">청구서 길이 (샘플 포함)${_fr.mode === 'before' ? '' : ' · 비우면 입고 기록으로'}</label>
+    <div style="display:flex;gap:6px;"><input class="rx-in" type="number" placeholder="${_fr.mode === 'before' ? '예: 5000' : (r && r.autoLen ? r.autoLen.toLocaleString() + ' (입고 기록, 야드)' : '입고 기록')}" value="${esc(_fr.lengthOverride)}" oninput="_fr.lengthOverride=this.value; frSummary()"><select class="rx-in" style="width:90px;flex:none;" onchange="_fr.unit=this.value; try{localStorage.setItem('frUnit',this.value)}catch(e){}; frSummary()"><option value="y" ${_fr.unit === 'y' ? 'selected' : ''}>야드</option><option value="m" ${_fr.unit === 'm' ? 'selected' : ''}>미터</option></select></div>
     ${_fr.showExtra ? `<label class="rx-l">통관비·기타 비용 (원)</label><input class="rx-in" type="number" inputmode="numeric" placeholder="예: 120000" value="${esc(_fr.extra)}" oninput="_fr.extra=this.value; frSummary()">` : `<button type="button" class="rx-link" onclick="_fr.showExtra=true; frRender()">+ 통관비·기타 비용</button>`}
-    <label class="rx-l">길이 (비우면 입고 기록으로 자동 · 청구서 길이를 알면 적기)</label>
-    <div style="display:flex;gap:6px;"><input class="rx-in" type="number" placeholder="${r && r.autoLen ? r.autoLen.toLocaleString() + ' (자동)' : '자동'}" value="${esc(_fr.lengthOverride)}" oninput="_fr.lengthOverride=this.value; frSummary()"><select class="rx-in" style="width:90px;flex:none;" onchange="_fr.unit=this.value; frSummary()"><option value="y" ${_fr.unit === 'y' ? 'selected' : ''}>야드</option><option value="m" ${_fr.unit === 'm' ? 'selected' : ''}>미터</option></select></div>
     <label class="rx-l">메모 (선택)</label><input class="rx-in" placeholder="예: 11월 2차 컨테이너, B/L 번호" value="${esc(_fr.note)}" oninput="_fr.note=this.value">
     <div class="rx-sum" id="fr-sum">${sum}</div>
-    <div class="rx-acts">${editB ? `<button type="button" class="ui-btn ui-btn-sub" onclick="frUndo('${editB.id}')">정산 취소</button>` : '<button type="button" class="ui-btn ui-btn-sub" onclick="document.getElementById(\'freightModal\').remove()">닫기</button>'}<button type="button" class="ui-btn ui-btn-main" id="fr-save" onclick="frApply()" ${r && r.canApply ? '' : 'disabled'}>${editB ? '수정 적용' : '운임 정산 적용'}</button></div>
-    ${hist.length ? `<div class="rx-l" style="margin-top:16px;">최근 정산</div>${hist.map(b => `<div class="sm-row"><div class="nm">${esc(b.dates.map(d => String(d).slice(3)).join(', '))} 입고 <small>${esc(String(b.at).slice(3))} 정산 · ${Number(b.amount + (b.extra || 0)).toLocaleString()}원 · ${Math.round(b.lengthY).toLocaleString()}y → <b>${Math.round(b.perY).toLocaleString()}원/y</b>${b.note ? ` · ${esc(b.note)}` : ''}</small></div><button class="sm-btn gray" onclick="openFreightModal('${b.id}')">수정</button></div>`).join('')}
+    <div class="rx-acts">${editB ? `<button type="button" class="ui-btn ui-btn-sub" onclick="frUndo('${editB.id}')">정산 취소</button>` : '<button type="button" class="ui-btn ui-btn-sub" onclick="document.getElementById(\'freightModal\').remove()">닫기</button>'}<button type="button" class="ui-btn ui-btn-main" id="fr-save" onclick="${_fr.mode === 'before' ? 'frSavePending()' : 'frApply()'}" ${r && r.canApply ? '' : 'disabled'}>${editB ? '수정 적용' : (_fr.mode === 'before' ? '미리 등록' : '운임 정산 적용')}</button></div>
+    ${hist.length ? `<div class="rx-l" style="margin-top:16px;">최근 정산</div>${hist.map(b => `<div class="sm-row"><div class="nm">${(b.dates || []).length ? `${esc(b.dates.map(d => String(d).slice(3)).join(', '))} 입고` : `<span style="color:#9a5b00;">도착 대기</span> · ${esc(String(b.expectDate || '').slice(3))} 이후 첫 입고`} <small>${esc(String(b.at).slice(3))} ${(b.dates || []).length ? '정산' : '등록'} · ${Number(b.amount + (b.extra || 0)).toLocaleString()}원 · ${Math.round(b.lengthY).toLocaleString()}y → <b>${Math.round(b.perY).toLocaleString()}원/y</b>${b.note ? ` · ${esc(b.note)}` : ''}</small></div><button class="sm-btn gray" onclick="openFreightModal('${b.id}')">수정</button></div>`).join('')}
       <div class="rx-note" style="margin-left:0;margin-top:6px;">최근 ${hist.length}번 평균 <b>${avg.toLocaleString()}원/y</b> · 지금 예상 운임 ${Math.round(supplierEstShip(sp)).toLocaleString()}원 <a href="#" onclick="event.preventDefault(); frSetEstimate('${sp.id}', ${avg})" style="color:var(--primary);font-weight:700;">예상 운임을 ${avg.toLocaleString()}원으로</a></div>` : ''}
   </div>`;
 }
 function frSumHtml(r) {
   let sum = '';
+  if (r && _fr.mode === 'before') {
+    if (!r.billLen) return '<small>청구서의 금액과 길이를 넣어 주세요</small>';
+    sum += `<div>청구서 길이 <b>${r.lengthY.toLocaleString()}y</b> (${Math.round(r.lengthY * (Number(settings.yard) || 0.9144)).toLocaleString()}m)</div>`;
+    if (r.perY != null) { const diff = Math.round(r.perY - r.est); sum += `<div style="margin-top:4px;">야드당 <b style="color:var(--primary-dark);">${Math.round(r.perY).toLocaleString()}원</b> <small>(예상 ${Math.round(r.est).toLocaleString()}원 ${diff >= 0 ? '+' : ''}${diff.toLocaleString()}원)</small></div><div class="rx-note" style="margin:4px 0 0;">${esc(String(_fr.expect || '').slice(3))} 이후 처음 입고하는 이 발주처 원단에 자동으로 붙습니다</div>`; }
+    if (r.perY != null && r.est > 0 && (r.perY > r.est * 2 || r.perY < r.est * 0.5)) sum += `<div class="rx-err">예상 운임과 차이가 큽니다. 길이 단위(미터·야드)가 맞는지 확인해 주세요</div>`;
+    return sum;
+  }
   if (r && r.groups.length) {
     sum += `<div>고른 원단 <b>${r.rollsIn.length}탕</b>${r.goneY ? ` + 다 팔린 ${Math.round(r.goneY).toLocaleString()}y` : ''} · 길이 <b>${r.lengthY.toLocaleString()}y</b> (${Math.round(r.lengthY * (Number(settings.yard) || 0.9144)).toLocaleString()}m)</div>`;
     if (r.perY != null) { const diff = Math.round(r.perY - r.est); sum += `<div style="margin-top:4px;">야드당 <b class="minus" style="color:var(--primary-dark);">${Math.round(r.perY).toLocaleString()}원</b> <small>(예상 ${Math.round(r.est).toLocaleString()}원 ${diff >= 0 ? '+' : ''}${diff.toLocaleString()}원)</small></div>`; }
     if (r.perY != null && r.est > 0 && (r.perY > r.est * 2 || r.perY < r.est * 0.5)) sum += `<div class="rx-err">예상 운임과 차이가 큽니다. 고른 입고일과 길이(청구서의 미터·야드)가 맞는지 확인해 주세요</div>`;
+    if (r.billLen && r.autoLen > 0) {
+      const d = Math.round((r.lengthY - r.autoLen) * 10) / 10;
+      if (d > Math.max(1, r.autoLen * 0.01)) sum += `<div class="rx-inv">입고 기록보다 ${d.toLocaleString()}y 깁니다 (입고 안 한 샘플 등). 그 몫은 원단 원가에 안 붙습니다</div>`;
+      else if (r.lengthY < r.autoLen * 0.95) sum += `<div class="rx-err">청구서 길이가 입고 기록보다 짧습니다. 입고일을 더 고른 건 아닌지 확인해 주세요</div>`;
+    }
     if (r.skipManual.length) sum += `<div class="rx-inv">탕 원가를 직접 넣은 ${r.skipManual.length}탕은 건너뜁니다 (이미 운임까지 넣었을 수 있어서)</div>`;
     if (r.already.length) sum += `<div class="rx-inv">이미 다른 정산에 들어간 ${r.already.length}탕은 빠집니다</div>`;
   } else sum = '<small>운임이 해당하는 입고일을 고르세요</small>';
@@ -4006,7 +4094,7 @@ async function frApply() {
     for (const h of hits) { for (const b of h.bs) { b.freightPerY = r.perY; b.freightBatchId = id; } }
     for (const h of recalcable) frRecalcEntry(h.e);
   }
-  const batch = { id, at: editB ? editB.at : todayStr(), editedAt: editB ? todayStr() : undefined, supplierId: r.sp.id, dates: [...dateSet].sort(), amount: parseFloat(_fr.amount) || 0, extra: parseFloat(_fr.extra) || 0, lengthY: r.lengthY, lengthOverride: parseFloat(_fr.lengthOverride) > 0 ? parseFloat(_fr.lengthOverride) : null, unit: _fr.unit, perY: r.perY, rollIds: [...rollIdSet], estAtTime: r.est, note: _fr.note || '' };
+  const batch = { ...(editB && editB.status === 'pending' ? { status: 'pending', expectDate: editB.expectDate } : {}), id, at: editB ? editB.at : todayStr(), editedAt: editB ? todayStr() : undefined, supplierId: r.sp.id, dates: [...dateSet].sort(), amount: parseFloat(_fr.amount) || 0, extra: parseFloat(_fr.extra) || 0, lengthY: r.lengthY, lengthOverride: parseFloat(_fr.lengthOverride) > 0 ? parseFloat(_fr.lengthOverride) : null, unit: _fr.unit, perY: r.perY, rollIds: [...rollIdSet], estAtTime: r.est, note: _fr.note || '' };
   settings = { ...settings, freightBatches: [batch].concat(freightBatches().filter(b => b.id !== id)).slice(0, 200) };
   let ok = await persistRolls() !== false;
   if (ok && recalc && hits.length) ok = await persistShipmentLog() !== false;
@@ -4040,6 +4128,343 @@ async function frSetEstimate(spId, val) {
   if (!own && sp.currency === 'CNY') settings = { ...settings, ship: val }; // 운임 칸을 비워둔 위안 발주처 = 환율 화면의 운임을 씀
   else settings = { ...settings, suppliers: getSuppliers().map(s => s.id === spId ? { ...s, ship: val } : s) };
   await persistSettings(); updateRateBar(); frRender(); render(); showToast(`예상 운임을 ${val.toLocaleString()}원으로 바꿨습니다`);
+}
+
+
+async function frSavePending() {
+  const r = frCalc(); if (!r || !r.canApply || _fr.mode !== 'before') return;
+  const editB = _fr.editId ? freightBatches().find(x => x.id === _fr.editId) : null;
+  const id = editB ? editB.id : 'fr' + Date.now().toString(36);
+  const batch = { id, status: 'pending', expectDate: _fr.expect, at: editB ? editB.at : todayStr(), editedAt: editB ? todayStr() : undefined, supplierId: r.sp.id, dates: [], amount: parseFloat(_fr.amount) || 0, extra: parseFloat(_fr.extra) || 0, lengthY: r.lengthY, lengthOverride: parseFloat(_fr.lengthOverride), unit: _fr.unit, perY: r.perY, rollIds: [], estAtTime: r.est, note: _fr.note || '' };
+  const before = settings.freightBatches;
+  settings = { ...settings, freightBatches: [batch].concat(freightBatches().filter(b => b.id !== id)).slice(0, 200) };
+  if (await persistSettings() === false) { settings = { ...settings, freightBatches: before }; showToast('저장하지 못했습니다'); return; }
+  const ov = document.getElementById('freightModal'); if (ov) ov.remove();
+  render(); showToast(`운임 미리 등록 · 야드당 ${Math.round(r.perY).toLocaleString()}원 · ${String(_fr.expect).slice(3)} 이후 입고 때 자동으로 붙습니다`);
+}
+// 입고할 때: 미리 등록된 운임이 있으면 그 발주처 원단에 붙임 (불량·탕 원가 직접 넣은 원단은 빼고)
+function frPendingFor(item, inDate) {
+  const list = freightBatches().filter(b => b.status === 'pending');
+  if (!list.length || !inDate) return null;
+  const c = list.filter(b => {
+    const sp = supplierById(b.supplierId); if (!sp || !itemBelongsToSupplier(item, sp)) return false;
+    return (b.dates || []).length ? b.dates.includes(inDate) : String(inDate) >= String(b.expectDate || '');
+  });
+  c.sort((a, b) => ((a.dates || []).length ? 0 : 1) - ((b.dates || []).length ? 0 : 1) || String(a.expectDate || '').localeCompare(String(b.expectDate || '')));
+  return c[0] || null;
+}
+function frAttachOnIntake(roll) {
+  if (!roll || roll.defective || roll.costPerY != null || roll.freightBatchId) return null;
+  const b = frPendingFor(roll.item, roll.inDate); if (!b) return null;
+  roll.freightPerY = b.perY; roll.freightBatchId = b.id; return b;
+}
+async function frCommitIntake(pairs) {
+  if (!pairs.length) return null;
+  const add = new Map();
+  for (const [r, b] of pairs) { if (!add.has(b.id)) add.set(b.id, { dates: new Set(), ids: [] }); add.get(b.id).dates.add(r.inDate); add.get(b.id).ids.push(r.id); }
+  settings = { ...settings, freightBatches: freightBatches().map(b => { const a = add.get(b.id); if (!a) return b; return { ...b, dates: [...new Set([...(b.dates || []), ...a.dates])].sort(), rollIds: [...(b.rollIds || []), ...a.ids] }; }) };
+  await persistSettings();
+  const b0 = pairs[0][1];
+  return `운임 ${Math.round(b0.perY).toLocaleString()}원/y를 ${pairs.length}탕에 붙였습니다`;
+}
+// ===== 쓰는 기능 (켜기/끄기) =====
+// 큰 재고 프로그램들처럼: 처음엔 기본 기능만, 필요한 가게만 고급 기능을 켬. 끄면 화면에서 숨기기만 하고 이미 넣은 값은 계산에 그대로 씀
+const FEATURES = [
+  { k: 'overseas', name: '해외 원단 (환율·발주처 통화)', desc: '중국 등 해외에서 원단을 받을 때. 원가를 외화 단가 × 환율로 계산합니다' },
+  { k: 'freight', name: '운임 정산', desc: '해상운임 청구서가 오면 그 배 원단의 운임을 실제 금액으로 바꿉니다', need: 'overseas' },
+  { k: 'cutPrice', name: '절·컷 단가', desc: '같은 품번이라도 컷으로 사면 단가가 다를 때. 발주·입고에서 절/컷을 고릅니다' },
+  { k: 'process', name: '가공비 (기모·워싱 등)', desc: '가공처·단가·로스율을 관리하고 컬러별로 가공비를 원가에 더합니다' }
+];
+function featureOn(k) {
+  const f = settings.features || {};
+  if (typeof f[k] === 'boolean') { if (k === 'freight' && f[k]) return featureOn('overseas'); return f[k]; }
+  // 설정한 적 없으면: 이미 쓰고 있는 기능은 켜진 것으로 (기존 가게 화면이 갑자기 바뀌지 않게)
+  if (k === 'overseas') return getSuppliers().some(s => s.kind === 'overseas' || (s.currency && s.currency !== 'KRW')) || costs.some(c => !c.color && c.type !== 'domestic');
+  if (k === 'freight') return featureOn('overseas');
+  if (k === 'cutPrice') return costs.some(c => Number(c.priceCut) > 0);
+  if (k === 'process') return getProcesses().length > 0 || costs.some(c => Number(c.weight) > 0);
+  return false;
+}
+function costModalFeatureChrome(c) {
+  const ovs = featureOn('overseas') || (c && c.type !== 'domestic');
+  document.getElementById('c-type-wrap').style.display = ovs ? '' : 'none';
+  const proc = featureOn('process') || (c && Number(c.weight) > 0);
+  document.getElementById('c-weight-wrap').style.display = proc ? '' : 'none';
+  document.getElementById('c-more-w').style.display = proc ? '' : 'none';
+  toggleCostMore(!!(c && (c.mix || Number(c.weight) > 0)));
+}
+function toggleCostMore(open) {
+  document.getElementById('c-more').style.display = open ? '' : 'none';
+  document.getElementById('c-more-btn').style.display = open ? 'none' : '';
+}
+function openFeatureModal() {
+  if (!isOwner()) { showToast('기능 설정은 사장님만 바꿀 수 있습니다'); return; }
+  let ov = document.getElementById('featureModal');
+  if (!ov) { ov = document.createElement('div'); ov.id = 'featureModal'; ov.className = 'sm-ov'; document.body.appendChild(ov); ov.addEventListener('mousedown', e => { if (e.target === ov) ov.remove(); }); }
+  const rows = FEATURES.map(f => {
+    const on = featureOn(f.k); const blocked = f.need && !featureOn(f.need);
+    return `<label class="ft-row${blocked ? ' off' : ''}"><div><b>${esc(f.name)}</b><small>${esc(f.desc)}${blocked ? ' (해외 원단을 먼저 켜 주세요)' : ''}</small></div><input type="checkbox" class="ft-sw" ${on ? 'checked' : ''} ${blocked ? 'disabled' : ''} onchange="setFeature('${f.k}', this.checked)"></label>`;
+  }).join('');
+  ov.innerHTML = `<div class="sm-box rx-box"><div class="rx-top"><h3>기능 설정</h3><button type="button" class="rx-close" onclick="document.getElementById('featureModal').remove()">✕</button></div>
+    <div class="rx-help">필요한 기능만 사용하면 화면이 단순해집니다. 기능을 꺼도 입력된 값은 삭제되지 않으며 원가 계산에 그대로 반영됩니다.</div>${rows}
+    <div class="rx-acts"><button type="button" class="ui-btn ui-btn-main" onclick="document.getElementById('featureModal').remove()">닫기</button></div></div>`;
+}
+async function setFeature(k, on) {
+  const f = {}; for (const x of FEATURES) f[x.k] = featureOn(x.k); // 지금 보이는 상태를 그대로 고정한 뒤 하나만 바꿈
+  f[k] = !!on; if (k === 'overseas' && !on) f.freight = false;
+  const before = settings.features;
+  settings = { ...settings, features: f };
+  if (await persistSettings() === false) { settings = { ...settings, features: before }; showToast('저장하지 못했습니다'); }
+  else showToast(`${FEATURES.find(x => x.k === k).name} ${on ? '켰습니다' : '껐습니다'}`);
+  openFeatureModal(); render();
+}
+// 처음 가입한 가게: 질문 두 개로 필요한 기능만 켬
+let _onboardShown = false;
+function maybeOnboard() {
+  if (_onboardShown || !isOwner() || (settings.features && typeof settings.features === 'object')) return;
+  if (useFirebase && !(shipmentLogFirstLoadDone && costsFirstLoadDone && settingsFirstLoadDone && rollsFirstLoadDone)) return;
+  if (rolls.length || costs.length || shipmentLog.length || chinaOrders.length) return; // 이미 쓰던 가게는 묻지 않음
+  _onboardShown = true;
+  let ov = document.getElementById('onboardModal');
+  if (!ov) { ov = document.createElement('div'); ov.id = 'onboardModal'; ov.className = 'sm-ov'; document.body.appendChild(ov); }
+  window._ob = { overseas: null, process: null };
+  const q = (key, title, note, a, b) => `<div class="rx-l" style="margin-top:16px;">${title}</div><div class="rx-types"><button type="button" class="rx-type" data-k="${key}" data-v="0" onclick="obPick(this)">${a}</button><button type="button" class="rx-type" data-k="${key}" data-v="1" onclick="obPick(this)">${b}</button></div><div class="rx-note" style="margin:6px 0 0;">${note}</div>`;
+  ov.innerHTML = `<div class="sm-box rx-box"><div class="rx-top"><h3>초기 설정</h3></div>
+    <div class="rx-help">거래 방식에 맞춰 필요한 기능만 사용하도록 설정합니다. 설정은 계정 메뉴의 「기능 설정」에서 언제든 변경할 수 있습니다.</div>
+    ${q('overseas', '원단 매입', '해외 수입을 포함하면 환율·발주처 통화·운임 정산 기능을 사용합니다.', '국내 매입', '해외 수입 포함')}
+    ${q('process', '후가공 (기모·워싱 등)', '외주 가공을 선택하면 가공비·로스율 관리 기능을 사용합니다.', '사용 안 함', '외주 가공')}
+    <div class="rx-acts"><button type="button" class="ui-btn ui-btn-sub" onclick="obSkip()">나중에</button><button type="button" class="ui-btn ui-btn-main" id="ob-go" disabled onclick="obSave()">설정 완료</button></div></div>`;
+}
+function obPick(btn) {
+  window._ob[btn.dataset.k] = btn.dataset.v === '1';
+  btn.parentElement.querySelectorAll('.rx-type').forEach(b => b.classList.toggle('on', b === btn));
+  document.getElementById('ob-go').disabled = window._ob.overseas == null || window._ob.process == null;
+}
+function obSkip() { // 나중에: 이번 접속 동안만 닫음 (설정 안 했으니 다음에 열면 다시 물어봄). 기능은 쓰는 만큼 자동으로 켜짐
+  const ov = document.getElementById('onboardModal'); if (ov) ov.remove();
+  showToast('계정 메뉴의 「기능 설정」에서 언제든 설정할 수 있습니다');
+}
+async function obSave() {
+  const o = window._ob; const before = settings.features;
+  settings = { ...settings, features: { overseas: o.overseas, freight: o.overseas, cutPrice: false, process: o.process } };
+  if (await persistSettings() === false) { settings = { ...settings, features: before }; showToast('저장하지 못했습니다. 다시 눌러 주세요'); return; }
+  const ov = document.getElementById('onboardModal'); if (ov) ov.remove();
+  render();
+  if (o.overseas) { await uiAlert('해외 발주처 등록\n발주처별 통화(위안·달러 등)와 단가 기준(미터·야드)을 등록하면 원가가 자동으로 계산됩니다.', { ok: '발주처 등록' }); openSupplierModal(); }
+  else showToast('초기 설정 완료 · 재고 탭 「+ 입고」에서 시작해 주세요');
+}
+
+// ===== 단가로 원가 계산 (원가표와 똑같은 계산을 계산기들이 같이 씀) =====
+// spVal: 발주처 id · '' = 예전 방식(위안×환율×야드+운임) · '__dom' = 국내(원/y 그대로)
+function unitCalcOptions(selVal) {
+  const sps = getSuppliers().filter(s => s.kind === 'overseas' || (s.currency && s.currency !== 'KRW'));
+  const opts = sps.map(s => `<option value="${esc(s.id)}" ${s.id === selVal ? 'selected' : ''}>${esc(s.name)} (${curLabel(s.currency)}/${s.priceUnit === 'y' ? '야드' : '미터'})</option>`);
+  if (!sps.length && featureOn('overseas')) opts.push(`<option value="" ${selVal === '' ? 'selected' : ''}>해외 (위안/미터)</option>`);
+  opts.push(`<option value="__dom" ${selVal === '__dom' ? 'selected' : ''}>국내 (원/야드)</option>`);
+  return opts.join('');
+}
+function unitCalcDefault(item) {
+  const c = item ? findCostFor(item) : null;
+  if (c) return c.type === 'domestic' ? '__dom' : (c.supplierId && supplierById(c.supplierId) ? c.supplierId : (getSuppliers().find(s => s.currency === 'CNY') || {}).id || '');
+  const sp = getSuppliers().find(s => s.kind === 'overseas' || (s.currency && s.currency !== 'KRW'));
+  return sp ? sp.id : (featureOn('overseas') ? '' : '__dom');
+}
+function unitCalcLabel(spVal) {
+  if (spVal === '__dom') return '국내 단가 (원/y)';
+  const sp = supplierById(spVal);
+  if (!sp) return '중국단가 (위안/미터)';
+  return `${sp.name} 단가 (${curLabel(sp.currency)}/${sp.priceUnit === 'y' ? '야드' : '미터'})`;
+}
+function unitPriceToCost(spVal, price, rateOverride) {
+  if (!(price > 0)) return null;
+  if (spVal === '__dom') return price;
+  return fabricBaseCost({ type: 'import', price, ...(spVal ? { supplierId: spVal } : {}) }, rateOverride);
+}
+function unitCalcDetail(spVal, rateOverride) {
+  if (spVal === '__dom') return '국내 단가 그대로';
+  const sp = supplierById(spVal); const ro = rateOverride || {};
+  const cur = sp ? sp.currency : 'CNY';
+  const rate = fxRate(cur, rateOverride);
+  const yard = ro.yard != null ? ro.yard : settings.yard;
+  const ship = sp && sp.ship != null && sp.ship !== '' ? Number(sp.ship) : (cur === 'CNY' ? (ro.ship != null ? ro.ship : settings.ship) : 0);
+  return `환율 ${Number(rate).toLocaleString()}원/${curLabel(cur)}${!sp || sp.priceUnit !== 'y' ? ` · 야드환산 ${yard}` : ''}${ship ? ` · 운임 ${Number(ship).toLocaleString()}원` : ''}`;
+}
+
+// ===== 변경 기록 (누가 언제 무엇을) =====
+// 저장이 끝날 때마다 "저장 전 ↔ 저장 후"를 비교해서 사람이 읽을 수 있는 줄로 남김. 한 번의 작업에서 여러 장부가 저장되면 4초 안의 것을 한 묶음으로
+// 서버 규칙: 그 가게 사람은 "추가"만 가능, 고치거나 지울 수 없음 · 보는 건 사장만
+const CL_DOC_LABEL = { rolls: '재고', costs: '원가표', orders: '이월장부', chinaOrders: '발주', chinaProductMap: '품번 연결', swatchInfo: '스왓치', shipmentLog: '매출·수금', priceBook: '단가장부', depositMemos: '선입금 메모', customerNotes: '거래처 메모', customerList: '거래처', expenses: '지출', settings: '설정' };
+const CL_IGNORE = new Set(['fcost', 'fcostEst', '_cost', '_profit', '_margin', 'rateSnapshot', 'deductBreakdown', 'invDeductedAmount', 'remainAfter', 'linkGroupId', 'feeRegId', 'yardsEstimated', 'isFlatTotal', 'stamp']);
+const CL_FIELD = { qty: '마수', price: '단가', priceCut: '컷 단가', costPerY: '원가', saleAmount: '금액', unitPrice: '단가', yardsShipped: '야드', amount: '수량', customer: '거래처', item: '품번', color: '컬러', tang: '탕', defective: '불량', status: '상태', date: '날짜', note: '비고', discount: '공제', extraAmount: '추가금', orderQty: '주문 수량', received: '받은 수량', done: '완료', supplierId: '발주처', type: '구분', weight: '중량', mix: '혼용률', form: '절·컷', manualCostPerY: '직접 원가', taxIncluded: '부가세', arrivalDate: '도착일' };
+let _clQueue = [], _clTimer = null;
+function clWon(n) { return `${Math.round(Number(n) || 0).toLocaleString()}원`; }
+function clName(r) { return [r.customer, r.item, r.color].filter(x => x != null && String(x).trim() !== '').join(' · ') || (r.name || r.keyword || ''); }
+function clPaid(e) { return (Array.isArray(e.payments) ? e.payments.reduce((s, p) => s + (Number(p.amount) || 0), 0) : 0) + (Number(e.paidAmount) || 0); }
+function clSaleKind(e) { return e.isReturn ? '반품' : e.isDefect ? '불량' : e.isFee ? '추가금' : e.isSample ? '샘플 출고' : (e.item === '이월 미수금' ? '이월 미수금' : '매출'); }
+function clSaleText(e) { return e.isReturn || e.isDefect ? `${clName(e)}${e.yardsShipped ? ' ' + e.yardsShipped + 'y' : ''}${e.deductAmount ? ' −' + clWon(e.deductAmount) : ''}` : `${clName(e)}${e.yardsShipped && e.item !== '이월 미수금' ? ' ' + e.yardsShipped + 'y' : ''}${e.saleAmount != null ? ' ' + clWon(e.saleAmount) : ''}`; }
+function clFmt(k, v) { if (v == null || v === '') return '없음'; if (typeof v === 'boolean') return v ? '예' : '아니요'; if (k === 'supplierId') { const s = supplierById(v); return s ? s.name : v; } if (typeof v === 'number' && /Amount|amount|discount/.test(k)) return clWon(v); if (typeof v === 'object') return '…'; return String(v).slice(0, 30); }
+function clKeyOf(r) { return (r && typeof r === 'object' && r.id != null) ? 'i' + r.id : 'j' + JSON.stringify(r); }
+function clStrMap(arr) { const m = new Map(); for (const r of arr) m.set(clKeyOf(r), JSON.stringify(r)); return m; }
+function clCompareMaps(bm, am) { // 글자로 비교하고, 바뀐 것만 다시 객체로 (큰 매출장부도 빠르게)
+  const added = [], removed = [], changed = [];
+  for (const [k, sv] of am) { const ov = bm.get(k); if (ov === undefined) added.push(JSON.parse(sv)); else if (ov !== sv) changed.push([JSON.parse(ov), JSON.parse(sv)]); }
+  for (const [k, ov] of bm) if (!am.has(k)) removed.push(JSON.parse(ov));
+  return { added, removed, changed };
+}
+function clDiffRows(docId, before, after) { const d = clCompareMaps(clStrMap(before), clStrMap(after)); return clDescribe(docId, d.added, d.removed, d.changed); }
+function clDescribe(docId, added, removed, changed) {
+  const lines = [];
+  if (docId === 'shipmentLog') {
+    for (const e of added) lines.push(`${clSaleKind(e)} 등록 · ${clSaleText(e)}`);
+    for (const e of removed) lines.push(`${clSaleKind(e)} 삭제 · ${clSaleText(e)}`);
+    for (const [o, e] of changed) {
+      const bits = [];
+      const dp = clPaid(e) - clPaid(o); if (Math.abs(dp) >= 1) bits.push(dp > 0 ? `입금 +${clWon(dp)}` : `입금 취소 −${clWon(-dp)}`);
+      for (const k of new Set([...Object.keys(o), ...Object.keys(e)])) {
+        if (CL_IGNORE.has(k) || k === 'payments' || k === 'paidAmount' || k === 'supplyAmount' || k === 'taxAmount') continue;
+        if (JSON.stringify(o[k]) === JSON.stringify(e[k])) continue;
+        if (k === 'discountReason' || k === 'discountDate' || k === 'extraReason' || k === 'defectNote') continue;
+        bits.push(`${CL_FIELD[k] || k} ${clFmt(k, o[k])} → ${clFmt(k, e[k])}`);
+      }
+      if (bits.length) lines.push(`${clName(e)} · ${bits.join(' · ')}`);
+    }
+    return lines;
+  }
+  if (docId === 'rolls') { // 입고는 품번·컬러별로 묶어서
+    const grp = (arr) => { const m = new Map(); for (const r of arr) { const k = `${r.item} · ${r.color}`; const g = m.get(k) || { n: 0, y: 0 }; g.n++; g.y += Number(r.qty) || 0; m.set(k, g); } return m; };
+    for (const [k, g] of grp(added.filter(r => Number(r.qty) > 0))) lines.push(`입고 · ${k} ${g.n}탕 ${Math.round(g.y * 10) / 10}y`);
+    for (const [k, g] of grp(removed.filter(r => Number(r.qty) > 0))) lines.push(`재고 삭제 · ${k} ${g.n}탕 ${Math.round(g.y * 10) / 10}y`);
+    let qtyOnly = 0;
+    for (const [o, r] of changed) {
+      const bits = [];
+      for (const k of new Set([...Object.keys(o), ...Object.keys(r)])) {
+        if (CL_IGNORE.has(k) || ['freightPerY', 'freightBatchId', 'inQty', 'cat', 'rollNote', 'defectReason'].includes(k)) continue;
+        if (JSON.stringify(o[k]) === JSON.stringify(r[k])) continue;
+        bits.push(k === 'qty' ? `마수 ${o.qty}y → ${r.qty}y` : `${CL_FIELD[k] || k} ${clFmt(k, o[k])} → ${clFmt(k, r[k])}`);
+      }
+      if (!bits.length) continue;
+      if (bits.length === 1 && bits[0].startsWith('마수 ')) { qtyOnly++; lines.push({ qtyOnly: true, t: `재고 수정 · ${r.item} · ${r.color} 탕${r.tang} · ${bits[0]}` }); }
+      else lines.push(`재고 수정 · ${r.item} · ${r.color} 탕${r.tang} · ${bits.join(' · ')}`);
+    }
+    return lines;
+  }
+  const label = CL_DOC_LABEL[docId] || docId;
+  const verbs = { orders: ['주문 등록', '주문 삭제', '주문 수정'], chinaOrders: ['발주 등록', '발주 삭제', '발주 수정'], costs: ['원가 등록', '원가 삭제', '원가 수정'] }[docId] || [`${label} 추가`, `${label} 삭제`, `${label} 수정`];
+  for (const r of added.slice(0, 20)) lines.push(`${verbs[0]} · ${typeof r === 'object' ? clName(r) : String(r).slice(0, 30)}${r && r.orderQty != null ? ` ${r.orderQty}${r.unit || ''}` : ''}${r && r.qty && docId === 'chinaOrders' ? ` ${r.qty}` : ''}`);
+  for (const r of removed.slice(0, 20)) lines.push(`${verbs[1]} · ${typeof r === 'object' ? clName(r) : String(r).slice(0, 30)}`);
+  for (const [o, r] of changed.slice(0, 20)) {
+    const bits = [];
+    for (const k of new Set([...Object.keys(o), ...Object.keys(r)])) { if (CL_IGNORE.has(k)) continue; if (JSON.stringify(o[k]) === JSON.stringify(r[k])) continue; bits.push(`${CL_FIELD[k] || k} ${clFmt(k, o[k])} → ${clFmt(k, r[k])}`); }
+    if (docId === 'chinaOrders' && o.status !== r.status && r.status === 'received') { lines.push(`발주 입고 완료 · ${clName(r)}`); continue; }
+    if (bits.length) lines.push(`${verbs[2]} · ${clName(r)} · ${bits.slice(0, 4).join(' · ')}`);
+  }
+  const more = added.length + removed.length + changed.length - Math.min(20, added.length) - Math.min(20, removed.length) - Math.min(20, changed.length);
+  if (more > 0) lines.push(`${label} 외 ${more}건`);
+  return lines;
+}
+const CL_SETTING = { rate: '환율(위안)', yard: '야드환산', ship: '예상 운임', fx: '외화 환율', fxFeePct: '송금 수수료', suppliers: '발주처', processes: '가공비', processingTypes: '가공비', colorProcess: '컬러별 가공', features: '기능 설정', freightBatches: '운임 정산', bizName: '가게 정보', bizOwner: '가게 정보', bizNumber: '가게 정보', bizAddress: '가게 정보' };
+function clDiffSettings(b, a) {
+  const keys = new Set([...Object.keys(b || {}), ...Object.keys(a || {})]); const out = new Set(); const lines = [];
+  for (const k of keys) {
+    if (JSON.stringify((b || {})[k]) === JSON.stringify((a || {})[k])) continue;
+    if (['rate', 'yard', 'ship', 'fxFeePct'].includes(k)) { lines.push(`${CL_SETTING[k]} ${clFmt(k, (b || {})[k])} → ${clFmt(k, (a || {})[k])}`); continue; }
+    if (k === 'freightBatches') { const bn = ((b || {})[k] || []).length, an = ((a || {})[k] || []).length; const top = ((a || {})[k] || [])[0]; lines.push(an > bn && top ? `운임 정산 · 야드당 ${Math.round(top.perY).toLocaleString()}원 (${top.status === 'pending' && !(top.dates || []).length ? '미리 등록' : (top.dates || []).map(d => String(d).slice(3)).join(', ') + ' 입고'})` : an < bn ? '운임 정산 취소' : '운임 정산 수정'); continue; }
+    out.add(CL_SETTING[k] || '기타 설정');
+  }
+  for (const x of out) lines.push(`${x} 변경`);
+  return lines;
+}
+const _clShadow = {}; // 문서 → { packed: 서버 값, map: 줄별 글자 } (다른 사람이 그 사이 저장했으면 다시 만듦)
+function clShadowFrom(packed) {
+  let arr = []; try { arr = (packed && packed !== CONFIRMED_EMPTY) ? JSON.parse(unpackDoc(packed)) : []; } catch (e) { arr = []; }
+  return { packed, map: clStrMap(Array.isArray(arr) ? arr : []) };
+}
+function clQueue(docId, prevPacked, newPacked, dataArray) {
+  if (!useFirebase || typeof db === 'undefined' || !db || !SHOP_ID) return;
+  try {
+    let ls;
+    if (docId === 'settings') {
+      let before = {}; try { before = (prevPacked && prevPacked !== CONFIRMED_EMPTY) ? JSON.parse(unpackDoc(prevPacked)) : {}; } catch (e) {}
+      ls = clDiffSettings(before, JSON.parse(unpackDoc(newPacked)));
+    } else {
+      let sh = _clShadow[docId];
+      if (!sh || sh.packed !== prevPacked) sh = clShadowFrom(prevPacked);
+      const am = clStrMap(dataArray || []);
+      const d = clCompareMaps(sh.map, am);
+      _clShadow[docId] = { packed: newPacked, map: am };
+      ls = clDescribe(docId, d.added, d.removed, d.changed);
+    }
+    for (const l of ls) _clQueue.push(typeof l === 'string' ? { d: docId, t: l } : { d: docId, t: l.t, qtyOnly: true });
+  } catch (e) { return; } // 기록 만들기 실패해도 본 저장에는 영향 없음
+  if (_clQueue.length) { clearTimeout(_clTimer); _clTimer = setTimeout(clFlush, 4000); }
+}
+function clWarmShadows() { // 앱을 열고 한가할 때 큰 장부의 그림자를 미리 만들어 둠 (첫 저장도 빠르게)
+  for (const k of ['shipmentLog', 'rolls', 'orders']) { const p = lastSnapshotJSON[k]; if (p && (!_clShadow[k] || _clShadow[k].packed !== p)) _clShadow[k] = clShadowFrom(p); }
+}
+async function clFlush() {
+  clearTimeout(_clTimer);
+  let lines = _clQueue; _clQueue = []; if (!lines.length) return;
+  // 같은 묶음에 매출·수금 변화가 있으면, 출고로 줄어든 재고 마수 변화는 빼고(매출 줄에 이미 나옴)
+  if (lines.some(l => l.d === 'shipmentLog')) lines = lines.filter(l => !l.qtyOnly);
+  lines = lines.map(l => ({ d: l.d, t: String(l.t).slice(0, 160) }));
+  if (!lines.length) return;
+  const n = lines.length;
+  try {
+    await shopCol('logs').add({ at: firebase.firestore.FieldValue.serverTimestamp(), by: firebase.auth().currentUser ? firebase.auth().currentUser.uid : '', name: String((ME && ME.name) || '').slice(0, 30), role: ROLE || '', lines: lines.slice(0, 40), n, v: 1 });
+  } catch (e) { /* 규칙이 아직 없거나 연결 문제면 조용히 넘어감 */ }
+}
+window.addEventListener('pagehide', () => { if (_clQueue.length) clFlush(); });
+// 보기 (사장만)
+let _clView = null;
+async function openChangeLog() {
+  if (!isOwner()) { showToast('변경 기록은 사장님만 볼 수 있습니다'); return; }
+  let ov = document.getElementById('changeLogModal');
+  if (!ov) { ov = document.createElement('div'); ov.id = 'changeLogModal'; ov.className = 'sm-ov'; document.body.appendChild(ov); ov.addEventListener('mousedown', e => { if (e.target === ov) ov.remove(); }); }
+  _clView = { items: [], last: null, done: false, who: '', kind: '', q: '', loading: false, err: '', names: {} };
+  clRender();
+  try { const ms = await shopCol('members').get(); ms.forEach(d => { const m = d.data() || {}; if (m.name) _clView.names[d.id] = m.name; }); } catch (e) { /* 이름은 기록에 남은 것으로 */ }
+  await clLoadMore();
+}
+async function clLoadMore() {
+  if (!_clView || _clView.loading || _clView.done) return;
+  _clView.loading = true; clRender();
+  try {
+    let ref = shopCol('logs').orderBy('at', 'desc').limit(60);
+    if (_clView.last) ref = ref.startAfter(_clView.last);
+    const snap = await ref.get();
+    snap.docs.forEach(d => _clView.items.push({ id: d.id, ...d.data() }));
+    _clView.last = snap.docs.length ? snap.docs[snap.docs.length - 1] : _clView.last;
+    if (snap.docs.length < 60) _clView.done = true;
+  } catch (e) { _clView.err = '변경 기록을 불러오지 못했습니다. ' + errHint(e); _clView.done = true; }
+  _clView.loading = false; clRender();
+}
+function clRender() {
+  const ov = document.getElementById('changeLogModal'); if (!ov || !_clView) return;
+  const v = _clView;
+  const nm = it => v.names[it.by] || it.name || '이름 없음'; // 직원 관리의 지금 이름 (기록 당시 이름보다 정확)
+  const whos = [...new Set(v.items.map(nm))];
+  const kinds = [['', '전체'], ['shipmentLog', '매출·수금'], ['rolls', '재고'], ['orders', '이월장부'], ['chinaOrders', '발주'], ['costs', '원가'], ['settings', '설정']];
+  const q = v.q.trim();
+  const rows = []; let lastDay = '';
+  for (const it of v.items) {
+    if (v.who && nm(it) !== v.who) continue;
+    let ls = (it.lines || []).filter(l => (!v.kind || l.d === v.kind || (v.kind === 'costs' && l.d === 'costs')) && (!q || String(l.t).includes(q)));
+    if (!ls.length) continue;
+    const at = it.at && it.at.toDate ? it.at.toDate() : null;
+    const day = at ? `${at.getFullYear()}.${String(at.getMonth() + 1).padStart(2, '0')}.${String(at.getDate()).padStart(2, '0')}` : '방금';
+    if (day !== lastDay) { rows.push(`<div class="cl-day">${esc(day)}</div>`); lastDay = day; }
+    const tm = at ? `${String(at.getHours()).padStart(2, '0')}:${String(at.getMinutes()).padStart(2, '0')}` : '';
+    rows.push(`<div class="cl-item"><div class="cl-h"><b>${esc(nm(it))}</b> <span class="cl-role">${esc(ROLE_LABEL[it.role] || '')}</span><span class="cl-tm">${tm}</span></div>${ls.map(l => `<div class="cl-l"><span class="cl-tag">${esc(CL_DOC_LABEL[l.d] || '')}</span>${esc(l.t)}</div>`).join('')}${it.n > (it.lines || []).length ? `<div class="cl-l" style="color:var(--muted);">외 ${it.n - it.lines.length}건</div>` : ''}</div>`);
+  }
+  const focus = document.activeElement && document.activeElement.id === 'cl-q';
+  ov.innerHTML = `<div class="sm-box rx-box" style="max-width:640px;"><div class="rx-top"><h3>변경 기록</h3><button type="button" class="rx-close" onclick="document.getElementById('changeLogModal').remove()">✕</button></div>
+    <div class="rx-help">누가 언제 무엇을 바꿨는지 자동으로 남습니다. 기록은 고치거나 지울 수 없습니다.</div>
+    <div style="display:flex;gap:6px;margin-top:8px;"><select class="rx-in" style="flex:1;" onchange="_clView.who=this.value; clRender()"><option value="">모든 사람</option>${whos.map(w => `<option ${w === v.who ? 'selected' : ''}>${esc(w)}</option>`).join('')}</select><select class="rx-in" style="flex:1;" onchange="_clView.kind=this.value; clRender()">${kinds.map(([k, l]) => `<option value="${k}" ${k === v.kind ? 'selected' : ''}>${l}</option>`).join('')}</select></div>
+    <input id="cl-q" class="rx-in" style="margin-top:6px;" placeholder="거래처·품번 검색" value="${esc(v.q)}" oninput="_clView.q=this.value; clRender()">
+    <div class="cl-list">${rows.join('') || (v.loading ? '' : `<div class="rx-empty">${esc(v.err || '기록이 없습니다')}</div>`)}</div>
+    ${v.loading ? '<div class="rx-empty">불러오는 중…</div>' : (!v.done ? `<button type="button" class="ui-btn ui-btn-sub" style="width:100%;margin-top:8px;" onclick="clLoadMore()">더 보기</button>` : '')}
+  </div>`;
+  if (focus) { const el = document.getElementById('cl-q'); el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
 }
 
 // ===== 오늘 기준 환율 (참고용) =====
@@ -4411,10 +4836,11 @@ function sanitizeRollsInMemory() {
     if (typeof r.qty === 'string') { const q = parseFloat(r.qty); r.qty = isNaN(q) ? 0 : q; }
   }
 }
-function render() { const r = _renderMain(); setTimeout(updateSelBar, 60); return r; }
+function render() { const r = _renderMain(); setTimeout(updateSelBar, 60); setTimeout(maybeOnboard, 400); return r; }
 function _renderMain() {
   if (!_costFreezeStartupDone && (!useFirebase || (shipmentLogFirstLoadDone && costsFirstLoadDone && settingsFirstLoadDone && rollsFirstLoadDone))) { // 데이터를 다 불러온 뒤 한 번만: 기존 매출들의 원가를 지금 값으로 고정해서 저장
     _costFreezeStartupDone = true;
+    if (useFirebase) setTimeout(() => { try { clWarmShadows(); } catch (e) {} }, 2500); // 변경 기록용 그림자 미리 만들기
     freezeEntryCosts(); // 저장은 다음에 매출이 저장될 때 같이 됨 (여기서 몰래 저장하면 충돌 경고가 뜰 수 있어서)
   }
   sanitizeRollsInMemory();
@@ -5497,15 +5923,22 @@ function addColorBlock(colorVal) {
       <div><label style="font-size:12px;">중국품번 (선택 - 공장 다르면 다르게)</label><input type="text" class="f-block-chinacode" placeholder="예: A-1234"></div>
       <div><label style="font-size:12px;">스왓치 순번 (선택)</label><input type="number" min="1" class="f-block-swatch" placeholder="예: 8"></div>
     </div>
+    <div class="f-block-form-wrap" style="display:none; margin-top:6px;"><label style="font-size:12px;">단가</label><select class="f-block-form"><option value="">발주대로 (발주 없으면 절 단가)</option><option value="roll">절 단가</option><option value="cut">컷 단가</option></select></div>
     <label style="font-size:12px; margin-top:6px;">탕별 마수 (한 번에 여러 탕 입고 가능)</label>
     <div class="f-block-rolls"></div>
     <button onclick="addRollRowToBlock(this)" style="border:none;background:var(--b-info);color:var(--primary-dark);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:600;margin-top:6px;">+ 탕 추가</button>
   `;
   listEl.appendChild(block);
+  syncBlockFormWraps();
   addRollRowToBlock(block.querySelector('.f-block-rolls'));
   if (colorVal) updateBlockStockInfo(block.querySelector('.f-block-color'));
 }
+function syncBlockFormWraps() { // 원가표에 컷 단가가 있는 품번일 때만 "단가: 발주대로 / 절 / 컷" 고르는 칸 보임
+  const el = document.getElementById('f-item'); const on = !!(el && hasCutPrice(el.value.trim()));
+  document.querySelectorAll('.f-block-form-wrap').forEach(w => { w.style.display = on ? '' : 'none'; });
+}
 function updateBlockStockInfo(colorInputEl) {
+  syncBlockFormWraps();
   const block = colorInputEl.closest('.f-color-block');
   const item = document.getElementById('f-item').value.trim();
   const color = colorInputEl.value.trim();
@@ -5548,17 +5981,22 @@ function openCostCalcModal(item, color, opts) {
   // opts: { targetEl } - 계산 결과를 그 입력칸에 채우기만 함 (저장은 그 화면의 원래 저장 버튼이 함)
   //       { tang }     - 계산 결과를 그 탕에 지금 있는 롤 전체에 바로 적용하고 저장까지 함
   costCalcCtx = { item, color, ...opts };
-  const std = getCostPerYard(item, color);
+  // 탕이면 그 탕 원단의 원가표 기준(컷 단가·실제 운임 반영)
+  const tangRoll = opts.tang != null ? rolls.find(r => String(r.item).trim() === String(item).trim() && String(r.color).trim() === String(color).trim() && r.tang === opts.tang && !r.defective) : null;
+  const std = tangRoll ? rollStdCost(tangRoll, item, color) : getCostPerYard(item, color);
+  costCalcCtx.std = std;
   costCalcCtx.mode = std != null ? 'extra' : 'cny';
+  document.getElementById('cost-calc-sp-wrap').classList.toggle('hidden', costCalcCtx.mode !== 'cny');
+  if (costCalcCtx.mode === 'cny') { const sel = document.getElementById('cost-calc-sp'); sel.innerHTML = unitCalcOptions(unitCalcDefault(item)); sel.value = unitCalcDefault(item); }
   document.getElementById('cost-calc-context').textContent = `${item} · ${color}${opts.tang != null ? ` · 탕${opts.tang}` : ''}`;
   if (costCalcCtx.mode === 'extra') {
     document.getElementById('cost-calc-std').textContent = `표준원가 ${Math.round(std).toLocaleString()}원`;
     document.getElementById('cost-calc-extra-label').textContent = '추가 가공비 (텐타가공 등 · 이번 것만 · ±원)';
     document.getElementById('cost-calc-extra').placeholder = '예: 150 또는 -100';
   } else {
-    document.getElementById('cost-calc-std').textContent = '원가표에 등록된 기본단가가 없어서, 위안화 단가로 직접 계산하겠습니다';
-    document.getElementById('cost-calc-extra-label').textContent = '중국단가 (위안/미터)';
-    document.getElementById('cost-calc-extra').placeholder = '예: 5';
+    document.getElementById('cost-calc-std').textContent = '원가표에 이 품번이 없어서, 단가로 직접 계산합니다';
+    document.getElementById('cost-calc-extra-label').textContent = unitCalcLabel(document.getElementById('cost-calc-sp').value);
+    document.getElementById('cost-calc-extra').placeholder = document.getElementById('cost-calc-sp').value === '__dom' ? '예: 3500' : '예: 5';
   }
   document.getElementById('cost-calc-extra').value = '';
   document.getElementById('cost-calc-apply-btn').textContent = opts.tang != null ? `탕${opts.tang} 전체에 적용` : '계산해서 채우기';
@@ -5571,16 +6009,24 @@ function computeCostCalcTotal() {
   const raw = document.getElementById('cost-calc-extra').value;
   const num = raw.trim() !== '' ? parseFloat(raw) : NaN;
   if (costCalcCtx.mode === 'extra') {
-    const std = getCostPerYard(costCalcCtx.item, costCalcCtx.color);
+    const std = costCalcCtx.std;
     if (std == null) return null;
     return Math.round(std + (isNaN(num) ? 0 : num));
   }
   if (isNaN(num) || num <= 0) return null;
-  return Math.round(num * settings.rate * settings.yard + settings.ship);
+  const v = unitPriceToCost(document.getElementById('cost-calc-sp').value, num);
+  return v != null && isFinite(v) ? Math.round(v) : null;
+}
+function onCostCalcSpChange() {
+  const v = document.getElementById('cost-calc-sp').value;
+  document.getElementById('cost-calc-extra-label').textContent = unitCalcLabel(v);
+  document.getElementById('cost-calc-extra').placeholder = v === '__dom' ? '예: 3500' : '예: 5';
+  updateCostCalcPreview();
 }
 function updateCostCalcPreview() {
   const total = computeCostCalcTotal();
   document.getElementById('cost-calc-total').textContent = total != null ? `${total.toLocaleString()}원` : '-';
+  document.getElementById('cost-calc-detail').textContent = costCalcCtx && costCalcCtx.mode === 'cny' ? unitCalcDetail(document.getElementById('cost-calc-sp').value) + ' 적용' : '';
 }
 function closeCostCalcModal() { document.getElementById('costCalcModal').classList.remove('open'); }
 async function applyCostCalc() {
@@ -5614,15 +6060,19 @@ async function applyTangCost(item, color, tang, costPerY) {
   return true;
 }
 function openTangCostModal(item, color, tang) { if (!canSeeCost()) return; openCostCalcModal(item, color, { tang }); }
+function rollStdCost(r, item, color) { // 이 롤의 원가표 기준 원가 (컷 단가·실제 운임 반영)
+  if (r && (r.form === 'cut' || r.freightPerY != null)) { const ov = { rate: settings.rate, yard: settings.yard, ship: settings.ship, fx: settings.fx }; if (r.form === 'cut') ov.form = 'cut'; if (r.freightPerY != null) ov.shipActual = r.freightPerY; return getCostPerYard(item, color, ov); }
+  return getCostPerYard(item, color);
+}
 function getRollEffectiveCostLabel(rollId, item, color) {
   // 출고 처리 화면에서 "이 롤을 가져가면 원가가 얼마로 잡히는지" 눈으로 참고하라고 보여주는 표시 (강제 확인은 아님)
   if (!canSeeCost()) return { text: '', custom: false }; // [새 시스템] 사장 외에는 원가 표시 안 함
   const r = rolls.find(x => x.id === rollId);
-  const std = getCostPerYard(item, color);
+  const std = rollStdCost(r, item, color);
   const effective = (r && r.costPerY != null) ? r.costPerY : std;
   if (effective == null) return { text: '', custom: false };
   const custom = r && r.costPerY != null && std != null && r.costPerY !== std;
-  return { text: `원가 ${Math.round(effective).toLocaleString()}원`, custom };
+  return { text: `원가 ${Math.round(effective).toLocaleString()}원${r && r.form === 'cut' && r.costPerY == null ? ' (컷)' : ''}`, custom };
 }
 function addRollRowToBlock(elInBlock) {
   const listEl = elInBlock.classList && elInBlock.classList.contains('f-block-rolls') ? elInBlock : elInBlock.closest('.f-color-block').querySelector('.f-block-rolls');
@@ -5693,6 +6143,7 @@ async function saveAdd() {
 
     const decidedIds = new Set(chinaMatchDecisions.map(d => d.order.id));
     const matchedOrder = findWaitingChinaOrderMatch(item, color, decidedIds);
+    block._matchedOrder = matchedOrder || null; // 컷 단가 발주인지 보려고
     if (!matchedOrder) continue;
     const parsed = parseChinaQtyForAutoMatch(matchedOrder.qty);
     let enteredInfo = null;
@@ -5709,6 +6160,7 @@ async function saveAdd() {
 
   let totalEntries = 0;
   let totalColors = 0;
+  const frPairs = []; // 미리 등록된 운임이 붙은 롤
   for (const block of blocks) {
     const color = block.querySelector('.f-block-color').value.trim();
     if (!color) continue;
@@ -5739,10 +6191,18 @@ async function saveAdd() {
 
     // 이 컬러에 남아있던 0y짜리 자리표시용 롤은 정리 (실재고가 새로 들어오니까)
     rolls = rolls.filter(r => !(String(r.item).trim() === item && String(r.color).trim() === color && r.qty === 0 && !r.defective));
+    const frStart = rolls.length;
     for (const en of entries) {
       // 같은 탕 번호로 여러 번 입고돼도 합치지 않고 각각 개별 항목으로 둠 (이미 재단되어 오는 원단이라 실제로는 서로 다른 물건이라서)
       rolls.push({ id: nextId++, cat, item, color, tang: en.tang, qty: en.qty, inQty: en.qty, defective: en.defective, defectReason: en.defective ? en.reason : '', inDate, costPerY: en.costPerY, note: en.note || '', rollNote: en.rollNote || '' });
     }
+    { // 절·컷 단가: 직접 고른 값 > 짝맞춘 발주 > 절
+      const sel = block.querySelector('.f-block-form'); const wrap = block.querySelector('.f-block-form-wrap');
+      const pick = sel && wrap && wrap.style.display !== 'none' ? sel.value : '';
+      const isCut = pick === 'cut' || (pick === '' && block._matchedOrder && block._matchedOrder.priceForm === 'cut');
+      if (isCut) for (const r of rolls.slice(frStart)) if (!r.defective) r.form = 'cut';
+    }
+    for (const r of rolls.slice(frStart)) { const fb = frAttachOnIntake(r); if (fb) frPairs.push([r, fb]); }
     totalEntries += entries.length;
     totalColors++;
 
@@ -5777,6 +6237,7 @@ async function saveAdd() {
     return;
   }
   await persistSwatchInfo();
+  const frMsg = frPairs.length ? await frCommitIntake(frPairs) : null;
 
   let chinaSyncFailed = false;
   if (chinaMatchDecisions.length > 0) {
@@ -5819,7 +6280,7 @@ async function saveAdd() {
   if (chinaSyncFailed) {
     (await uiAlert('재고는 정상적으로 등록됐습니다.\n다만 발주 상태 반영은 서버 연결 문제로 실패했습니다 - 발주 탭에서 직접 처리해 주세요.'));
   }
-  showToast(`입고 등록되었습니다 (컬러 ${totalColors}개, 탕 ${totalEntries}개)${chinaMatchDecisions.length > 0 && !chinaSyncFailed ? ' · 발주도 같이 처리했습니다' : ''}`);
+  showToast(`입고 등록되었습니다 (컬러 ${totalColors}개, 탕 ${totalEntries}개)${chinaMatchDecisions.length > 0 && !chinaSyncFailed ? ' · 발주도 같이 처리했습니다' : ''}${frMsg ? ' · ' + frMsg : ''}`);
 }
 
 function openOutModal(id) {
@@ -5945,6 +6406,8 @@ function openRollEditModal(id) {
   document.getElementById('roll-edit-tang').value = r.tang;
   document.getElementById('roll-edit-qty').value = r.qty;
   document.getElementById('roll-edit-cost').value = r.costPerY != null ? r.costPerY : '';
+  document.getElementById('roll-edit-form-wrap').style.display = (hasCutPrice(r.item) || r.form === 'cut') ? '' : 'none';
+  document.getElementById('roll-edit-form').value = r.form === 'cut' ? 'cut' : 'roll';
   document.getElementById('rollEditModal').classList.add('open');
 }
 function closeRollEditModal() { document.getElementById('rollEditModal').classList.remove('open'); _rollEditId = null; }
@@ -5972,6 +6435,7 @@ async function saveRollEdit() {
 
   r.qty = Math.round(newQty * 100) / 100;
   r.costPerY = (costRaw.trim() !== '' && !isNaN(parseFloat(costRaw)) && parseFloat(costRaw) > 0) ? parseFloat(costRaw) : null;
+  if (document.getElementById('roll-edit-form-wrap').style.display !== 'none') { if (document.getElementById('roll-edit-form').value === 'cut') r.form = 'cut'; else delete r.form; } // 앞으로 팔 것부터 적용 (이미 판 매출은 그때 원가 그대로)
 
   if (r.qty === 0) {
     await cleanupDepletedRolls(r.item, r.color, [r.id]);
@@ -6398,15 +6862,17 @@ function renderCost() {
   list.innerHTML = '';
   const ptBtn = document.createElement('button');
   ptBtn.textContent = '가공비 관리 (기모·워싱 등)';
+  if (!featureOn('process')) ptBtn.style.display = 'none';
   ptBtn.style.cssText = 'border:none;background:var(--b-warn);color:#a15c1e;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;margin-bottom:10px;margin-right:6px;';
   ptBtn.onclick = openProcessModal;
-  list.appendChild(ptBtn);
+  if (featureOn('process')) list.appendChild(ptBtn);
   const spBtn = document.createElement('button');
   spBtn.textContent = '발주처 관리';
   spBtn.style.cssText = 'border:none;background:var(--b-info);color:var(--primary-dark);border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;margin-bottom:10px;';
   spBtn.onclick = openSupplierModal;
   list.appendChild(spBtn);
-  if (getSuppliers().some(s => s.kind === 'overseas' || (s.currency && s.currency !== 'KRW'))) {
+  if (isOwner()) { const fb = document.createElement('button'); fb.textContent = '기능 설정'; fb.style.cssText = 'border:none;background:var(--b-sub);color:#555;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;margin-bottom:10px;margin-left:6px;'; fb.onclick = openFeatureModal; list.appendChild(fb); }
+  if (featureOn('freight') && getSuppliers().some(s => s.kind === 'overseas' || (s.currency && s.currency !== 'KRW'))) {
     const frBtn = document.createElement('button');
     frBtn.textContent = '운임 정산';
     frBtn.style.cssText = 'border:none;background:var(--b-warn);color:#a15c1e;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;margin-bottom:10px;margin-left:6px;';
@@ -6460,7 +6926,7 @@ function renderCost() {
         </div>
       </div>
       <div class="price">
-        <div class="won">${won.toLocaleString()}원</div>
+        <div class="won">${won.toLocaleString()}원${Number(c.priceCut) > 0 ? `<div style="font-size:11px;font-weight:600;color:var(--muted);text-align:right;">컷 ${Math.round(getCostPerYard(c.item, null, { form: 'cut' }) || 0).toLocaleString()}원</div>` : ''}</div>
       </div>
     `;
     list.appendChild(div);
@@ -6563,6 +7029,7 @@ function onCostTypeChange() {
   const label = document.getElementById('c-price-label');
   const hint = document.getElementById('c-price-hint');
   document.getElementById('c-supplier-wrap').style.display = type === 'domestic' ? 'none' : '';
+  document.getElementById('c-cut-wrap').style.display = (featureOn('cutPrice') || document.getElementById('c-price-cut').value) ? '' : 'none';
   const sp = type === 'domestic' ? null : supplierById(document.getElementById('c-supplier').value);
   if (sp) {
     const u = sp.priceUnit === 'y' ? '야드' : '미터';
@@ -6588,10 +7055,12 @@ function openCostAddModal() {
   document.getElementById('c-cat').value = '';
   document.getElementById('c-item').value = '';
   document.getElementById('c-price').value = '';
+  document.getElementById('c-price-cut').value = '';
   document.getElementById('c-mix').value = '';
   document.getElementById('c-weight').value = '';
   { const imp = getSuppliers().filter(s => s.kind === 'overseas'); fillCostSupplierSelect(imp.length === 1 && imp[0].id !== 'cn' ? imp[0].id : ''); }
-  document.querySelector(`input[name="c-type"][value="${getSuppliers().length && !getSuppliers().some(s => s.kind === 'overseas') ? 'domestic' : 'import'}"]`).checked = true;
+  document.querySelector(`input[name="c-type"][value="${!featureOn('overseas') || (getSuppliers().length && !getSuppliers().some(s => s.kind === 'overseas')) ? 'domestic' : 'import'}"]`).checked = true;
+  costModalFeatureChrome(null);
   onCostTypeChange();
   document.getElementById('costModal').classList.add('open');
 }
@@ -6603,10 +7072,12 @@ function openCostEditModal(id) {
   document.getElementById('c-cat').value = c.cat;
   document.getElementById('c-item').value = c.item;
   document.getElementById('c-price').value = c.price;
+  document.getElementById('c-price-cut').value = Number(c.priceCut) > 0 ? c.priceCut : '';
   document.getElementById('c-mix').value = c.mix || '';
   document.getElementById('c-weight').value = c.weight || '';
   fillCostSupplierSelect(c.supplierId || '');
   document.querySelector(`input[name="c-type"][value="${c.type === 'domestic' ? 'domestic' : 'import'}"]`).checked = true;
+  costModalFeatureChrome(c);
   onCostTypeChange();
   document.getElementById('costModal').classList.add('open');
 }
@@ -6619,18 +7090,21 @@ async function saveCost() {
   const mix = document.getElementById('c-mix').value.trim().slice(0, 40);
   const supplierId = type === 'domestic' ? '' : document.getElementById('c-supplier').value;
   const weight = parseFloat(document.getElementById('c-weight').value);
+  const priceCut = parseFloat(document.getElementById('c-price-cut').value);
   if (!item || !price || price <= 0) { showToast('품목과 가격을 확인해 주세요'); return; }
   if (editingCostId !== null) {
     const c = costs.find(x => x.id === editingCostId);
-    c.cat = cat || '미분류'; c.item = item; c.price = price; c.type = type;
+    c.cat = cat || autoDeriveCat(item); c.item = item; c.price = price; c.type = type;
     if (mix) c.mix = mix; else delete c.mix; // 혼용률: 비우면 지움
     if (supplierId) c.supplierId = supplierId; else delete c.supplierId; // 발주처: 없으면 예전 방식
     if (weight > 0) c.weight = weight; else delete c.weight;
+    if (priceCut > 0 && priceCut !== price) c.priceCut = priceCut; else delete c.priceCut; // 컷 단가: 비우거나 같으면 지움
   } else {
-    const nc = { id: nextCostId++, cat: cat || '미분류', item, color: null, price, type };
+    const nc = { id: nextCostId++, cat: cat || autoDeriveCat(item), item, color: null, price, type };
     if (mix) nc.mix = mix;
     if (supplierId) nc.supplierId = supplierId;
     if (weight > 0) nc.weight = weight;
+    if (priceCut > 0 && priceCut !== price) nc.priceCut = priceCut;
     costs.push(nc);
   }
   await persistCosts(); closeCostModal(); render(); showToast('저장 완료');
@@ -7604,29 +8078,31 @@ function toggleSaleCostCalc() {
   const box = document.getElementById('sale-edit-cost-calc');
   if (!box.classList.contains('hidden')) { box.classList.add('hidden'); return; }
   const entry = shipmentLog.find(e => e.id === pendingSaleEditId);
-  _sceRate = (entry && entry.rateSnapshot && entry.rateSnapshot.rate != null) ? entry.rateSnapshot : { rate: settings.rate, yard: settings.yard, ship: settings.ship };
+  _sceRate = (entry && entry.rateSnapshot && entry.rateSnapshot.rate != null) ? entry.rateSnapshot : { rate: settings.rate, yard: settings.yard, ship: settings.ship, fx: { ...(settings.fx || {}) } };
   const item = document.getElementById('sale-edit-item').value.trim();
-  const base = item ? findCostFor(item) : null; // 원가표에 등록된 구분/단가가 있으면 미리 채워줌
-  const type = base && base.type === 'domestic' ? 'domestic' : 'import';
-  document.querySelector(`input[name="sce-type"][value="${type}"]`).checked = true;
-  document.getElementById('sce-price').value = base && base.price != null ? base.price : '';
+  const base = item ? findCostFor(item) : null; // 원가표에 등록된 발주처/단가가 있으면 미리 채워줌
+  const sel = document.getElementById('sce-sp'); const dv = unitCalcDefault(item);
+  sel.innerHTML = unitCalcOptions(dv); sel.value = dv;
+  const wasCut = !!(entry && (entry.deductBreakdown || []).some(b => b && b.form === 'cut')); // 컷으로 받은 원단을 판 매출이면 컷 단가로
+  document.getElementById('sce-price').value = base && base.price != null ? (wasCut && Number(base.priceCut) > 0 ? base.priceCut : base.price) : '';
   document.getElementById('sce-fee').value = '';
   onSaleCostTypeChange();
   box.classList.remove('hidden');
 }
 function onSaleCostTypeChange() {
-  const dom = document.querySelector('input[name="sce-type"]:checked').value === 'domestic';
-  document.getElementById('sce-price-label').textContent = dom ? '국내 단가 (원/y)' : '중국단가 (위안/미터)';
+  const dom = document.getElementById('sce-sp').value === '__dom';
+  document.getElementById('sce-price-label').textContent = unitCalcLabel(document.getElementById('sce-sp').value);
   document.getElementById('sce-price').placeholder = dom ? '예: 3500' : '예: 12.5';
   updateSaleCostCalcPreview();
 }
 function computeSaleCostCalc() { // -> {total, base, fee} 또는 null
-  const dom = document.querySelector('input[name="sce-type"]:checked').value === 'domestic';
+  const spv = document.getElementById('sce-sp').value;
   const price = parseFloat(document.getElementById('sce-price').value);
   const feeRaw = parseFloat(document.getElementById('sce-fee').value);
   if (isNaN(price) || price <= 0 || !_sceRate) return null;
   const fee = isNaN(feeRaw) ? 0 : feeRaw;
-  const base = dom ? price : price * _sceRate.rate * _sceRate.yard + _sceRate.ship; // 원가표와 같은 계산 (중국산: 단가×환율×야드환산+운임)
+  const base = unitPriceToCost(spv, price, _sceRate); // 원가표와 같은 계산 (발주처 통화·단위·운임, 이 매출 때 환율)
+  if (base == null) return null;
   const total = Math.round((base + fee) * 100) / 100;
   if (!isFinite(total) || total < 0) return null;
   return { total, base: Math.round(base * 100) / 100, fee };
@@ -7634,8 +8110,8 @@ function computeSaleCostCalc() { // -> {total, base, fee} 또는 null
 function updateSaleCostCalcPreview() {
   const r = computeSaleCostCalc();
   document.getElementById('sce-total').textContent = r ? `${r.total.toLocaleString()}원/y` : '-';
-  const dom = document.querySelector('input[name="sce-type"]:checked').value === 'domestic';
-  document.getElementById('sce-detail').textContent = !_sceRate ? '' : (r ? `${dom ? '국내 단가' : `환율 ${_sceRate.rate} · 야드환산 ${_sceRate.yard} · 운임 ${_sceRate.ship}원 적용`}: ${r.base.toLocaleString()}원${r.fee ? ` + 가공비 ${r.fee.toLocaleString()}원` : ''}` : (dom ? '' : `환율 ${_sceRate.rate} · 야드환산 ${_sceRate.yard} · 운임 ${_sceRate.ship}원 적용 (이 매출이 찍힌 때의 값)`));
+  const spv = document.getElementById('sce-sp').value;
+  document.getElementById('sce-detail').textContent = !_sceRate ? '' : (r ? `${unitCalcDetail(spv, _sceRate)}${spv === '__dom' ? '' : ' (이 매출 때 기준)'}: ${r.base.toLocaleString()}원${r.fee ? ` + 가공비 ${r.fee.toLocaleString()}원` : ''}` : unitCalcDetail(spv, _sceRate));
 }
 function applySaleCostCalc() {
   const r = computeSaleCostCalc();
@@ -10530,7 +11006,12 @@ function getCostPerYard(item, color, rateOverride) {
   if (!costMatch) return null;
   const colorFee = findColorFeeFor(item, color);
   // 이 컬러만 중국단가가 다르게 등록돼있으면, 그 단가로 다시 계산(환율은 여전히 자동 적용됨)
-  const effectiveCostMatch = (colorFee && colorFee.price != null) ? { ...costMatch, price: colorFee.price } : costMatch;
+  let price = (colorFee && colorFee.price != null) ? colorFee.price : costMatch.price;
+  if (rateOverride && rateOverride.form === 'cut') { // 컷으로 받은 원단: 원가표의 컷 단가 (컬러별 단가가 따로 있으면 그 단가 + 절·컷 차이)
+    const pc = Number(costMatch.priceCut);
+    if (pc > 0) price = (colorFee && colorFee.price != null) ? colorFee.price + (pc - Number(costMatch.price)) : pc;
+  }
+  const effectiveCostMatch = price !== costMatch.price ? { ...costMatch, price } : costMatch;
   let cost = finalCost(effectiveCostMatch, color, colorFee && colorFee.ignoreKeywordFees, rateOverride);
   if (colorFee && colorFee.fee) cost += colorFee.fee;
   return cost;
@@ -10550,7 +11031,12 @@ function getCostPerYardForEntry(e) {
       if (b.manualCostPerY != null) { costPerY = b.manualCostPerY; anySpecific = true; } // 새 탕에 직접 입력한 원가
       if (costPerY == null) {
         const fr = _frIgnore ? null : (b.freightPerY != null ? b.freightPerY : (roll && roll.freightPerY != null ? roll.freightPerY : null)); // 운임 정산된 롤이면 실제 운임으로
-        if (fr != null) { costPerY = getCostPerYard(e.item, e.color, { ...(rateOverride || { rate: settings.rate, yard: settings.yard, ship: settings.ship, fx: settings.fx }), shipActual: fr }); anySpecific = true; }
+        const form = b.form || (roll && roll.form) || null; // 컷으로 받은 롤이면 컷 단가로
+        if (fr != null || form === 'cut') {
+          const ov = { ...(rateOverride || { rate: settings.rate, yard: settings.yard, ship: settings.ship, fx: settings.fx }) };
+          if (fr != null) ov.shipActual = fr; if (form === 'cut') ov.form = 'cut';
+          costPerY = getCostPerYard(e.item, e.color, ov); anySpecific = true;
+        }
         else costPerY = getCostPerYard(e.item, e.color, rateOverride);
       }
       if (costPerY != null) { totalCost += costPerY * b.qty; totalQty += b.qty; }
@@ -14044,7 +14530,7 @@ function renderChinaOrders() {
     spBtn.style.cssText = 'flex:none; border:none; background:var(--b-info); color:var(--primary-dark); border-radius:20px; padding:6px 14px; font-size:12px; font-weight:600;';
     spBtn.onclick = openSupplierModal;
     chipRow.appendChild(spBtn);
-    if (getSuppliers().some(s => s.kind === 'overseas' || (s.currency && s.currency !== 'KRW'))) {
+    if (featureOn('freight') && getSuppliers().some(s => s.kind === 'overseas' || (s.currency && s.currency !== 'KRW'))) {
       const frBtn = document.createElement('button');
       frBtn.textContent = '운임 정산';
       frBtn.style.cssText = 'flex:none; border:none; background:var(--b-warn); color:#a15c1e; border-radius:20px; padding:6px 14px; font-size:12px; font-weight:600;';
@@ -14151,7 +14637,7 @@ function buildChinaOrderCard(o) {
     <div style="display:flex; justify-content:space-between; align-items:center;">
       <div style="min-width:0;">
         <div style="font-weight:700; font-size:14px;">${esc(o.item || '(품명 미정)')}${o.chinaCode ? ` <span style="font-size:11px; color:var(--muted); font-weight:400;">(${esc(o.chinaCode)})</span>` : ''}</div>
-        <div style="font-size:14px; font-weight:700; color:#1e4258; margin-top:3px;">${esc(o.color || '')}${o.color && o.qty ? ' · ' : ''}${esc(o.qty || '')}${o.urgent ? ' <span style="color:#c0392b;">· 급송</span>' : ''}</div>
+        <div style="font-size:14px; font-weight:700; color:#1e4258; margin-top:3px;">${esc(o.color || '')}${o.color && o.qty ? ' · ' : ''}${esc(o.qty || '')}${o.urgent ? ' <span style="color:#c0392b;">· 급송</span>' : ''}${o.priceForm === 'cut' ? ' <span style="color:#7a5a12;">· 컷</span>' : ''}</div>
         <div style="font-size:11px; color:var(--muted); margin-top:2px;">${getSuppliers().length > 1 && supplierOfOrder(o) ? `${esc(supplierOfOrder(o).name)} · ` : ''}발주 ${esc(o.date)}${arrival ? ` · 도착 ${esc(formatChinaArrivalLabel(arrival))}` : ''}</div>
       </div>
       <div style="display:flex; align-items:center; gap:6px; flex:none; margin-left:8px;">
@@ -14205,7 +14691,7 @@ function renderChinaOrdersByItem(filtered) {
         row.innerHTML = `
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <div style="min-width:0;">
-              <span style="font-weight:700; font-size:14px; color:#1e4258;">${esc(o.color || '(컬러 미정)')}${o.color && o.qty ? ' · ' : ''}${esc(o.qty || '')}</span>${o.urgent ? ' <span style="color:#c0392b; font-weight:700; font-size:12px;">· 급송</span>' : ''}
+              <span style="font-weight:700; font-size:14px; color:#1e4258;">${esc(o.color || '(컬러 미정)')}${o.color && o.qty ? ' · ' : ''}${esc(o.qty || '')}</span>${o.urgent ? ' <span style="color:#c0392b; font-weight:700; font-size:12px;">· 급송</span>' : ''}${o.priceForm === 'cut' ? ' <span style="color:#7a5a12; font-weight:700; font-size:12px;">· 컷</span>' : ''}
               <div style="font-size:11px; color:var(--muted); margin-top:2px;">${o.chinaCode ? `(${esc(o.chinaCode)}) · ` : ''}발주 ${esc(o.date)}${arrival ? ` · 도착 ${esc(formatChinaArrivalLabel(arrival))}` : ''}</div>
             </div>
             <div style="display:flex; align-items:center; gap:6px; flex:none; margin-left:8px;">
@@ -14330,6 +14816,7 @@ function openChinaOrderAddModal() {
   document.getElementById('china-color').value = '';
   document.getElementById('china-qty').value = '';
   document.getElementById('china-urgent').checked = false;
+  document.getElementById('china-cut').checked = false; syncChinaCutWrap();
   document.getElementById('china-note').value = '';
   fillChinaSupplierSelect(null);
   renderChinaMultiAddList();
@@ -14355,6 +14842,7 @@ function openChinaOrderEditModal(id) {
   document.getElementById('china-color').value = o.color || '';
   document.getElementById('china-qty').value = o.qty || '';
   document.getElementById('china-urgent').checked = !!o.urgent;
+  document.getElementById('china-cut').checked = o.priceForm === 'cut'; syncChinaCutWrap(o.priceForm === 'cut');
   document.getElementById('china-note').value = o.note || '';
   _chinaArrivalManuallyEdited = true; fillChinaSupplierSelect(supplierOfOrder(o) ? supplierOfOrder(o).id : ''); _chinaArrivalManuallyEdited = false;
   if (o.arrivalDate) {
@@ -14380,6 +14868,10 @@ function closeChinaOrderModal() {
   _editingChinaOrderId = null;
   _chinaMultiAddItems = [];
 }
+function syncChinaCutWrap(force) { // 컷 단가를 쓰는 가게(원가표에 컷 단가가 하나라도 있으면)만 보임
+  const w = document.getElementById('china-cut-wrap'); if (!w) return;
+  w.style.display = (force || (featureOn('cutPrice') && costs.some(c => Number(c.priceCut) > 0))) ? 'flex' : 'none';
+}
 function readChinaItemFieldsFromForm() {
   return {
     chinaCode: document.getElementById('china-code').value.trim(),
@@ -14387,6 +14879,7 @@ function readChinaItemFieldsFromForm() {
     color: document.getElementById('china-color').value.trim(),
     qty: document.getElementById('china-qty').value.trim(),
     urgent: document.getElementById('china-urgent').checked,
+    cut: !!(document.getElementById('china-cut') || {}).checked,
     note: document.getElementById('china-note').value.trim()
   };
 }
@@ -14396,6 +14889,7 @@ function clearChinaItemFields() {
   document.getElementById('china-color').value = '';
   document.getElementById('china-qty').value = '';
   document.getElementById('china-urgent').checked = false;
+  document.getElementById('china-cut').checked = false; syncChinaCutWrap();
   document.getElementById('china-note').value = '';
 }
 function addChinaOrderMultiItem() {
@@ -14417,7 +14911,7 @@ function renderChinaMultiAddList() {
     <div style="border:1px solid var(--border); border-radius:8px; padding:8px 10px; background:#fff; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center;">
       <div style="min-width:0;">
         <div style="font-weight:700; font-size:13px;">${esc(f.item || '(품명 미정)')}${f.chinaCode ? ` <span style="font-weight:400; color:var(--muted); font-size:11px;">(${esc(f.chinaCode)})</span>` : ''}</div>
-        <div style="font-size:11px; color:var(--muted);">${esc(f.color || '')}${f.color ? ' · ' : ''}${esc(f.qty || '')}${f.urgent ? ' · 급송' : ''}</div>
+        <div style="font-size:11px; color:var(--muted);">${esc(f.color || '')}${f.color ? ' · ' : ''}${esc(f.qty || '')}${f.urgent ? ' · 급송' : ''}${f.cut ? ' · 컷' : ''}</div>
       </div>
       <button onclick="removeChinaMultiAddItem(${idx})" style="border:none;background:var(--b-danger-soft);color:var(--danger);border-radius:6px;padding:4px 8px;font-size:11px;flex:none;">삭제</button>
     </div>
@@ -14469,8 +14963,9 @@ async function saveChinaOrderModal() {
     if (!f.item && !f.chinaCode) { showToast('품명이나 품번 중 하나는 입력해 주세요'); return; }
     const o = chinaOrders.find(x => x.id === _editingChinaOrderId);
     if (!o) return;
-    const before = { date: o.date, arrivalDate: o.arrivalDate, chinaCode: o.chinaCode, item: o.item, color: o.color, qty: o.qty, urgent: o.urgent, note: o.note, supplierId: o.supplierId };
+    const before = { date: o.date, arrivalDate: o.arrivalDate, chinaCode: o.chinaCode, item: o.item, color: o.color, qty: o.qty, urgent: o.urgent, note: o.note, supplierId: o.supplierId, priceForm: o.priceForm };
     o.date = date; o.arrivalDate = arrivalDate; o.chinaCode = f.chinaCode; o.item = f.item; o.color = f.color; o.qty = f.qty; o.urgent = f.urgent; o.note = f.note;
+    if (f.cut) o.priceForm = 'cut'; else delete o.priceForm;
     if (supplierId) o.supplierId = supplierId; else delete o.supplierId;
     const saved = await persistChinaOrders();
     if (saved === false) {
@@ -14497,7 +14992,7 @@ async function saveChinaOrderModal() {
   const newOrders = [];
   const newMappings = [];
   for (const f of itemsToSave) {
-    const entry = { id: nextChinaOrderId++, date, arrivalDate, chinaCode: f.chinaCode, item: f.item, color: f.color, qty: f.qty, urgent: f.urgent, note: f.note, status: 'waiting', ...(supplierId ? { supplierId } : {}) };
+    const entry = { id: nextChinaOrderId++, date, arrivalDate, chinaCode: f.chinaCode, item: f.item, color: f.color, qty: f.qty, urgent: f.urgent, note: f.note, status: 'waiting', ...(supplierId ? { supplierId } : {}), ...(f.cut ? { priceForm: 'cut' } : {}) };
     newOrders.push(entry);
     if (f.chinaCode && f.item && !chinaProductMap.some(m => String(m.chinaCode).trim() === f.chinaCode) && !newMappings.some(m => m.chinaCode === f.chinaCode)) {
       newMappings.push({ id: nextChinaProductMapId++, chinaCode: f.chinaCode, itemName: f.item });
@@ -15611,6 +16106,7 @@ function rollSnapshot(r) { // 출고 기록에 같이 남겨둘 롤 정보 (나�
   if (r && r.inDate) o.inDate = r.inDate;
   if (r && r.costPerY != null) o.costPerY = r.costPerY;
   if (r && r.note) o.note = r.note;
+  if (r && r.form === 'cut') o.form = 'cut'; // 컷 단가로 받은 원단
   if (r && r.freightPerY != null) { o.freightPerY = r.freightPerY; if (r.freightBatchId) o.freightBatchId = r.freightBatchId; } // 운임 정산된 실제 운임 (반품돼 돌아와도 그대로)
   return o;
 }
@@ -15992,7 +16488,8 @@ function resolveReturnPiece(customer, item, color, saleEntryId, qty, forceTang) 
     }
     const freightPerY = b.freightPerY != null ? b.freightPerY : (live && live.freightPerY != null ? live.freightPerY : undefined);
     const freightBatchId = b.freightBatchId || (live && live.freightBatchId) || undefined;
-    return { tang, inDate, costPerY, note, qty: b.qty, ...(freightPerY != null ? { freightPerY, freightBatchId } : {}) };
+    const form = b.form || (live && live.form) || undefined;
+    return { tang, inDate, costPerY, note, qty: b.qty, ...(freightPerY != null ? { freightPerY, freightBatchId } : {}), ...(form === 'cut' ? { form } : {}) };
   });
   if (pieces.length === 0) return null;
   if (forceTang != null) return pieces.find(pc => pc.tang === forceTang) || null;

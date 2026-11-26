@@ -98,6 +98,19 @@ async function runAll() {
     await expectOk('14. 사장A가 직원S를 등록', async () => { const b = A.db.batch(); b.set(D(A, SA, 'members', S.uid), { role: 'staff', name: '시험직원', loginId: 's', active: true }); b.set(A.db.collection('users').doc(S.uid), { shopId: SA }); await b.commit(); });
     await expectOk('15. 직원S가 A 가게 장부 읽기', () => D(S, SA, 'data', 'rolls').get());
     await expectOk('16. 직원S가 A 가게 장부 저장', () => D(S, SA, 'data', 'rolls').set({ data: '[]', rev: 3, stamp: 2 }));
+    // 변경 기록: 추가만, 남 이름·역할 속이기 막힘, 보는 건 사장만, 고치기·지우기 아무도 못 함
+    const LG = (u, shop) => u.db.collection('shops').doc(shop).collection('logs');
+    const ST = () => firebase.firestore.FieldValue.serverTimestamp();
+    let logId = null;
+    await expectOk('16-1. 직원S가 변경 기록 남기기', async () => { const r = await LG(S, SA).add({ at: ST(), by: S.uid, name: '시험직원', role: 'staff', lines: [{ d: 'rolls', t: '입고 · 시험' }], n: 1, v: 1 }); logId = r.id; });
+    await expectDenied('16-2. 직원S가 사장 계정번호로 기록 남기기', () => LG(S, SA).add({ at: ST(), by: A.uid, name: '사장', role: 'staff', lines: [], n: 0, v: 1 }));
+    await expectDenied('16-3. 직원S가 역할을 사장으로 속여 기록', () => LG(S, SA).add({ at: ST(), by: S.uid, name: '시험직원', role: 'owner', lines: [], n: 0, v: 1 }));
+    await expectDenied('16-4. 직원S가 변경 기록 보기', () => LG(S, SA).get());
+    await expectOk('16-5. 사장A가 변경 기록 보기', () => LG(A, SA).get());
+    await expectDenied('16-6. 사장A가 기록 고치기', () => LG(A, SA).doc(logId || 'x').update({ name: '바꿈' }));
+    await expectDenied('16-7. 사장A가 기록 지우기', () => LG(A, SA).doc(logId || 'x').delete());
+    await expectDenied('16-8. 사장B가 A 가게에 기록 남기기', () => LG(B, SA).add({ at: ST(), by: B.uid, name: 'x', role: 'owner', lines: [], n: 0, v: 1 }));
+    await expectDenied('16-9. 운영자도 기록 지우기 못 함', () => ADM.db.collection('shops').doc(SA).collection('logs').doc(logId || 'x').delete());
     await expectDenied('17. 직원S가 직원 목록 보기', () => S.db.collection('shops').doc(SA).collection('members').get());
     await expectDenied('18. 직원S가 자기를 사장으로 바꾸기', () => D(S, SA, 'members', S.uid).update({ role: 'owner' }));
     await expectDenied('19. 직원S가 백업 삭제', () => D(S, SA, 'backups', 'x').delete());
