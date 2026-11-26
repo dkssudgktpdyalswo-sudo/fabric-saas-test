@@ -1922,8 +1922,32 @@ function loadXlsxLib() {
     document.head.appendChild(sc);
   });
 }
-function importTargetsEmpty() {
-  return { items: swatchInfo.length === 0, rolls: rolls.length === 0, custs: customerList.length === 0, unpaid: shipmentLog.length === 0, orders: orders.length === 0, costs: costs.length === 0 };
+// 이미 있는 장부와 비교해서 "넣을 것 / 건너뛸 것"을 나눔. 기존 기록은 절대 바꾸지 않고 추가만 함
+//  거래처·품목컬러·원가표: 새 것만 추가 / 기초미수금: 이월 미수금이 아직 없는 거래처만 / 재고·미출고이월: 장부가 비어 있을 때만 (같은 롤·주문이 두 번 들어가도 구분할 방법이 없어서)
+async function planImport(out) {
+  const norm = v => String(v == null ? '' : v).trim();
+  let arch = [];
+  if (out.unpaid.length && useFirebase) arch = await fetchAllArchivedEntries(); // 보관함으로 넘어간 이월 미수금까지 확인
+  const archFail = arch === null;
+  const all = shipmentLog.concat(arch || []);
+  const carry = new Set(all.filter(e => e.item === '이월 미수금').map(e => norm(e.customer)));
+  const hasSales = new Set(all.filter(e => e.item !== '이월 미수금').map(e => norm(e.customer)));
+  const custHave = new Set(customerList.map(norm));
+  const swHave = new Set(swatchInfo.filter(x => x.color != null).map(x => norm(x.item) + '|' + norm(x.color)));
+  const costHave = new Set(costs.map(c => norm(c.item)));
+  const split = (list, why) => { const add = [], skip = []; for (const x of list) { const w = why(x); if (w) skip.push({ x, why: w }); else add.push(x); } return { add, skip }; };
+  const P = {
+    custs: split(out.custs, c => custHave.has(c) ? '이미 있는 거래처' : null),
+    items: split(out.items, x => swHave.has(x.item + '|' + x.color) ? '이미 있는 품목·컬러 (순번 안 바꿈)' : null),
+    costs: split(out.costs, x => costHave.has(x.item) ? '원가표에 이미 있는 품목 (원가 안 바꿈)' : null),
+    rolls: split(out.rolls, () => rolls.length ? '재고는 첫 세팅 때만 넣을 수 있어요 (이미 재고 있음 → 입고 등록으로)' : null),
+    orders: split(out.orders, () => orders.length ? '미출고이월은 첫 세팅 때만 넣을 수 있어요 (이미 이월 있음 → 이월장부에서 등록)' : null),
+    unpaid: split(out.unpaid, x => archFail ? '보관함을 확인하지 못해서 안전하게 막음 (새로고침 후 다시)' : (carry.has(x.customer) ? '이미 이월 미수금이 들어간 거래처 (금액 수정은 매출·수금 탭에서)' : null)),
+  };
+  P.firstTime = shipmentLog.length === 0 && !(arch && arch.length);
+  P.salesWarn = P.unpaid.add.filter(x => hasSales.has(x.customer)).map(x => x.customer);
+  P.arch = arch;
+  return P;
 }
 async function downloadImportTemplate() {
   let X; try { X = await loadXlsxLib(); } catch (e) { showToast('엑셀 도구를 못 불러왔어요. 인터넷 연결을 확인해주세요'); return; }
@@ -2064,87 +2088,120 @@ function parseImportWorkbook(X, wb) {
   if (extra.length) notes.push(`거래처 시트에 없던 ${extra.length}곳(${extra.slice(0, 5).join(', ')}${extra.length > 5 ? ' 등' : ''})은 거래처 목록에 자동으로 넣어요`);
   return { out, errs, notes };
 }
+const IMPORT_LBL = { custs: '거래처', items: '품목·컬러', rolls: '재고', unpaid: '기초미수금', orders: '미출고이월', costs: '원가표' };
+let _impSaving = false;
 async function openImportModal() {
   if (!isOwner()) return;
   let ov = document.getElementById('importModal');
   if (!ov) { ov = document.createElement('div'); ov.id = 'importModal'; ov.className = 'sm-ov'; document.body.appendChild(ov); }
   _imp = null;
-  const empty = importTargetsEmpty();
-  const allFull = Object.values(empty).every(v => !v);
+  const fresh = rolls.length === 0 && shipmentLog.length === 0 && customerList.length === 0;
   ov.innerHTML = `<div class="sm-box">
-    <h3>엑셀로 첫 세팅</h3>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">지금 쓰던 재고·거래처·미수금을 엑셀 한 파일로 한 번에 넣어요. <b>비어 있는 장부에만</b> 들어가고, 이미 기록이 있는 장부는 건드리지 않아요.</div>
-    ${allFull ? '<div class="err">장부에 이미 기록이 있어서 첫 세팅을 할 수 없어요.</div>' : ''}
+    <h3>엑셀로 세팅</h3>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.6;">${fresh ? '지금 쓰던 재고·거래처·미수금을 엑셀 한 파일로 한 번에 넣어요.' : '처음 세팅 때 빠뜨린 거래처·미수금·품목·원가를 엑셀로 <b>추가</b>할 수 있어요.'}<br>
+      이미 장부에 있는 건 <b>절대 바뀌지 않고</b>, 새 것만 들어가요. 재고·미출고이월은 첫 세팅 때만 넣을 수 있어요.</div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;">
       <button class="sm-btn gray" onclick="downloadImportTemplate()">1. 양식 내려받기</button>
       <label class="sm-btn" style="cursor:pointer;">2. 채운 파일 올리기<input type="file" accept=".xlsx,.xls" onchange="importPick(this)" style="display:none;"></label>
     </div>
     <div id="imp-body" style="margin-top:12px;"></div>
-    <div style="text-align:right;margin-top:12px;"><button class="sm-btn gray" onclick="document.getElementById('importModal').remove()">닫기</button></div>
+    <div style="text-align:right;margin-top:12px;"><button class="sm-btn gray" onclick="if(!_impSaving)document.getElementById('importModal').remove()">닫기</button></div>
   </div>`;
 }
 async function importPick(input) {
   const f = input.files && input.files[0]; input.value = ''; if (!f) return;
+  if (_impSaving) return;
   const body = document.getElementById('imp-body'); body.innerHTML = '파일을 읽는 중...';
   let X; try { X = await loadXlsxLib(); } catch (e) { body.innerHTML = '<div class="err">엑셀 도구를 못 불러왔어요. 인터넷 연결을 확인해주세요</div>'; return; }
   let wb; try { wb = X.read(new Uint8Array(await f.arrayBuffer()), { type: 'array' }); } catch (e) { body.innerHTML = '<div class="err">엑셀 파일을 읽지 못했어요. 양식 파일(.xlsx)인지 확인해주세요</div>'; return; }
   if (!Object.values(IMPORT_SHEETS).some(d => wb.Sheets[d.name])) { body.innerHTML = '<div class="err">양식의 시트(품목·컬러, 재고 ...)를 찾지 못했어요. "양식 내려받기"로 받은 파일에 채워주세요</div>'; return; }
-  _imp = parseImportWorkbook(X, wb);
+  const parsed = parseImportWorkbook(X, wb);
+  body.innerHTML = '장부와 비교하는 중...';
+  parsed.plan = await planImport(parsed.out);
+  _imp = parsed;
   renderImportPreview();
 }
 function renderImportPreview() {
   const body = document.getElementById('imp-body'); if (!body || !_imp) return;
-  const { out, errs, notes } = _imp;
-  const empty = importTargetsEmpty();
-  const total = out.unpaid.reduce((a, x) => a + x.amount, 0);
-  const row = (k, label, n) => `<tr><td>${label}</td><td style="text-align:right;">${n.toLocaleString()}</td><td>${n === 0 ? '<span style="color:var(--muted)">없음</span>' : (empty[k] ? '넣음' : '<span class="err">장부에 이미 기록이 있어 건너뜀</span>')}</td></tr>`;
-  body.innerHTML = `<table><tr><th>시트</th><th style="text-align:right;">줄 수</th><th></th></tr>
-    ${row('items', '품목·컬러', out.items.length)}${row('rolls', '재고(롤)', out.rolls.length)}${row('custs', '거래처', out.custs.length)}
-    ${row('unpaid', '기초미수금', out.unpaid.length)}${row('orders', '미출고이월', out.orders.length)}${row('costs', '원가표', out.costs.length)}</table>
+  const { out, errs, notes, plan } = _imp;
+  const keys = Object.keys(IMPORT_LBL);
+  const addN = keys.reduce((a, k) => a + plan[k].add.length, 0);
+  const total = plan.unpaid.add.reduce((a, x) => a + x.amount, 0);
+  const rows = keys.map(k => { const n = out[k].length; if (!n) return `<tr><td>${IMPORT_LBL[k]}</td><td style="text-align:right;">0</td><td colspan="2" style="color:var(--muted)">없음</td></tr>`;
+    return `<tr><td>${IMPORT_LBL[k]}</td><td style="text-align:right;">${n.toLocaleString()}</td><td style="text-align:right;font-weight:700;">${plan[k].add.length ? '넣음 ' + plan[k].add.length.toLocaleString() : '-'}</td><td style="text-align:right;${plan[k].skip.length ? 'color:var(--danger);' : 'color:var(--muted);'}">${plan[k].skip.length ? '건너뜀 ' + plan[k].skip.length.toLocaleString() : ''}</td></tr>`; }).join('');
+  // 건너뛰는 이유별로 묶어서 보여줌
+  const skipLines = [];
+  for (const k of keys) {
+    const by = new Map(); for (const s of plan[k].skip) { if (!by.has(s.why)) by.set(s.why, []); by.get(s.why).push(s.x); }
+    for (const [why, xs] of by) {
+      const names = xs.map(x => typeof x === 'string' ? x : (x.customer || (x.item + (x.color ? ' ' + x.color : '')))).filter((v, i, a) => a.indexOf(v) === i);
+      skipLines.push(`<b>${IMPORT_LBL[k]}</b> ${xs.length}줄 - ${esc(why)}${names.length ? `: ${esc(names.slice(0, 8).join(', '))}${names.length > 8 ? ` 외 ${names.length - 8}` : ''}` : ''}`);
+    }
+  }
+  const skipBox = skipLines.length ? `<div style="background:var(--danger-bg);color:var(--danger);border-radius:8px;padding:10px;font-size:12.5px;margin-top:10px;line-height:1.7;"><b style="font-size:13px;">아래는 장부에 들어가지 않아요</b><br>${skipLines.join('<br>')}</div>` : '';
+  const warnBox = plan.salesWarn.length ? `<div style="background:#fff3d6;color:#8a5a00;border-radius:8px;padding:10px;font-size:12.5px;margin-top:10px;line-height:1.6;"><b>확인해주세요</b> - ${esc(plan.salesWarn.slice(0, 8).join(', '))}${plan.salesWarn.length > 8 ? ' 등' : ''}은(는) 이 앱에 이미 매출 기록이 있어요.<br>엑셀 금액이 <b>앱에 적힌 매출을 빼고</b> 기준일까지 남은 잔액이어야 해요. 앱 매출까지 포함된 금액이면 두 번 잡혀요.</div>` : '';
+  if (errs.length) {
+    body.innerHTML = `<table><tr><th>시트</th><th style="text-align:right;">줄 수</th><th></th><th></th></tr>${rows}</table>
+      <div class="err" style="margin-top:10px;"><b>고칠 곳 ${errs.length}개</b> - 엑셀에서 고친 뒤 다시 올려주세요. 아직 아무것도 안 들어갔어요.<br>${errs.slice(0, 30).map(esc).join('<br>')}${errs.length > 30 ? '<br>...' : ''}</div>`;
+    return;
+  }
+  const totalBox = plan.unpaid.add.length ? `<div style="margin-top:12px;padding:10px;background:#eef5ff;border-radius:8px;font-size:13px;line-height:1.6;">
+      <b>미수금 확인</b> - 이번에 넣는 ${plan.unpaid.add.length}곳의 미수금 합계는 <b>${total.toLocaleString()}원</b>이에요.<br>
+      ${plan.firstTime ? '원래 쓰던 장부의 미수금 합계를' : '원래 장부에서 <b>이번에 넣는 거래처들만</b> 더한 합계를'} 직접 적어주세요. 1원까지 같아야 넣을 수 있어요.
+      <input id="imp-total" inputmode="numeric" placeholder="합계 직접 입력" style="width:100%;margin-top:6px;"></div>` : '';
+  body.innerHTML = `<table><tr><th>시트</th><th style="text-align:right;">파일 줄</th><th></th><th></th></tr>${rows}</table>
     ${notes.length ? `<div style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.6;">${notes.map(esc).join('<br>')}</div>` : ''}
-    ${errs.length ? `<div class="err" style="margin-top:10px;"><b>고칠 곳 ${errs.length}개</b> - 엑셀에서 고친 뒤 다시 올려주세요<br>${errs.slice(0, 30).map(esc).join('<br>')}${errs.length > 30 ? '<br>...' : ''}</div>` :
-    `${out.unpaid.length && empty.unpaid ? `<div style="margin-top:12px;padding:10px;background:#fff8e6;border-radius:8px;font-size:13px;">
-        <b>미수금 확인</b> - 올린 파일의 미수금 합계는 <b>${total.toLocaleString()}원</b> (${out.unpaid.length}곳)이에요.<br>
-        원래 쓰던 장부의 미수금 합계를 직접 적어주세요. 1원까지 같아야 저장돼요.
-        <input id="imp-total" inputmode="numeric" placeholder="예: ${total.toLocaleString()}" style="width:100%;margin-top:6px;"></div>` : ''}
-      <div style="text-align:right;margin-top:10px;"><button class="sm-btn" onclick="importSave()">장부에 넣기</button></div>`}`;
+    ${skipBox}${warnBox}${totalBox}
+    ${addN ? `<div style="text-align:right;margin-top:10px;"><button id="imp-save" class="sm-btn" onclick="importSave()">${keys.filter(k => plan[k].add.length).map(k => IMPORT_LBL[k]).join(', ')} 장부에 넣기</button></div>`
+      : '<div style="margin-top:10px;font-size:13px;color:var(--muted);">새로 넣을 내용이 없어요. 장부는 그대로예요.</div>'}`;
 }
 async function importSave() {
-  if (!_imp || _imp.errs.length || !isOwner()) return;
-  const { out } = _imp;
-  const empty = importTargetsEmpty();
-  const total = out.unpaid.reduce((a, x) => a + x.amount, 0);
-  if (out.unpaid.length && empty.unpaid) {
+  if (!_imp || _imp.errs.length || !isOwner() || _impSaving) return;
+  const { plan } = _imp;
+  const total = plan.unpaid.add.reduce((a, x) => a + x.amount, 0);
+  if (plan.unpaid.add.length) {
     const typed = impNum((document.getElementById('imp-total') || {}).value);
-    if (typed === null || isNaN(typed) || typed !== total) { showToast(`적으신 합계가 파일 합계(${total.toLocaleString()}원)와 달라요. 파일을 다시 확인해주세요`); return; }
+    if (typed === null || isNaN(typed) || typed !== total) { showToast(`적으신 합계가 이번에 넣는 미수금 합계(${total.toLocaleString()}원)와 달라요. 다시 확인해주세요`); return; }
   }
-  if (!confirm('엑셀 내용을 장부에 넣을까요?')) return;
+  // 파일을 올린 뒤 다른 사람이 장부를 바꿨을 수 있어서, 넣기 직전에 한 번 더 비교
+  const recheck = await planImport(_imp.out);
+  const keys = Object.keys(IMPORT_LBL);
+  if (keys.some(k => recheck[k].add.length !== plan[k].add.length)) { _imp.plan = recheck; renderImportPreview(); showToast('그사이 장부가 바뀌어서 다시 비교했어요. 내용을 확인하고 다시 눌러주세요'); return; }
+  if (!confirm('엑셀 내용을 장부에 넣을까요? (이미 있는 기록은 바뀌지 않아요)')) return;
+  _impSaving = true;
   const body = document.getElementById('imp-body'); const done = [], failed = [];
-  const step = async (k, label, fn) => { if (!empty[k] || !out[k].length) return true; const ok = await fn(); (ok === false ? failed : done).push(label); return ok !== false; };
-  body.innerHTML = '장부에 넣는 중... (창을 닫지 마세요)';
-  const catOf = (item) => autoDeriveCat(item);
-  let ok = await step('custs', '거래처', async () => { customerList = out.custs.slice(); return persistCustomerList(); });
-  if (ok) ok = await step('items', '품목·컬러', async () => { for (const x of out.items) swatchInfo.push({ id: nextSwatchId++, cat: catOf(x.item), item: x.item, color: x.color, order: x.order, chinaCode: null }); return persistSwatchInfo(); });
-  if (ok) ok = await step('rolls', '재고', async () => { for (const x of out.rolls) rolls.push({ id: nextId++, cat: catOf(x.item), item: x.item, color: x.color, tang: x.tang, qty: x.qty, inDate: x.inDate || todayStr() }); return persistRolls(); });
-  if (ok) ok = await step('costs', '원가표', async () => { for (const x of out.costs) { const c = { id: nextCostId++, cat: catOf(x.item), item: x.item, color: null, price: x.price, type: x.type }; if (x.mix) c.mix = x.mix; costs.push(c); } return persistCosts(); });
-  if (ok) ok = await step('orders', '미출고이월', async () => { for (const x of out.orders) orders.push({ id: genUniqueId(), date: x.date, customer: x.customer, factory: x.factory, item: x.item, color: x.color, orderQty: x.orderQty, unit: x.unit, received: 0, note: x.note, done: false }); return persistOrders(); });
-  if (ok) ok = await step('unpaid', '기초미수금', async () => {
-    for (const x of out.unpaid) shipmentLog.push({ id: genUniqueId(), date: x.date, orderId: null, customer: x.customer, factory: '', item: '이월 미수금', color: '', amount: 1, unit: 'y', yardsShipped: 1, remainAfter: 0, isFullCompletion: true,
-      unitPrice: x.amount, supplyAmount: x.amount, taxAmount: 0, saleAmount: x.amount, paidAmount: 0, note: `${x.date} 기준 이월 미수금 (엑셀 첫 세팅)` });
-    return persistShipmentLog();
-  });
+  body.innerHTML = '장부에 넣는 중... 창을 닫거나 새로고침하지 마세요';
+  if (plan.arch) shipmentLogArchivedCache = plan.arch;
+  const before = plan.unpaid.add.length ? withFullArchiveMerged(() => getCustomerTrueUnpaidAll()) : null;
+  // 서버 저장이 실패하면 화면 안 장부도 원래대로 되돌림 (안 그러면 다시 올릴 때 "이미 있음"으로 잘못 건너뜀)
+  const snap = { custs: () => { const a = customerList.slice(); return () => { customerList = a; }; }, items: () => { const a = swatchInfo.slice(), n = nextSwatchId; return () => { swatchInfo = a; nextSwatchId = n; }; },
+    rolls: () => { const a = rolls.slice(), n = nextId; return () => { rolls = a; nextId = n; }; }, costs: () => { const a = costs.slice(), n = nextCostId; return () => { costs = a; nextCostId = n; }; },
+    orders: () => { const a = orders.slice(); return () => { orders = a; }; }, unpaid: () => { const a = shipmentLog.slice(); return () => { shipmentLog = a; }; } };
+  const step = async (k, fn) => { if (!plan[k].add.length) return true; const undo = snap[k](); let ok = false; try { ok = await fn(); } catch (e) { ok = false; } if (ok === false) undo(); (ok === false ? failed : done).push(IMPORT_LBL[k]); return ok !== false; };
+  try {
+    let ok = await step('custs', async () => { customerList = customerList.concat(plan.custs.add); return persistCustomerList(); });
+    if (ok) ok = await step('items', async () => { for (const x of plan.items.add) swatchInfo.push({ id: nextSwatchId++, cat: autoDeriveCat(x.item), item: x.item, color: x.color, order: x.order, chinaCode: null }); return persistSwatchInfo(); });
+    if (ok) ok = await step('rolls', async () => { for (const x of plan.rolls.add) rolls.push({ id: nextId++, cat: autoDeriveCat(x.item), item: x.item, color: x.color, tang: x.tang, qty: x.qty, inDate: x.inDate || todayStr() }); return persistRolls(); });
+    if (ok) ok = await step('costs', async () => { for (const x of plan.costs.add) { const c = { id: nextCostId++, cat: autoDeriveCat(x.item), item: x.item, color: null, price: x.price, type: x.type }; if (x.mix) c.mix = x.mix; costs.push(c); } return persistCosts(); });
+    if (ok) ok = await step('orders', async () => { for (const x of plan.orders.add) orders.push({ id: genUniqueId(), date: x.date, customer: x.customer, factory: x.factory, item: x.item, color: x.color, orderQty: x.orderQty, unit: x.unit, received: 0, note: x.note, done: false }); return persistOrders(); });
+    if (ok) ok = await step('unpaid', async () => {
+      for (const x of plan.unpaid.add) shipmentLog.push({ id: genUniqueId(), date: x.date, orderId: null, customer: x.customer, factory: '', item: '이월 미수금', color: '', amount: 1, unit: 'y', yardsShipped: 1, remainAfter: 0, isFullCompletion: true,
+        unitPrice: x.amount, supplyAmount: x.amount, taxAmount: 0, saleAmount: x.amount, paidAmount: 0, note: `${x.date} 기준 이월 미수금 (엑셀 세팅)` });
+      return persistShipmentLog();
+    });
+  } finally { _impSaving = false; }
   render();
   let check = '';
-  if (done.includes('기초미수금')) { // 저장된 장부로 앱이 직접 다시 계산한 합계
-    const names = new Set(out.unpaid.map(x => x.customer));
-    const m = withFullArchiveMerged(() => getCustomerTrueUnpaidAll());
-    let sum = 0; for (const n of names) sum += m.get(n) || 0;
-    sum = Math.round(sum);
-    check = sum === total ? `<div style="color:#1a7a4a;font-weight:700;margin-top:8px;">미수금 확인: 앱이 다시 계산한 합계 ${sum.toLocaleString()}원 = 엑셀 합계 ✔</div>`
-      : `<div class="err" style="margin-top:8px;"><b>미수금이 다르게 계산돼요</b> (앱 ${sum.toLocaleString()}원 / 엑셀 ${total.toLocaleString()}원). 장부를 쓰기 전에 개발 담당에게 알려주세요.</div>`;
+  if (done.includes('기초미수금')) { // 넣기 전·후 장부로 거래처마다 "늘어난 금액 = 엑셀 금액"인지 다시 계산
+    const after = withFullArchiveMerged(() => getCustomerTrueUnpaidAll());
+    const bad = plan.unpaid.add.filter(x => Math.round((after.get(x.customer) || 0) - (before.get(x.customer) || 0)) !== x.amount);
+    check = !bad.length ? `<div style="color:#1a7a4a;font-weight:700;margin-top:8px;">미수금 확인 ✔ 거래처 ${plan.unpaid.add.length}곳 모두 엑셀 금액만큼 정확히 늘었어요 (합계 ${total.toLocaleString()}원)</div>`
+      : `<div class="err" style="margin-top:8px;"><b>미수금이 엑셀과 다르게 계산된 거래처가 있어요</b>: ${esc(bad.map(x => x.customer).join(', '))}. 장부를 쓰기 전에 개발 담당에게 알려주세요.</div>`;
   }
-  body.innerHTML = `<div style="font-size:14px;">${done.length ? `넣은 것: ${done.join(', ')}` : '넣은 것이 없어요'}</div>
-    ${failed.length ? `<div class="err">저장 실패: ${failed.join(', ')} - 새로고침 후 다시 올리면 빈 장부에만 이어서 들어가요</div>` : ''}${check}`;
+  const skipped = Object.keys(IMPORT_LBL).filter(k => plan[k].skip.length).map(k => `${IMPORT_LBL[k]} ${plan[k].skip.length}`);
+  body.innerHTML = `<div style="font-size:14px;">${done.length ? `넣은 것: ${done.map(l => { const k = Object.keys(IMPORT_LBL).find(q => IMPORT_LBL[q] === l); return `${l} ${plan[k].add.length}`; }).join(', ')}` : '넣은 것이 없어요'}</div>
+    ${skipped.length ? `<div style="font-size:12.5px;color:var(--muted);margin-top:4px;">안 넣은 것(이미 있음 등): ${skipped.join(', ')}</div>` : ''}
+    ${failed.length ? `<div class="err">저장 실패: ${failed.join(', ')} - 새로고침 후 같은 파일을 다시 올리면 안 들어간 것만 이어서 들어가요</div>` : ''}${check}`;
   _imp = null;
 }
 // ----- 직원 관리 (사장만) -----
