@@ -15,8 +15,9 @@
 </head>
 <body>
 <h1>보안 규칙 자동 검사</h1>
-<div class="sub">fabric-saas-test(시험 서버)에서만 씁니다. 누르면 시험용 가게 2곳(rt-로 시작)과 시험 계정 4개를 만들고, "되어야 할 것은 되고, 막혀야 할 것은 막히는지" 25가지를 확인합니다. 백야 데이터와는 아무 상관이 없습니다.</div>
-<button id="go" onclick="runAll()">검사 시작</button>
+<div class="sub">fabric-saas-test(시험 서버)에서만 씁니다. 시험용 가게 2곳(rt-로 시작)과 시험 계정 3개를 만들고, "되어야 할 것은 되고, 막혀야 할 것은 막히는지" 확인합니다. 백야 데이터와는 아무 상관이 없습니다.<br><br><b>① 운영자(사장님) 구글로 로그인 → ② 검사 시작</b> 순서로 눌러 주세요. 새 가게는 운영자가 승인해야 쓸 수 있어서, 검사 중에 운영자 계정으로 시험 가게를 승인합니다.</div>
+<button id="adm" onclick="adminLogin()" style="background:#fff;color:#2b2b2b;border:1px solid #ccc;margin-bottom:8px;">① 운영자 구글로 로그인</button>
+<button id="go" onclick="runAll()">② 검사 시작</button>
 <div id="out"></div><div id="sum"></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -39,24 +40,49 @@ async function user(label) { // 계정마다 따로 연결
 }
 async function expectOk(t, fn) { try { await fn(); log(true, t); } catch (e) { log(false, t + ' → 되어야 하는데 막힘', e.code || e.message); } }
 async function expectDenied(t, fn) { try { await fn(); log(false, t + ' → 막혀야 하는데 됨'); } catch (e) { log(e.code === 'permission-denied' || e.message === 'TAKEN', t, e.code || e.message); } }
-async function createShop(u, id, name) { // 앱의 createShop과 같은 방식
+async function createShop(u, id, name, opts) { // 앱의 createShop과 같은 방식
   const shopRef = u.db.collection('shops').doc(id);
   await u.db.runTransaction(async tx => {
     const s = await tx.get(shopRef); if (s.exists) throw new Error('TAKEN');
     const now = new Date().toISOString();
-    tx.set(shopRef, { name, ownerUid: u.uid, plan: 'trial', createdAt: now });
+    const shopDoc = { name, ownerUid: u.uid, ownerEmail: u.email, plan: 'trial', status: 'pending', createdAt: now };
+    if (opts && opts.status === null) delete shopDoc.status; else if (opts && opts.status) shopDoc.status = opts.status;
+    tx.set(shopRef, shopDoc);
     tx.set(shopRef.collection('members').doc(u.uid), { role: 'owner', name, email: u.email, active: true, createdAt: now });
     tx.set(u.db.collection('users').doc(u.uid), { shopId: id });
   });
 }
 const D = (u, shop, col, id) => u.db.collection('shops').doc(shop).collection(col).doc(id);
+let ADM = null; // 운영자 (사장님 구글 계정)
+async function adminLogin() {
+  try {
+    const app = firebase.apps.find(a => a.name === 'admin') || firebase.initializeApp(cfg, 'admin');
+    const cred = await app.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
+    const isAdm = (await app.firestore().collection('admins').doc(cred.user.uid).get()).exists;
+    ADM = isAdm ? { app, db: app.firestore(), uid: cred.user.uid } : null;
+    document.getElementById('adm').textContent = isAdm ? `① 운영자 로그인됨 (${cred.user.email})` : `① ${cred.user.email}은 아직 운영자로 등록 안 됨 (admin.html 안내 참고)`;
+  } catch (e) { document.getElementById('adm').textContent = '① 로그인 실패: ' + (e.code || e.message); }
+}
+const approve = (shop, st) => ADM.db.collection('shops').doc(shop).update({ status: st || 'active', statusAt: new Date().toISOString() });
 async function runAll() {
   const btn = document.getElementById('go'); btn.disabled = true; out.innerHTML = ''; pass = fail = 0;
   try {
-    const A = await user('owner-a'), B = await user('owner-b'), S = await user('staff-a');
+    const A = await user('owner-a'), B = await user('owner-b'), S = await user('staff-a'), C = await user('owner-c');
     out.innerHTML += `<div>시험 가게: ${SA}, ${SB}</div>`;
-    await expectOk('1. 사장A가 새 가게를 만든다', () => createShop(A, SA, '시험가게A'));
-    await expectOk('2. 사장B가 새 가게를 만든다', () => createShop(B, SB, '시험가게B'));
+    if (!ADM) { log(false, '운영자 로그인이 안 돼서 승인 관련 검사를 할 수 없습니다 - ① 버튼부터 눌러 주세요'); throw new Error('운영자 없음'); }
+    await expectOk('1. 사장A가 새 가게를 만든다 (승인 대기로)', () => createShop(A, SA, '시험가게A'));
+    await expectOk('2. 사장B가 새 가게를 만든다 (승인 대기로)', () => createShop(B, SB, '시험가게B'));
+    await expectDenied('2-1. 승인 대기 없이(바로 사용 중으로) 가게 만들기', () => createShop(C, 'rt-c-' + rnd, 'x', { status: 'active' }));
+    await expectDenied('2-2. 상태 칸 없이 가게 만들기 (예전 방식으로 승인 피하기)', () => createShop(C, 'rt-c-' + rnd, 'x', { status: null }));
+    await expectOk('2-2a. 같은 사람이 승인 대기로 만들면 됨 (위 두 개는 상태 때문에 막힌 것 확인)', () => createShop(C, 'rt-c-' + rnd, '시험가게C'));
+    await expectOk('2-3. 승인 전에도 첫 설정(settings)은 만들 수 있음', () => D(A, SA, 'data', 'settings').set({ data: '{}', rev: 1, stamp: 2 }));
+    await expectDenied('2-4. 승인 전 장부(재고) 저장', () => D(A, SA, 'data', 'rolls').set({ data: '[]', rev: 1, stamp: 2 }));
+    await expectDenied('2-5. 승인 전 고객 페이지 올리기', () => D(A, SA, 'public', 'pubIndex').set({ data: '{}' }));
+    await expectDenied('2-6. 사장A가 스스로 승인하기', () => A.db.collection('shops').doc(SA).update({ status: 'active' }));
+    await expectDenied('2-7. 사장B가 다른 가게 목록 보기', () => B.db.collection('shops').get());
+    await expectOk('2-8. 운영자가 모든 가게 목록 보기', () => ADM.db.collection('shops').get());
+    await expectDenied('2-9. 운영자도 상태 말고 다른 칸(사장)은 못 바꿈', () => ADM.db.collection('shops').doc(SA).update({ ownerUid: 'x' }));
+    await expectOk('2-10. 운영자가 A·B 가게 승인', async () => { await approve(SA); await approve(SB); });
     await expectDenied('3. 사장B가 이미 있는 가게 코드(A)로 또 만들기', () => createShop(B, SA, '가로채기'));
     await expectDenied('4. 사장B가 A 가게에 자기를 사장으로 끼워넣기', () => D(B, SA, 'members', B.uid).set({ role: 'owner', active: true, name: 'x' }));
     await expectDenied('5. 사장B가 A 가게에 자기를 직원으로 끼워넣기', () => D(B, SA, 'members', B.uid).set({ role: 'staff', active: true, name: 'x' }));
@@ -81,6 +107,11 @@ async function runAll() {
     await expectDenied('23. 로그인 안 한 사람이 장부 읽기', () => firebase.app('anon' + rnd).firestore().collection('shops').doc(SA).collection('data').doc('rolls').get());
     await expectOk('24. 사장A가 직원S 사용 중지', () => D(A, SA, 'members', S.uid).update({ active: false }));
     await expectDenied('25. 사용 중지된 직원S가 장부 읽기', () => D(S, SA, 'data', 'rolls').get());
+    await expectOk('26. 운영자가 A 가게 사용 중지', () => approve(SA, 'suspended'));
+    await expectDenied('27. 사용 중지된 가게 사장A가 장부 저장', () => D(A, SA, 'data', 'rolls').set({ data: '[]', rev: 5, stamp: 2 }));
+    await expectOk('28. 사용 중지돼도 장부 읽기는 됨 (내용 보관)', () => D(A, SA, 'data', 'rolls').get());
+    await expectOk('29. 운영자가 A 가게 다시 사용', () => approve(SA, 'active'));
+    await expectOk('30. 다시 사용 후 사장A 저장 됨', () => D(A, SA, 'data', 'rolls').set({ data: '[]', rev: 6, stamp: 2 }));
   } catch (e) { log(false, '검사 준비 실패', e.code || e.message); }
   document.getElementById('sum').innerHTML = fail === 0 ? `<span class="ok">전부 통과 (${pass}개)</span>` : `<span class="bad">실패 ${fail}개 / 통과 ${pass}개</span>`;
 }

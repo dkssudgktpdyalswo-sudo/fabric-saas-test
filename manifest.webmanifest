@@ -1,0 +1,17 @@
+{
+  "name": "원단 장부",
+  "short_name": "원단 장부",
+  "description": "원단 도매 재고·이월·매출·미수금 장부",
+  "lang": "ko",
+  "start_url": "./app.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#1e4258",
+  "theme_color": "#2c5f7c",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

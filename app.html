@@ -21,7 +21,16 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>원단 재고·원가 관리</title>
+<title>원단 장부</title>
+<!-- 앱으로 설치 (홈 화면 아이콘, 주소창 없는 전체 화면) -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2c5f7c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="원단 장부">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="favicon-64.png">
 <style>
   @keyframes savingPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
   #savingBadgeDot { animation: savingPulse 1s infinite; }
@@ -385,6 +394,13 @@
       <button onclick="createShop()">가게 만들기</button>
       <button class="lg-sub" onclick="logout()">다른 계정으로 로그인</button>
     </div>
+    <div id="pending-pane" style="display:none;">
+      <p style="font-size:15px;"><b id="pd-title">가입 신청 완료</b></p>
+      <p id="pd-desc" style="text-align:left;line-height:1.7;"></p>
+      <p id="pd-contact" style="text-align:left;"></p>
+      <button onclick="location.reload()">상태 다시 확인</button>
+      <button class="lg-sub" onclick="logout()">로그아웃</button>
+    </div>
     <div id="lock-error"></div>
   </div>
 </div>
@@ -395,7 +411,7 @@
   <div class="tabs">
     <button class="tab-btn active" id="tab-today" onclick="switchTab('today')">홈</button>
   <button class="tab-btn" id="tab-inv" onclick="switchTab('inv')">재고</button>
-    <button class="tab-btn" id="tab-china" onclick="switchTab('china')">중국발주</button>
+    <button class="tab-btn" id="tab-china" onclick="switchTab('china')">발주</button>
     <button class="tab-btn" id="tab-cost" onclick="switchTab('cost')">원가</button>
     <button class="tab-btn" id="tab-order" onclick="switchTab('order')">이월장부</button>
     <button class="tab-btn" id="tab-sales" onclick="switchTab('sales')">매출·수금</button>
@@ -529,11 +545,14 @@
       <div><label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text);"><input type="radio" name="c-type" value="import" checked style="width:auto;" onchange="onCostTypeChange()"> 수입(중국산)</label></div>
       <div><label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text);"><input type="radio" name="c-type" value="domestic" style="width:auto;" onchange="onCostTypeChange()"> 국내산</label></div>
     </div>
+    <div id="c-supplier-wrap"><label>발주처</label><select id="c-supplier" onchange="onCostTypeChange()"></select></div>
     <label id="c-price-label">중국단가 (위안/미터)</label>
     <input id="c-price" type="number" step="0.1" placeholder="예: 12.5">
     <p id="c-price-hint" style="font-size:12px;color:var(--muted);">최종원가 = 중국단가 × 환율 × 야드환산 + 운임비 (자동 계산됩니다)</p>
     <label>혼용률 (선택)</label>
     <input id="c-mix" maxlength="40" placeholder="예: 폴리 95 스판 5" autocomplete="off">
+    <label>중량 (g/y, 선택 - kg당 가공비 계산에 씀)</label>
+    <input id="c-weight" type="number" step="1" placeholder="예: 280">
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeCostModal()">취소</button>
       <button class="btn-save" onclick="saveCost()">저장</button>
@@ -551,6 +570,7 @@
     <input id="r-yard" type="number" step="0.0001">
     <label>운임비</label>
     <input id="r-ship" type="number" step="1">
+    <div id="r-fx-wrap"></div>
     <p style="font-size:12px;color:var(--muted);">여기서 바꾸면 원가표 전체 품목의 최종원가가 자동으로 다시 계산됩니다.</p>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeRateModal()">취소</button>
@@ -637,16 +657,17 @@
 
 <div class="modal-overlay" id="chinaOrderModal">
   <div class="modal">
-    <h3 id="china-modal-title">중국 발주 등록</h3>
+    <h3 id="china-modal-title">발주 등록</h3>
+    <div id="china-supplier-wrap" style="display:none;"><label>발주처 <a href="#" onclick="event.preventDefault(); openSupplierModal();" class="owner-ui" style="font-size:11px;font-weight:400;color:var(--primary);">관리</a></label><select id="china-supplier" onchange="onChinaSupplierChange()"></select></div>
     <label>발주일 (한번에 등록하는 항목들은 같은 날짜로 저장됩니다)</label>
     <input id="china-date" type="date">
-    <label>도착 예정일 <span style="font-weight:400; color:var(--muted); font-size:12px;">(화/토 배송 기준 자동계산 - 직접 고치셔도 됩니다)</span></label>
+    <label>도착 예정일 <span id="china-arrival-rule" style="font-weight:400; color:var(--muted); font-size:12px;">(화/토 배송 기준 자동계산 - 직접 고치셔도 됩니다)</span></label>
     <input id="china-arrival-date" type="date" oninput="_chinaArrivalManuallyEdited = true;">
     <div id="china-multi-list"></div>
     <div style="border:2px dashed var(--primary-dark); border-radius:10px; padding:10px; background:#eef4f7; margin:8px 0;">
     <label>품명 (사내)</label>
     <input id="china-item" placeholder="예: 테디" autocomplete="off" oninput="showItemSuggestions(this)" onfocus="showItemSuggestions(this)" onblur="hideItemSuggestionsDelayed()">
-    <label>중국품번</label>
+    <label id="china-code-label">중국품번</label>
     <input id="china-code" placeholder="품명을 먼저 입력하면 여기서 골라 쓸 수 있습니다" autocomplete="off" oninput="autoFillChinaItemName()" onfocus="showChinaCodeSuggestions()" onblur="hideItemSuggestionsDelayed()">
     <label>컬러명</label>
     <input id="china-color" placeholder="예: #61베이지" autocomplete="off" oninput="showColorSuggestions(this,'china-item')" onfocus="showColorSuggestions(this,'china-item')" onblur="hideItemSuggestionsDelayed()">
@@ -681,7 +702,7 @@
 
 <div class="modal-overlay" id="chinaMatchModal">
   <div class="modal">
-    <h3>대기 중인 중국발주</h3>
+    <h3>대기 중인 발주</h3>
     <p id="china-match-desc" style="font-size:13px;margin-top:-6px;"></p>
     <p id="china-match-detail" style="font-size:13px;color:var(--muted);margin-top:-6px;"></p>
     <div class="modal-actions" id="china-match-actions" style="flex-direction:column; gap:8px;"></div>
@@ -757,8 +778,8 @@
 <!-- 발주 등록 모달 -->
 <div class="modal-overlay" id="orderAddModal">
   <div class="modal">
-    <h3 id="orderModalTitle">새 발주 등록</h3>
-    <label>발주날짜</label>
+    <h3 id="orderModalTitle">새 주문 등록</h3>
+    <label>주문날짜</label>
     <input id="o-date" type="date">
     <label>거래처</label>
     <div style="display:flex; gap:6px; align-items:center;">
@@ -766,7 +787,7 @@
       <button type="button" onclick="openCustomerPicker('o-customer')" style="border:none;background:var(--b-info);color:#3d4f6b;border-radius:8px;padding:0 10px;height:38px;font-size:12px;flex:none;">목록</button>
     </div>
 
-    <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text);margin-top:10px;background:#fff3d6;padding:8px 10px;border-radius:8px;"><input type="checkbox" id="o-sample" style="width:auto;"> 샘플 발주 <span style="font-size:11px;color:#a15c1e;font-weight:500;">(샘플 내역서에 자동으로 모입니다)</span></label>
+    <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text);margin-top:10px;background:#fff3d6;padding:8px 10px;border-radius:8px;"><input type="checkbox" id="o-sample" style="width:auto;"> 샘플 주문 <span style="font-size:11px;color:#a15c1e;font-weight:500;">(샘플 내역서에 자동으로 모입니다)</span></label>
 
     <div id="o-multi-wrap">
       <div id="o-multi-list"></div>
@@ -782,7 +803,7 @@
         <div><label>칼라</label><input id="o-color" placeholder="예: 1번연베지" autocomplete="off" oninput="showColorSuggestions(this,'o-item')" onfocus="showColorSuggestions(this,'o-item')" onblur="hideItemSuggestionsDelayed()"></div>
       </div>
       <div id="o-qty-wrap">
-        <label>발주 수량</label>
+        <label>주문 수량</label>
         <input id="o-qty" type="number" step="0.1" placeholder="예: 30" oninput="updateOrderEditRemainHint()">
       </div>
       <div id="o-edit-remain-wrap" class="hidden">
@@ -935,7 +956,7 @@
       <input id="ret-extra-factory" placeholder="예: 010-0000-0000 또는 매장">
       <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text);margin-top:6px;"><input type="checkbox" id="ret-extra-tax" style="width:auto;"> 부가세 10% 포함해서 청구 (입력한 금액은 공급가액 기준)</label>
       <div id="ret-extra-order-pick-wrap" class="hidden">
-        <label>이 추가금이 붙을 발주 (체크한 발주가 출고될 때 같이 매출로 잡힙니다)</label>
+        <label>이 추가금이 붙을 주문 (체크한 주문이 출고될 때 같이 매출로 잡힙니다)</label>
         <div id="ret-extra-order-pick-list" style="max-height:160px; overflow-y:auto; border:1px solid var(--border); border-radius:8px; padding:6px;"></div>
       </div>
     </div>
@@ -1123,7 +1144,7 @@
 <div class="modal-overlay" id="customerShipListModal">
   <div class="modal" style="max-width:520px;">
     <h3 id="customer-ship-list-title">출고 처리</h3>
-    <p style="font-size:12px;color:var(--muted);margin-top:-6px;">발주별로 출고 처리 · 처리한 건은 목록에서 빠집니다</p>
+    <p style="font-size:12px;color:var(--muted);margin-top:-6px;">주문별로 출고 처리 · 처리한 건은 목록에서 빠집니다</p>
     <div id="customer-ship-list-rows" style="max-height:420px; overflow-y:auto;"></div>
     <button type="button" onclick="openRetX(pendingShipListCustomer, 'return')" style="width:100%;margin-top:10px;border:1px dashed var(--primary);background:#fff;color:var(--primary);border-radius:8px;padding:11px;font-size:14px;font-weight:700;">↩ 반품·불량 등록</button>
     <div class="modal-actions">
@@ -1998,6 +2019,19 @@ function showLockPane(which) {
   document.getElementById('login-pane').style.display = which === 'login' ? '' : 'none';
   document.getElementById('newshop-pane').style.display = which === 'newshop' ? '' : 'none';
   document.getElementById('verify-pane').style.display = which === 'verify' ? '' : 'none';
+  document.getElementById('pending-pane').style.display = which === 'pending' ? '' : 'none';
+}
+// 서비스 운영자 연락처 (가입 승인 대기 화면·고객센터에 표시) - 정해지면 채우기
+const SERVICE_SUPPORT = { kakao: '', tel: '' };
+function showShopStatusPane(status, shopName) {
+  const pending = status === 'pending';
+  document.getElementById('pd-title').textContent = pending ? '가입 신청 완료' : '사용이 중지된 가게입니다';
+  document.getElementById('pd-desc').innerHTML = pending
+    ? `<b>${esc(shopName || '')}</b> 가게 신청이 접수되었습니다.<br>확인 후 승인되면 이 화면이 자동으로 넘어가고 바로 쓸 수 있습니다.`
+    : `<b>${esc(shopName || '')}</b> 가게는 지금 사용할 수 없습니다.<br>장부 내용은 그대로 보관되어 있습니다.`;
+  const c = SERVICE_SUPPORT;
+  document.getElementById('pd-contact').innerHTML = (c.kakao || c.tel) ? `문의: ${c.kakao ? `<a href="${esc(c.kakao)}" target="_blank" rel="noopener">카카오톡 상담</a>` : ''}${c.kakao && c.tel ? ' · ' : ''}${c.tel ? `<a href="tel:${esc(c.tel)}">${esc(c.tel)}</a>` : ''}` : '';
+  showLockPane('pending');
 }
 function applyRoleChrome() {
   salesAdminUnlocked = canSeeSales();
@@ -2021,9 +2055,25 @@ function toggleAcctMenu(ev) {
   m.innerHTML = `<div class="who"><b>${esc(shopDisplayName() || SHOP_ID)}</b><small>가게 코드 ${esc(SHOP_ID)} · ${esc(ME.name || '')} (${ROLE_LABEL[ROLE] || ''})</small></div>`
     + (isOwner() ? it('가게 정보 설정', 'openBizInfoModal()') + it('직원 관리', 'openStaffModal()') + it('엑셀로 장부 넣기', 'openImportModal()') : '')
     + (ROLE !== 'owner' || (firebase.auth().currentUser && !/google/.test(((firebase.auth().currentUser.providerData || [])[0] || {}).providerId || '')) ? it('비밀번호 변경', 'changeMyPassword()') : '')
+    + (isInstalledApp() ? '' : it('앱으로 설치', 'installApp()'))
     + it('로그아웃', 'logout()', 'out');
   el.appendChild(m);
   setTimeout(() => document.addEventListener('click', closeAcctMenu, { once: true }), 0);
+}
+// ── 앱으로 설치 ──
+let _installPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); _installPrompt = e; }); // 안드로이드 크롬: 우리 메뉴에서 띄움
+window.addEventListener('appinstalled', () => { _installPrompt = null; showToast('설치 완료 · 홈 화면의 "원단 장부" 아이콘으로 여세요'); });
+function isInstalledApp() { return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true; }
+async function installApp() {
+  if (_installPrompt) { _installPrompt.prompt(); try { await _installPrompt.userChoice; } catch (e) { /* 없음 */ } _installPrompt = null; return; }
+  const ios = /iPhone|iPad|iPod/i.test(navigator.userAgent || '');
+  await uiAlert(ios
+    ? '아이폰에 앱으로 설치하기\n① 사파리로 이 화면을 엽니다\n② 아래쪽 공유 버튼(네모에 위 화살표)을 누릅니다\n③ "홈 화면에 추가"를 누릅니다\n\n홈 화면에 생긴 "원단 장부" 아이콘으로 열면 앱처럼 전체 화면으로 열립니다.'
+    : '앱으로 설치하기\n① 크롬으로 이 화면을 엽니다\n② 오른쪽 위 ⋮ 메뉴를 누릅니다\n③ "앱 설치" 또는 "홈 화면에 추가"를 누릅니다\n\nPC는 주소창 오른쪽의 설치 아이콘을 누르면 됩니다.');
+}
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => { /* 설치 기능만 안 될 뿐 장부는 그대로 */ }); });
 }
 function closeAcctMenu() { const m = document.querySelector('#acctBar .acct-menu'); if (m) m.remove(); }
 async function loginGoogle() {
@@ -2119,7 +2169,14 @@ async function onAuthChanged(user) {
     const m = await db.collection('shops').doc(shop).collection('members').doc(user.uid).get();
     if (!m.exists || m.data().active !== true) { lockMsg('사용이 중지된 계정입니다. 사장님께 문의하세요'); await firebase.auth().signOut(); return; }
     SHOP_ID = shop;
-    try { const sd = await db.collection('shops').doc(shop).get(); SHOP_NAME = (sd.exists && sd.data().name) || ''; } catch (e) { SHOP_NAME = ''; }
+    let shopStatus = 'active';
+    try { const sd = await db.collection('shops').doc(shop).get(); SHOP_NAME = (sd.exists && sd.data().name) || ''; shopStatus = (sd.exists && sd.data().status) || 'active'; } catch (e) { SHOP_NAME = ''; }
+    if (shopStatus === 'pending' || shopStatus === 'suspended') {
+      lockMsg(''); showShopStatusPane(shopStatus, SHOP_NAME);
+      // 승인(또는 다시 사용)되면 저절로 들어가게
+      try { _memberUnsub = db.collection('shops').doc(shop).onSnapshot(snap => { const st = snap.exists ? (snap.data().status || 'active') : 'active'; if (st !== shopStatus) location.reload(); }, () => {}); } catch (e) { /* 없음 */ }
+      return;
+    }
     ROLE = m.data().role;
     ME = { uid: user.uid, name: m.data().name || '', role: ROLE, loginId: m.data().loginId || '' };
     _booted = true;
@@ -2150,7 +2207,7 @@ async function createShop() {
     await db.runTransaction(async tx => {
       const s = await tx.get(shopRef);
       if (s.exists) throw new Error('TAKEN');
-      tx.set(shopRef, { name, ownerUid: user.uid, plan: 'trial', createdAt: now });
+      tx.set(shopRef, { name, ownerUid: user.uid, ownerEmail: user.email || '', ownerName: user.displayName || '', plan: 'trial', status: 'pending', createdAt: now }); // 운영자가 승인해야 쓸 수 있음
       tx.set(shopRef.collection('members').doc(user.uid), { role: 'owner', name: user.displayName || '사장', email: user.email || '', active: true, createdAt: now });
       tx.set(db.collection('users').doc(user.uid), { shopId: id });
     });
@@ -2185,7 +2242,7 @@ const IMPORT_SHEETS = {
   rolls: { name: '재고', head: ['품목', '컬러', '탕', '마수(y)', '입고일(선택)'] },
   custs: { name: '거래처', head: ['거래처명'] },
   unpaid: { name: '기초미수금', head: ['거래처명', '미수금(원)', '기준일(선택)'] },
-  orders: { name: '미출고이월', head: ['발주일', '거래처', '공장·배송지(선택)', '품목', '컬러', '수량', '단위(y 또는 절)', '메모(선택)'] },
+  orders: { name: '미출고이월', head: ['주문일', '거래처', '공장·배송지(선택)', '품목', '컬러', '수량', '단위(y 또는 절)', '메모(선택)'] },
   costs: { name: '원가표', head: ['품목', '구분(수입/국내)', '단가', '혼용률(선택)'] },
 };
 let _imp = null; // 미리보기 결과
@@ -2348,7 +2405,7 @@ function parseImportWorkbook(X, wb) {
   // 미출고 이월
   for (const { r, line } of rowsOf('orders')) {
     const d = impDate(r[0]), c = impStr(r[1]), factory = impStr(r[2]), item = impStr(r[3]), color = impStr(r[4]), q = impNum(r[5]), u0 = impStr(r[6]).toLowerCase(), note = impStr(r[7]);
-    if (d === null || d === '') { E('orders', line, '발주일을 적어 주세요 (예: 2026-11-25)', 0); continue; }
+    if (d === null || d === '') { E('orders', line, '주문일을 적어 주세요 (예: 2026-11-25)', 0); continue; }
     if (!c || !item) { E('orders', line, '거래처와 품목을 적어 주세요', c ? 3 : 1); continue; }
     if (q === null || isNaN(q) || q <= 0) { E('orders', line, '수량은 0보다 큰 숫자입니다', 5); continue; }
     const unit = u0 === '' || u0 === 'y' || u0 === 'yd' || u0 === '야드' ? 'y' : (u0 === '절' ? '절' : null);
@@ -2653,7 +2710,7 @@ async function openStaffModal() {
   }).join('');
   ov.innerHTML = `<div class="sm-box">
     <h3>직원 관리</h3>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:8px;">가게 코드 <b>${esc(SHOP_ID)}</b> · 직원: 재고·이월·중국발주 / 매니저: + 매출·수금 (원가·순이익·리포트는 사장만)</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:8px;">가게 코드 <b>${esc(SHOP_ID)}</b> · 직원: 재고·이월·발주 / 매니저: + 매출·수금 (원가·순이익·리포트는 사장만)</div>
     ${rows}
     <div style="margin-top:14px;font-weight:700;font-size:14px;">직원 추가</div>
     <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;">
@@ -3443,29 +3500,338 @@ async function persistExpenses() {
   return await persistGuarded('expenses', 'expenses', expenses);
 }
 
+// ===== 발주처(공급처) · 환율 · 가공비 =====
+// 가게마다 원단을 사오는 곳이 다름: 중국 공장(위안·정해진 요일 출발), 국내 직물공장(원·주문 후 며칠), 달러로 사는 곳 등
+// settings.suppliers 가 없는 예전 가게(백야)는 "중국" 발주처 하나로 보고 예전과 똑같이 계산함
+const CURRENCIES = { KRW: '원', CNY: '위안', USD: '달러', JPY: '엔', EUR: '유로' };
+const LEGACY_CHINA_SUPPLIER = { id: 'cn', name: '중국', kind: 'overseas', currency: 'CNY', priceUnit: 'm', ship: null, arrival: { mode: 'weekday', dows: [2, 6], days: 3 }, codeLabel: '중국품번', contact: '', note: '' };
+const DOW_KO = ['일', '월', '화', '수', '목', '금', '토'];
+function getSuppliers() {
+  if (Array.isArray(settings.suppliers)) return settings.suppliers;
+  const usesChina = (typeof chinaOrders !== 'undefined' && chinaOrders.length > 0) || costs.some(c => !c.color && c.type !== 'domestic');
+  return usesChina ? [LEGACY_CHINA_SUPPLIER] : [];
+}
+function supplierById(id) { return id ? (getSuppliers().find(s => s.id === id) || null) : null; }
+function supplierOfOrder(o) { return supplierById(o && o.supplierId) || (o && o.supplierId ? null : (supplierById('cn') || getSuppliers()[0] || null)); }
+function supplierCodeLabel(sp) { return (sp && String(sp.codeLabel || '').trim()) || '공급처 품번'; }
+function curLabel(cur) { return CURRENCIES[cur] || cur || ''; }
+function fxRate(cur, rateOverride) { // 원으로 바꾸는 값 (1위안 = 190원 처럼). 위안은 예전부터 쓰던 settings.rate
+  if (!cur || cur === 'KRW') return 1;
+  if (cur === 'CNY') return rateOverride ? rateOverride.rate : settings.rate;
+  const ro = rateOverride && rateOverride.fx && rateOverride.fx[cur];
+  return Number(ro != null ? ro : ((settings.fx || {})[cur] || 0)) || 0;
+}
+function arrivalBySupplier(sp, orderDateStr) { // 발주일 'YY.MM.DD' → 도착 예정일 (발주처 규칙대로). 규칙이 "직접 입력"이면 null
+  if (!sp) return getChinaOrderArrivalDate(orderDateStr);
+  const a = sp.arrival || {};
+  if (a.mode === 'manual') return null;
+  const parts = String(orderDateStr || '').split('.'); if (parts.length < 3) return null;
+  const d = new Date(2000 + parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2])); if (isNaN(d.getTime())) return null;
+  const days = Math.max(0, parseInt(a.days) || 0);
+  if (a.mode === 'weekday' && Array.isArray(a.dows) && a.dows.length) {
+    let best = 7; for (const dow of a.dows) { const diff = (dow - d.getDay() + 7) % 7; if (diff < best) best = diff; }
+    d.setDate(d.getDate() + best + days);
+  } else d.setDate(d.getDate() + days);
+  return `${String(d.getFullYear()).slice(2)}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+}
+function arrivalRuleText(sp) {
+  const a = (sp && sp.arrival) || {};
+  if (a.mode === 'manual') return '도착일 직접 입력';
+  if (a.mode === 'weekday') return `${(a.dows || []).map(x => DOW_KO[x]).join('·')} 출발 + ${a.days || 0}일`;
+  return `주문 후 ${a.days || 0}일`;
+}
+// 원가표 한 줄(c)의 원단값(가공 전, 원/y) - 발주처의 통화·단위·운임으로 계산. 발주처 없으면 예전 방식(위안 × 환율 × 야드환산 + 운임)
+function fabricBaseCost(c, rateOverride) {
+  if (c.type === 'domestic') return c.price;
+  const sp = c.supplierId ? supplierById(c.supplierId) : null;
+  const yard = rateOverride ? rateOverride.yard : settings.yard;
+  const ship = rateOverride ? rateOverride.ship : settings.ship;
+  if (!sp) return c.price * (rateOverride ? rateOverride.rate : settings.rate) * yard + ship;
+  const factor = sp.priceUnit === 'y' ? 1 : yard;
+  const shp = (sp.ship != null && sp.ship !== '') ? Number(sp.ship) : (sp.currency === 'CNY' ? ship : 0);
+  return c.price * fxRate(sp.currency || 'CNY', rateOverride) * factor + shp;
+}
+function costPriceText(c) { // 원가표에 "중국단가 12.5위안/m" 처럼 보여줄 글자
+  if (c.type === 'domestic') return `국내 ${Number(c.price).toLocaleString()}원/y`;
+  const sp = c.supplierId ? supplierById(c.supplierId) : null;
+  if (!sp) return `중국단가 ${c.price}위안/m`;
+  return `${sp.name} ${c.price}${curLabel(sp.currency)}/${sp.priceUnit === 'y' ? 'y' : 'm'}`;
+}
+
+// ── 가공 (기모·워싱·코팅 등) ──
+// 가공마다: 가공처, 단가 기준(야드당 / kg당), 단가, 로스율(가공하면서 줄어드는 %), 품목별 단가, 자동 적용 키워드, 단가 이력
+// 계산: 완성 원가 = (원단값 + 가공비 합) ÷ (1 - 로스율)  ← 가공비는 가공 전 원단 1y 기준으로 받고, 줄어든 만큼 완성 원단 1y가 비싸짐
+// settings.processes 가 없는 예전 가게는 예전 "가공 종류"(컬러 이름에 키워드 → 금액 더하기)를 그대로 옮겨서 씀 (로스 0 → 예전과 같은 값)
+function getProcesses() {
+  if (Array.isArray(settings.processes)) return settings.processes;
+  return (settings.processingTypes || []).filter(p => p && p.keyword).map((p, i) => ({ id: 'kw' + i, name: String(p.keyword), vendor: '', basis: 'y', price: Number(p.fee) || 0, lossPct: 0, keywords: [String(p.keyword)], itemPrices: {}, history: [] }));
+}
+function processKeywords() { const out = []; for (const p of getProcesses()) for (const k of (p.keywords || [])) { const t = String(k || '').trim(); if (t && !out.includes(t)) out.push(t); } return out; }
+function colorProcessKey(item, color) { return `${String(item || '').trim()}|${String(color || '').trim()}`; }
+function processesForColor(item, color) { // 이 컬러에 걸리는 가공: 직접 지정한 게 있으면 그것, 없으면 컬러 이름에 키워드가 있는 것
+  const assign = (settings.colorProcess || {})[colorProcessKey(item, color)];
+  if (Array.isArray(assign)) return getProcesses().filter(p => assign.includes(p.id));
+  const t = String(color == null ? '' : color);
+  return getProcesses().filter(p => (p.keywords || []).some(k => k && t.includes(k)));
+}
+function processFeeFor(p, item, c) { // 가공 전 원단 1y당 가공비 (kg당이면 품목 중량으로 바꿈). 중량을 몰라서 못 구하면 null
+  const ip = p.itemPrices ? p.itemPrices[String(item || '').trim()] : null;
+  const price = (ip != null && ip !== '') ? Number(ip) : (Number(p.price) || 0);
+  if (p.basis === 'kg') { const w = c && Number(c.weight); return w > 0 ? price * w / 1000 : null; }
+  return price;
+}
+function processCostFor(c, color) { // → { fee, lossDiv, parts:[{name, fee, lossPct, missingWeight}] }
+  const item = c && c.item;
+  let fee = 0, lossDiv = 1; const parts = [];
+  for (const p of processesForColor(item, color)) {
+    const f = processFeeFor(p, item, c);
+    const lp = Math.min(90, Math.max(0, Number(p.lossPct) || 0));
+    if (f != null) fee += f;
+    if (lp > 0) lossDiv *= (1 - lp / 100);
+    parts.push({ name: p.name, fee: f, lossPct: lp, missingWeight: f == null });
+  }
+  return { fee, lossDiv, parts };
+}
+function costBreakdownText(item, color) { // "원단 7,300 + 기모 1,200 + 로스 5% 430 = 8,930원" (원가표 컬러 줄)
+  const c = findCostFor(item); if (!c) return '';
+  const colorFee = findColorFeeFor(item, color);
+  const eff = (colorFee && colorFee.price != null) ? { ...c, price: colorFee.price } : c;
+  const base = fabricBaseCost(eff);
+  const pc = (colorFee && colorFee.ignoreKeywordFees) ? { fee: 0, lossDiv: 1, parts: [] } : processCostFor(eff, color);
+  const bits = [`원단 ${Math.round(base).toLocaleString()}`];
+  for (const p of pc.parts) bits.push(p.missingWeight ? `${p.name} (중량 없음)` : `${p.name} ${Math.round(p.fee).toLocaleString()}`);
+  const before = base + pc.fee; const after = before / pc.lossDiv;
+  if (pc.lossDiv < 1) bits.push(`로스 ${Math.round((1 - pc.lossDiv) * 1000) / 10}% ${Math.round(after - before).toLocaleString()}`);
+  if (colorFee && colorFee.fee) bits.push(`추가 ${Number(colorFee.fee).toLocaleString()}`);
+  return bits.length > 1 ? bits.join(' + ') : '';
+}
+function setColorProcesses(item, color, ids) { // null이면 "이름으로 자동"으로 되돌림
+  const map = { ...(settings.colorProcess || {}) }; const k = colorProcessKey(item, color);
+  if (ids == null) delete map[k]; else map[k] = ids;
+  settings = { ...settings, colorProcess: map };
+}
+async function toggleColorProcess(item, color, pid) {
+  const cur = processesForColor(item, color).map(p => p.id);
+  const next = cur.includes(pid) ? cur.filter(x => x !== pid) : cur.concat(pid);
+  const before = settings.colorProcess;
+  setColorProcesses(item, color, next);
+  if (await persistSettings() === false) { settings = { ...settings, colorProcess: before }; }
+  render();
+}
+async function resetColorProcesses(item, color) {
+  const before = settings.colorProcess; setColorProcesses(item, color, null);
+  if (await persistSettings() === false) settings = { ...settings, colorProcess: before };
+  render();
+}
+function colorProcessChips(item, color) { // 원가표 컬러 줄의 [기모 ✓] [워싱] 칩
+  const list = getProcesses(); if (!list.length) return '';
+  const on = new Set(processesForColor(item, color).map(p => p.id));
+  const explicit = Array.isArray((settings.colorProcess || {})[colorProcessKey(item, color)]);
+  const I = JSON.stringify(item).replace(/"/g, '&quot;'), C = JSON.stringify(color).replace(/"/g, '&quot;');
+  return `<div style="display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-top:5px;"><span style="font-size:11px;color:var(--muted);width:100px;flex:none;">가공</span>${list.map(p => `<button type="button" onclick="event.stopPropagation(); toggleColorProcess(${I}, ${C}, '${p.id}')" style="border:1px solid ${on.has(p.id) ? 'var(--primary)' : 'var(--border)'};background:${on.has(p.id) ? '#eef5fa' : '#fff'};color:${on.has(p.id) ? 'var(--primary)' : '#777'};border-radius:12px;padding:3px 9px;font-size:11.5px;font-weight:700;">${on.has(p.id) ? '✓ ' : ''}${esc(p.name)}</button>`).join('')}${explicit ? `<button type="button" onclick="event.stopPropagation(); resetColorProcesses(${I}, ${C})" style="border:none;background:none;color:var(--muted);font-size:11px;text-decoration:underline;">이름으로 자동</button>` : `<span style="font-size:10.5px;color:var(--muted);">(컬러 이름으로 자동)</span>`}</div>`;
+}
+
+// ── 발주처 관리 창 ──
+let _spEdit = null;
+function openSupplierModal() {
+  if (!isOwner()) { showToast('발주처는 사장님만 바꿀 수 있습니다'); return; }
+  let ov = document.getElementById('supplierModal');
+  if (!ov) { ov = document.createElement('div'); ov.id = 'supplierModal'; ov.className = 'sm-ov'; document.body.appendChild(ov); ov.addEventListener('mousedown', e => { if (e.target === ov) ov.remove(); }); }
+  _spEdit = null; spRender();
+}
+function spRender() {
+  const ov = document.getElementById('supplierModal'); if (!ov) return;
+  const list = getSuppliers();
+  const used = (id) => chinaOrders.filter(o => o.status !== 'received' && (supplierOfOrder(o) || {}).id === id).length;
+  if (_spEdit) {
+    const s = _spEdit; const a = s.arrival || {};
+    const dows = DOW_KO.map((d, i) => `<label style="display:inline-flex;align-items:center;gap:3px;margin-right:8px;font-size:13px;"><input type="checkbox" class="sp-dow" value="${i}" ${(a.dows || []).includes(i) ? 'checked' : ''} style="width:auto;margin:0;">${d}</label>`).join('');
+    ov.innerHTML = `<div class="sm-box">
+      <h3>${s._new ? '발주처 추가' : '발주처 수정'}</h3>
+      <label class="rx-l">이름</label><input class="rx-in" id="sp-name" value="${esc(s.name || '')}" placeholder="예: 중국 공장, ○○직물, ○○염색">
+      <label class="rx-l">구분</label>
+      <div class="rx-seg" style="margin-top:0;"><button type="button" class="${s.kind !== 'overseas' ? 'on' : ''}" onclick="spSet('kind','domestic')">국내</button><button type="button" class="${s.kind === 'overseas' ? 'on' : ''}" onclick="spSet('kind','overseas')">해외</button></div>
+      <div style="display:flex;gap:8px;">
+        <div style="flex:1;"><label class="rx-l">단가 통화</label><select class="rx-in" id="sp-cur">${Object.entries(CURRENCIES).map(([k, v]) => `<option value="${k}" ${s.currency === k ? 'selected' : ''}>${v} (${k})</option>`).join('')}</select></div>
+        <div style="flex:1;"><label class="rx-l">단가 단위</label><select class="rx-in" id="sp-unit"><option value="y" ${s.priceUnit !== 'm' ? 'selected' : ''}>야드(y)당</option><option value="m" ${s.priceUnit === 'm' ? 'selected' : ''}>미터(m)당</option></select></div>
+      </div>
+      <label class="rx-l">운임 (원/y, 선택 - 해외 운송비를 야드당으로)</label><input class="rx-in" id="sp-ship" type="number" value="${s.ship != null ? esc(s.ship) : ''}" placeholder="${s.currency === 'CNY' ? `비우면 환율 화면의 운임(${Number(settings.ship || 0).toLocaleString()}원)` : '예: 300'}">
+      <label class="rx-l">도착 예정일 계산</label>
+      <div class="rx-seg" style="margin-top:0;"><button type="button" class="${a.mode === 'days' || !a.mode ? 'on' : ''}" onclick="spSetArr('days')">주문 후 며칠</button><button type="button" class="${a.mode === 'weekday' ? 'on' : ''}" onclick="spSetArr('weekday')">정해진 요일 출발</button><button type="button" class="${a.mode === 'manual' ? 'on' : ''}" onclick="spSetArr('manual')">직접 입력</button></div>
+      ${a.mode === 'weekday' ? `<div style="margin-top:8px;font-size:13px;">출발 요일: ${dows}</div>` : ''}
+      ${a.mode !== 'manual' ? `<div style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:13px;">${a.mode === 'weekday' ? '출발하고' : '주문하고'} <input class="rx-in" id="sp-days" type="number" value="${esc(a.days != null ? a.days : 3)}" style="width:70px;"> 일 뒤 도착</div>` : ''}
+      <label class="rx-l">품번 이름 (발주 등록 화면에 보일 이름)</label><input class="rx-in" id="sp-code" value="${esc(s.codeLabel || '')}" placeholder="예: 중국품번, 공장 품번">
+      <label class="rx-l">연락처·메모 (선택)</label><input class="rx-in" id="sp-note" value="${esc(s.note || '')}" placeholder="예: 담당 김부장 010-...">
+      <div class="rx-acts"><button type="button" class="ui-btn ui-btn-sub" onclick="_spEdit=null; spRender()">취소</button><button type="button" class="ui-btn ui-btn-main" onclick="spSave()">저장</button></div>
+    </div>`;
+    return;
+  }
+  ov.innerHTML = `<div class="sm-box">
+    <div class="rx-top"><h3>발주처 관리</h3><button type="button" class="rx-close" onclick="document.getElementById('supplierModal').remove()">✕</button></div>
+    <div class="rx-help">원단을 사오는 곳을 등록하면, 발주할 때 도착 예정일과 품번 이름이, 원가표에서는 통화·단위·운임이 그 발주처에 맞게 계산됩니다.</div>
+    ${list.length ? list.map(s => `<div class="sm-row"><div class="nm">${esc(s.name)} <small>${s.kind === 'overseas' ? '해외' : '국내'} · ${curLabel(s.currency)}/${s.priceUnit === 'm' ? 'm' : 'y'} · ${esc(arrivalRuleText(s))}${used(s.id) ? ` · 대기 발주 ${used(s.id)}건` : ''}</small></div>
+      <button class="sm-btn gray" onclick="spOpen('${esc(s.id)}')">수정</button>${used(s.id) ? '' : `<button class="sm-btn red" onclick="spDelete('${esc(s.id)}')">삭제</button>`}</div>`).join('') : '<div class="rx-empty">등록된 발주처가 없습니다</div>'}
+    <button type="button" class="ui-btn ui-btn-main" style="width:100%;margin-top:12px;padding:12px;" onclick="spOpen(null)">+ 발주처 추가</button>
+    <div class="rx-help" style="margin-top:10px;">외화(달러·엔·유로) 환율은 원가 탭 위쪽 "환율"에서 넣습니다.</div>
+  </div>`;
+}
+function spOpen(id) {
+  const s = id ? getSuppliers().find(x => x.id === id) : null;
+  _spEdit = s ? JSON.parse(JSON.stringify(s)) : { _new: true, id: 'sp' + Date.now().toString(36), name: '', kind: 'domestic', currency: 'KRW', priceUnit: 'y', ship: null, arrival: { mode: 'days', days: 3, dows: [] }, codeLabel: '', note: '' };
+  spRender();
+}
+function spReadForm() {
+  const s = _spEdit; if (!s) return;
+  const v = id => { const el = document.getElementById(id); return el ? el.value : undefined; };
+  if (v('sp-name') !== undefined) s.name = v('sp-name').trim();
+  if (v('sp-cur') !== undefined) s.currency = v('sp-cur');
+  if (v('sp-unit') !== undefined) s.priceUnit = v('sp-unit');
+  if (v('sp-ship') !== undefined) s.ship = v('sp-ship') === '' ? null : Number(v('sp-ship'));
+  if (v('sp-code') !== undefined) s.codeLabel = v('sp-code').trim();
+  if (v('sp-note') !== undefined) s.note = v('sp-note').trim();
+  s.arrival = s.arrival || {};
+  if (v('sp-days') !== undefined) s.arrival.days = Math.max(0, parseInt(v('sp-days')) || 0);
+  const dw = document.querySelectorAll('#supplierModal .sp-dow'); if (dw.length) s.arrival.dows = [...dw].filter(x => x.checked).map(x => Number(x.value));
+}
+function spSet(k, val) { spReadForm(); _spEdit[k] = val; if (k === 'kind' && val === 'domestic' && _spEdit.currency !== 'KRW') { _spEdit.currency = 'KRW'; _spEdit.priceUnit = 'y'; } if (k === 'kind' && val === 'overseas' && _spEdit.currency === 'KRW') _spEdit.currency = 'CNY'; spRender(); }
+function spSetArr(mode) { spReadForm(); _spEdit.arrival = { ..._spEdit.arrival, mode }; if (mode === 'weekday' && !(_spEdit.arrival.dows || []).length) _spEdit.arrival.dows = [2, 6]; spRender(); }
+async function spSave() {
+  spReadForm(); const s = _spEdit;
+  if (!s.name) { showToast('발주처 이름을 적어 주세요'); return; }
+  if (s.arrival.mode === 'weekday' && !(s.arrival.dows || []).length) { showToast('출발 요일을 하나 이상 골라 주세요'); return; }
+  const list = getSuppliers().map(x => ({ ...x }));
+  const clean = { ...s }; delete clean._new;
+  const i = list.findIndex(x => x.id === s.id); if (i >= 0) list[i] = clean; else list.push(clean);
+  const before = settings.suppliers;
+  settings = { ...settings, suppliers: list };
+  if (await persistSettings() === false) { settings = { ...settings, suppliers: before }; return; }
+  _spEdit = null; spRender(); render(); showToast('발주처 저장 완료');
+}
+async function spDelete(id) {
+  const s = getSuppliers().find(x => x.id === id); if (!s) return;
+  if (costs.some(c => c.supplierId === id) && !(await uiConfirm(`"${s.name}"을(를) 쓰는 원가가 있습니다.\n삭제하면 그 원가는 예전 방식(위안 × 환율)으로 계산됩니다. 삭제하시겠습니까?`))) return;
+  if (!costs.some(c => c.supplierId === id) && !(await uiConfirm(`발주처 "${s.name}"을(를) 삭제하시겠습니까?`))) return;
+  const before = settings.suppliers;
+  settings = { ...settings, suppliers: getSuppliers().filter(x => x.id !== id) };
+  if (await persistSettings() === false) { settings = { ...settings, suppliers: before }; return; }
+  spRender(); render(); showToast('삭제 완료');
+}
+// 발주 등록 창: 발주처 고르기
+function fillChinaSupplierSelect(selectedId) {
+  const sel = document.getElementById('china-supplier'); if (!sel) return;
+  const list = getSuppliers();
+  let pick = selectedId; if (pick == null) { try { pick = localStorage.getItem(`lastSupplier_${SHOP_ID}`); } catch (e) { pick = null; } }
+  if (!list.some(s => s.id === pick)) pick = list[0] ? list[0].id : '';
+  sel.innerHTML = list.map(s => `<option value="${esc(s.id)}" ${s.id === pick ? 'selected' : ''}>${esc(s.name)}</option>`).join('') + `<option value="" ${!pick ? 'selected' : ''}>(발주처 지정 안 함)</option>`;
+  document.getElementById('china-supplier-wrap').style.display = '';
+  onChinaSupplierChange(true);
+}
+function onChinaSupplierChange(silent) {
+  const sel = document.getElementById('china-supplier'); const sp = sel ? supplierById(sel.value) : null;
+  const lab = document.getElementById('china-code-label'); if (lab) lab.textContent = supplierCodeLabel(sp) + ' (선택)';
+  const hint = document.getElementById('china-arrival-rule'); if (hint) hint.textContent = sp ? `(${arrivalRuleText(sp)} - 직접 고치셔도 됩니다)` : '(직접 입력)';
+  if (!silent) { try { localStorage.setItem(`lastSupplier_${SHOP_ID}`, sel.value); } catch (e) { /* 없음 */ } }
+  updateChinaArrivalHint();
+}
+function currentChinaSupplier() { const sel = document.getElementById('china-supplier'); return sel ? supplierById(sel.value) : supplierOfOrder({}); }
+
+// ── 가공 관리 창 ──
+let _pcEdit = null;
+function openProcessModal() {
+  if (!isOwner()) { showToast('가공비는 사장님만 바꿀 수 있습니다'); return; }
+  let ov = document.getElementById('processModal');
+  if (!ov) { ov = document.createElement('div'); ov.id = 'processModal'; ov.className = 'sm-ov'; document.body.appendChild(ov); ov.addEventListener('mousedown', e => { if (e.target === ov) ov.remove(); }); }
+  _pcEdit = null; pcRender();
+}
+function pcPriceText(p) { return `${p.basis === 'kg' ? 'kg당' : '야드당'} ${Number(p.price || 0).toLocaleString()}원${Number(p.lossPct) > 0 ? ` · 로스 ${p.lossPct}%` : ''}`; }
+function pcRender() {
+  const ov = document.getElementById('processModal'); if (!ov) return;
+  if (_pcEdit) {
+    const p = _pcEdit; const ip = Object.entries(p.itemPrices || {});
+    ov.innerHTML = `<div class="sm-box">
+      <h3>${p._new ? '가공 추가' : '가공 수정'}</h3>
+      <div style="display:flex;gap:8px;"><div style="flex:1;"><label class="rx-l">가공 이름</label><input class="rx-in" id="pc-name" value="${esc(p.name || '')}" placeholder="예: 기모, 워싱, 코팅"></div>
+      <div style="flex:1;"><label class="rx-l">가공처 (선택)</label><input class="rx-in" id="pc-vendor" value="${esc(p.vendor || '')}" placeholder="예: ○○가공"></div></div>
+      <label class="rx-l">단가 기준</label>
+      <div class="rx-seg" style="margin-top:0;"><button type="button" class="${p.basis !== 'kg' ? 'on' : ''}" onclick="pcSet('basis','y')">야드당</button><button type="button" class="${p.basis === 'kg' ? 'on' : ''}" onclick="pcSet('basis','kg')">kg당 (품목 중량으로 환산)</button></div>
+      <div style="display:flex;gap:8px;"><div style="flex:1;"><label class="rx-l">기본 단가 (원/${p.basis === 'kg' ? 'kg' : 'y'})</label><input class="rx-in" id="pc-price" type="number" value="${esc(p.price != null ? p.price : '')}"></div>
+      <div style="flex:1;"><label class="rx-l">로스율 (%, 줄어드는 양)</label><input class="rx-in" id="pc-loss" type="number" step="0.1" value="${esc(p.lossPct || '')}" placeholder="0"></div></div>
+      ${p.basis === 'kg' ? '<div class="rx-note" style="margin-left:0;">kg당이면 원가 탭에서 품목마다 중량(g/y)을 넣어야 계산됩니다</div>' : ''}
+      <label class="rx-l">컬러 이름에 이 글자가 있으면 자동 적용 (쉼표로 여러 개)</label><input class="rx-in" id="pc-kw" value="${esc((p.keywords || []).join(', '))}" placeholder="예: 기모">
+      <div class="rx-note" style="margin-left:0;">원가 탭 컬러마다 가공을 직접 켜고 끌 수도 있습니다</div>
+      <label class="rx-l">품목별 단가 (이 품목만 다를 때)</label>
+      <div id="pc-items">${ip.map(([it, pr], i) => `<div style="display:flex;gap:6px;margin-bottom:6px;"><input class="rx-in pc-it" value="${esc(it)}" placeholder="품목"><input class="rx-in pc-ip" type="number" value="${esc(pr)}" placeholder="단가" style="width:110px;flex:none;"><button type="button" class="rx-x" onclick="this.parentNode.remove()">✕</button></div>`).join('')}</div>
+      <button type="button" class="rx-link" onclick="pcAddItemRow()">+ 품목별 단가 추가</button>
+      ${(p.history || []).length ? `<label class="rx-l">단가 이력</label><div class="rx-note" style="margin-left:0;line-height:1.8;">${p.history.slice(0, 8).map(h => `${esc(h.until)}까지: ${h.basis === 'kg' ? 'kg당' : '야드당'} ${Number(h.price || 0).toLocaleString()}원${Number(h.lossPct) > 0 ? ` · 로스 ${h.lossPct}%` : ''}`).join('<br>')}</div>` : ''}
+      <div class="rx-note" style="margin-left:0;margin-top:10px;">단가를 바꿔도 이미 나간 매출의 순이익은 그때 원가로 그대로입니다.</div>
+      <div class="rx-acts"><button type="button" class="ui-btn ui-btn-sub" onclick="_pcEdit=null; pcRender()">취소</button><button type="button" class="ui-btn ui-btn-main" onclick="pcSave()">저장</button></div>
+    </div>`;
+    return;
+  }
+  const list = getProcesses();
+  ov.innerHTML = `<div class="sm-box">
+    <div class="rx-top"><h3>가공비 관리</h3><button type="button" class="rx-close" onclick="document.getElementById('processModal').remove()">✕</button></div>
+    <div class="rx-help">완성 원가 = (원단 + 가공비) ÷ (1 − 로스율). 가공비는 가공 전 원단 1y 기준입니다.</div>
+    ${list.length ? list.map(p => `<div class="sm-row"><div class="nm">${esc(p.name)} <small>${esc(pcPriceText(p))}${p.vendor ? ` · ${esc(p.vendor)}` : ''}${Object.keys(p.itemPrices || {}).length ? ` · 품목별 ${Object.keys(p.itemPrices).length}개` : ''}${(p.keywords || []).length ? ` · 자동: ${esc(p.keywords.join(', '))}` : ''}</small></div>
+      <button class="sm-btn gray" onclick="pcOpen('${esc(p.id)}')">수정</button><button class="sm-btn red" onclick="pcDelete('${esc(p.id)}')">삭제</button></div>`).join('') : '<div class="rx-empty">등록된 가공이 없습니다</div>'}
+    <button type="button" class="ui-btn ui-btn-main" style="width:100%;margin-top:12px;padding:12px;" onclick="pcOpen(null)">+ 가공 추가</button>
+  </div>`;
+}
+function pcOpen(id) {
+  const p = id ? getProcesses().find(x => x.id === id) : null;
+  _pcEdit = p ? JSON.parse(JSON.stringify(p)) : { _new: true, id: 'pc' + Date.now().toString(36), name: '', vendor: '', basis: 'y', price: '', lossPct: 0, keywords: [], itemPrices: {}, history: [] };
+  _pcEdit._orig = p ? { price: p.price, basis: p.basis, lossPct: p.lossPct } : null;
+  pcRender();
+}
+function pcReadForm() {
+  const p = _pcEdit; if (!p) return; const v = id => { const el = document.getElementById(id); return el ? el.value : undefined; };
+  if (v('pc-name') !== undefined) p.name = v('pc-name').trim();
+  if (v('pc-vendor') !== undefined) p.vendor = v('pc-vendor').trim();
+  if (v('pc-price') !== undefined) p.price = v('pc-price') === '' ? '' : Number(v('pc-price'));
+  if (v('pc-loss') !== undefined) p.lossPct = Math.min(90, Math.max(0, Number(v('pc-loss')) || 0));
+  if (v('pc-kw') !== undefined) p.keywords = v('pc-kw').split(',').map(x => x.trim()).filter(Boolean);
+  const its = [...document.querySelectorAll('#pc-items .pc-it')], ips = [...document.querySelectorAll('#pc-items .pc-ip')];
+  if (its.length || document.getElementById('pc-items')) { const m = {}; its.forEach((el, i) => { const k = el.value.trim(); const val = ips[i].value; if (k && val !== '') m[k] = Number(val); }); p.itemPrices = m; }
+}
+function pcSet(k, val) { pcReadForm(); _pcEdit[k] = val; pcRender(); }
+function pcAddItemRow() { pcReadForm(); _pcEdit.itemPrices = { ..._pcEdit.itemPrices, '': '' }; pcRender(); const its = document.querySelectorAll('#pc-items .pc-it'); if (its.length) its[its.length - 1].focus(); }
+async function pcSave() {
+  pcReadForm(); const p = _pcEdit;
+  if (!p.name) { showToast('가공 이름을 적어 주세요'); return; }
+  if (!(Number(p.price) >= 0) || p.price === '') { showToast('기본 단가를 적어 주세요'); return; }
+  const o = p._orig;
+  if (o && (Number(o.price) !== Number(p.price) || (o.basis || 'y') !== (p.basis || 'y') || Number(o.lossPct || 0) !== Number(p.lossPct || 0))) {
+    p.history = [{ until: todayStr(), price: o.price, basis: o.basis || 'y', lossPct: o.lossPct || 0 }].concat(p.history || []).slice(0, 30);
+  }
+  const clean = { ...p }; delete clean._new; delete clean._orig; clean.price = Number(clean.price) || 0;
+  const list = getProcesses().map(x => ({ ...x }));
+  const i = list.findIndex(x => x.id === clean.id); if (i >= 0) list[i] = clean; else list.push(clean);
+  const before = settings.processes;
+  settings = { ...settings, processes: list };
+  if (await persistSettings() === false) { settings = { ...settings, processes: before }; return; }
+  _pcEdit = null; pcRender(); render(); showToast('가공 저장 완료 · 원가가 다시 계산되었습니다');
+}
+async function pcDelete(id) {
+  const p = getProcesses().find(x => x.id === id); if (!p) return;
+  if (!(await uiConfirm(`가공 "${p.name}"을(를) 삭제하시겠습니까?\n이 가공이 걸린 컬러의 원가에서 가공비가 빠집니다. (이미 나간 매출은 그대로)`))) return;
+  const before = settings.processes;
+  settings = { ...settings, processes: getProcesses().filter(x => x.id !== id) };
+  if (await persistSettings() === false) { settings = { ...settings, processes: before }; return; }
+  pcRender(); render(); showToast('삭제 완료');
+}
+
 // ---------- 원가 계산 ----------
 function finalCost(c, color, skipKeywordFee, rateOverride) {
   // c: {type, price} 또는 과거 데이터 호환을 위해 price 숫자만 올 수도 있음
   if (typeof c === 'number') c = { type: 'import', price: c };
-  const rate = rateOverride ? rateOverride.rate : settings.rate;
-  const yard = rateOverride ? rateOverride.yard : settings.yard;
-  const ship = rateOverride ? rateOverride.ship : settings.ship;
-  let base;
-  if (c.type === 'domestic') base = c.price;
-  else base = c.price * rate * yard + ship;
-  if (!skipKeywordFee) base += getProcessingFeeForColor(color);
+  let base = fabricBaseCost(c, rateOverride); // 발주처(통화·단위·운임) 기준 원단값. 발주처 없는 예전 원가는 위안 × 환율 × 야드환산 + 운임 그대로
+  if (!skipKeywordFee && color != null) { const pc = processCostFor(c, color); base = (base + pc.fee) / pc.lossDiv; } // 가공비 더하고 로스만큼 나눔 (로스 0이면 예전과 같음)
   return base;
 }
-function getProcessingFeeForColor(color) {
-  // 컬러 이름에 등록해둔 가공 종류(기모/가공/방전처리 등)의 키워드가 들어있으면, 해당 비용들을 전부 더함
+function getProcessingFeeForColor(color, item) {
+  // 이 컬러에 걸린 가공비 합 (가공 전 1y 기준, 로스 제외) - 화면 표시용
   if (color == null) return 0;
-  const t_color = String(color);
-  const types = settings.processingTypes || [];
-  let sum = 0;
-  for (const pt of types) {
-    if (pt.keyword && t_color.includes(pt.keyword)) sum += (pt.fee || 0);
-  }
-  return sum;
+  return processCostFor({ item: item || '', weight: (findCostFor(item || '') || {}).weight }, color).fee;
 }
 function updateRateBar() {
   document.getElementById('rateDisplay').textContent = settings.rate.toLocaleString();
@@ -3479,7 +3845,7 @@ function updateRateBar() {
 // ---------- 탭 ----------
 function applyTabChrome(tab) {
   for (const t of ['today', 'inv', 'china', 'cost', 'order', 'sales']) document.getElementById('tab-' + t).classList.toggle('active', tab === t);
-  const titles = { today: '홈', inv: '재고', cost: '원가표', order: '이월장부', sales: '매출·수금', china: '중국발주' };
+  const titles = { today: '홈', inv: '재고', cost: '원가표', order: '이월장부', sales: '매출·수금', china: '발주' };
   const placeholders = { today: '', inv: '품번(품목) 또는 칼라 검색', cost: '품목(품번) 검색', order: '거래처 또는 품목 검색', sales: '거래처 또는 품목 검색', china: '품명, 중국품번, 컬러 검색' };
   const fabLabels = { today: '', inv: '+ 입고', cost: '+ 원가 등록', order: '+ 발주 등록', sales: '', china: '+ 발주 등록' };
   document.getElementById('page-title').textContent = titles[tab];
@@ -3708,7 +4074,7 @@ function renderToday() {
   // 빠른 작업
   html += `<div style="display:flex; gap:8px; margin-bottom:10px;">
     ${bigBtn('+ 입고 등록', 'todayGoInv()', 'var(--primary-dark)', '#fff', 'btn-key')}
-    ${bigBtn('+ 중국발주 등록', 'openChinaOrderAddModal()', '#dbe9f0', 'var(--primary-dark)')}
+    ${bigBtn('+ 발주 등록', 'openChinaOrderAddModal()', '#dbe9f0', 'var(--primary-dark)')}
     ${salesAdminUnlocked ? bigBtn('+ 새 매출', 'todayGoSales()', '#eaf3ec', '#2f6b46', 'btn-key') : ''}
   </div>`;
   if (salesAdminUnlocked) html += `<div style="text-align:center; margin-bottom:14px;"><button onclick="lockTodayAdmin()" style="border:none; background:none; color:var(--muted); font-size:12px; text-decoration:underline; cursor:pointer;">관리자 잠금</button></div>`;
@@ -3894,7 +4260,7 @@ function renderCustomerPickerList() {
   `).join('');
 }
 async function deleteRegisteredCustomer(name) {
-  if (!(await uiConfirm(`"${name}"을(를) 등록된 거래처 목록에서 삭제하시겠습니까?\n(이미 있는 발주/매출 기록은 그대로 남고, 목록에서만 빠집니다)`))) return;
+  if (!(await uiConfirm(`"${name}"을(를) 등록된 거래처 목록에서 삭제하시겠습니까?\n(이미 있는 주문/매출 기록은 그대로 남고, 목록에서만 빠집니다)`))) return;
   customerList = customerList.filter(c => String(c).trim() !== name);
   await persistCustomerList();
   renderCustomerPickerList();
@@ -5129,9 +5495,9 @@ async function saveAdd() {
 
   closeAddModal(); render();
   if (chinaSyncFailed) {
-    (await uiAlert('재고는 정상적으로 등록됐습니다.\n다만 중국발주 상태 반영은 서버 연결 문제로 실패했습니다 - 중국발주 탭에서 직접 처리해 주세요.'));
+    (await uiAlert('재고는 정상적으로 등록됐습니다.\n다만 발주 상태 반영은 서버 연결 문제로 실패했습니다 - 발주 탭에서 직접 처리해 주세요.'));
   }
-  showToast(`입고 등록되었습니다 (컬러 ${totalColors}개, 탕 ${totalEntries}개)${chinaMatchDecisions.length > 0 && !chinaSyncFailed ? ' · 중국발주도 같이 처리했습니다' : ''}`);
+  showToast(`입고 등록되었습니다 (컬러 ${totalColors}개, 탕 ${totalEntries}개)${chinaMatchDecisions.length > 0 && !chinaSyncFailed ? ' · 발주도 같이 처리했습니다' : ''}`);
 }
 
 function openOutModal(id) {
@@ -5410,7 +5776,7 @@ async function renameFieldInArchive(fieldName, oldValue, newValue) {
 // 저장 모양: 숫자(기본 단가 하나) 또는 { b: 기본(무지) 단가, x: { '기모': 5500, '방전처리': 6000 } } (가공별로 단가가 다를 때)
 function storePriceTypes(extraKeys) { // 매장가를 따로 적을 수 있는 가공 종류: 기모 + (설정 > 가공 종류 관리)에 등록한 것 (+ 이미 적어둔 것)
   const out = ['기모'];
-  for (const pt of (settings.processingTypes || [])) { const k = String(pt.keyword || '').trim(); if (k && !out.includes(k)) out.push(k); }
+  for (const k of processKeywords()) { if (k && !out.includes(k)) out.push(k); }
   for (const k of (extraKeys || [])) if (!out.includes(k)) out.push(k);
   return out;
 }
@@ -5708,10 +6074,15 @@ function renderCost() {
   const list = document.getElementById('list');
   list.innerHTML = '';
   const ptBtn = document.createElement('button');
-  ptBtn.textContent = '가공 종류 관리 (기모/가공/방전처리 등)';
-  ptBtn.style.cssText = 'border:none;background:#fff3d6;color:#a15c1e;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;margin-bottom:10px;';
-  ptBtn.onclick = openProcessingTypeModal;
+  ptBtn.textContent = '가공비 관리 (기모·워싱 등)';
+  ptBtn.style.cssText = 'border:none;background:var(--b-warn);color:#a15c1e;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;margin-bottom:10px;margin-right:6px;';
+  ptBtn.onclick = openProcessModal;
   list.appendChild(ptBtn);
+  const spBtn = document.createElement('button');
+  spBtn.textContent = '발주처 관리';
+  spBtn.style.cssText = 'border:none;background:var(--b-info);color:var(--primary-dark);border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;margin-bottom:10px;';
+  spBtn.onclick = openSupplierModal;
+  list.appendChild(spBtn);
   if (list2.length === 0) { list.innerHTML += '<div class="empty">해당 조건의 원가 데이터가 없습니다</div>'; return; }
 
   for (const c of list2) {
@@ -5749,7 +6120,7 @@ function renderCost() {
       <div>
         <div class="name">${esc(c.item)}${storePriceChipHtml(c.item)}${colorsForItem.length > 0 ? ` <span style="font-size:11px; color:var(--muted); font-weight:400;">${isOpen ? '(컬러별 접기 ▲)' : '(눌러서 컬러별 보기 ▼)'}</span>` : ''}</div>
         ${c.mix ? `<div class="sub" style="font-size:11px; color:#8a8a8a; margin-top:1px;">혼용률 ${esc(c.mix)}</div>` : ''}
-        <div class="sub">분류 ${esc(c.cat)} · ${c.type === 'domestic' ? '국내산 고정가' : ('중국단가 ' + c.price + '위안/m')}</div>
+        <div class="sub">분류 ${esc(c.cat)} · ${esc(costPriceText(c))}${c.weight ? ` · 중량 ${esc(c.weight)}g/y` : ''}</div>
         ${c.type === 'domestic' ? '<div class="sub" style="color:#2f6b46;">환율 미적용 (적혀있는 금액 그대로)</div>' : ''}
         ${overridesForItem.length > 0 ? `<div class="sub" style="color:#a15c1e;">가공비 추가된 컬러 ${overridesForItem.length}개</div>` : ''}
         <div class="btns">
@@ -5777,7 +6148,8 @@ function renderCost() {
           const wonDisplayId = `cost-color-won-${c.id}-${colorIdx}`;
           const colorWon = Math.round(getCostPerYard(c.item, color));
           const isDifferent = colorWon !== won;
-          const keywordFee = getProcessingFeeForColor(color);
+          const keywordFee = getProcessingFeeForColor(color, c.item);
+          const bdText = costBreakdownText(c.item, color);
           const swInfo = findSwatchFor(c.cat, c.item, color);
           const swLabelTxt = swLabel(swInfo) ? ` (${swLabel(swInfo)})` : '';
           return `
@@ -5787,9 +6159,9 @@ function renderCost() {
                 <span id="${wonDisplayId}" style="font-size:13px; font-weight:700; color:${isDifferent ? '#a15c1e' : 'var(--muted)'};">${colorWon.toLocaleString()}원</span>
               </div>
               <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
-                <span style="font-size:11px; color:var(--muted); width:100px; flex:none;">이 컬러만 중국단가</span>
+                <span style="font-size:11px; color:var(--muted); width:100px; flex:none;">이 컬러만 단가</span>
                 <input type="number" step="0.1" id="${priceInputId}" placeholder="${c.type === 'domestic' ? '해당없음(국내산)' : '품목 기본단가 사용'}" value="${override && override.price != null ? override.price : ''}" ${c.type === 'domestic' ? 'disabled' : ''} onblur="autoSaveCostColorOverride('${escAttr(c.item)}', '${escAttr(color)}', '${priceInputId}', '${feeInputId}', '${ignoreInputId}', '${wonDisplayId}')" style="width:100px; padding:6px; border:1px solid var(--border); border-radius:6px; font-size:13px;">
-                <span style="font-size:11px; color:var(--muted);">위안/m (환율 자동 적용)</span>
+                <span style="font-size:11px; color:var(--muted);">${(() => { const sp = c.supplierId ? supplierById(c.supplierId) : null; return sp ? `${curLabel(sp.currency)}/${sp.priceUnit === 'y' ? 'y' : 'm'}` : '위안/m'; })()} (환율 자동 적용)</span>
               </div>
               <div style="display:flex; align-items:center; gap:6px;">
                 <span style="font-size:11px; color:var(--muted); width:100px; flex:none;">가공비 추가</span>
@@ -5799,9 +6171,11 @@ function renderCost() {
               ${keywordFee > 0 ? `
                 <label style="display:flex; align-items:center; gap:6px; font-size:11px; color:#a15c1e; margin-top:4px;">
                   <input type="checkbox" id="${ignoreInputId}" ${override && override.ignoreKeywordFees ? 'checked' : ''} onchange="autoSaveCostColorOverride('${escAttr(c.item)}', '${escAttr(color)}', '${priceInputId}', '${feeInputId}', '${ignoreInputId}', '${wonDisplayId}')" style="width:auto;">
-                  자동으로 걸린 가공비(+${keywordFee.toLocaleString()}원) 무시하고, 위에 적은 가공비 추가 금액만 쓰기
+                  자동으로 걸린 가공비(+${Math.round(keywordFee).toLocaleString()}원) 무시하고, 위에 적은 가공비 추가 금액만 쓰기
                 </label>
               ` : ''}
+              ${colorProcessChips(c.item, color)}
+              ${bdText ? `<div style="font-size:11px;color:#6b6b6b;margin-top:4px;">${esc(bdText)} = <b>${colorWon.toLocaleString()}원</b></div>` : ''}
             </div>
           `;
         }).join('')}
@@ -5849,10 +6223,24 @@ async function autoSaveCostColorOverride(item, color, priceInputId, feeInputId, 
   }
 }
 
+function fillCostSupplierSelect(selId) {
+  const sel = document.getElementById('c-supplier'); const list = getSuppliers().filter(s => s.kind === 'overseas' || (s.currency && s.currency !== 'KRW') || s.id === selId);
+  sel.innerHTML = `<option value="">기본 (위안 × 환율 × 야드환산 + 운임)</option>` + list.map(s => `<option value="${esc(s.id)}" ${s.id === selId ? 'selected' : ''}>${esc(s.name)} (${curLabel(s.currency)}/${s.priceUnit === 'y' ? 'y' : 'm'})</option>`).join('');
+  if (selId && !list.some(s => s.id === selId)) sel.value = '';
+}
 function onCostTypeChange() {
   const type = document.querySelector('input[name="c-type"]:checked').value;
   const label = document.getElementById('c-price-label');
   const hint = document.getElementById('c-price-hint');
+  document.getElementById('c-supplier-wrap').style.display = type === 'domestic' ? 'none' : '';
+  const sp = type === 'domestic' ? null : supplierById(document.getElementById('c-supplier').value);
+  if (sp) {
+    const u = sp.priceUnit === 'y' ? '야드' : '미터';
+    label.textContent = `${sp.name} 단가 (${curLabel(sp.currency)}/${u})`;
+    hint.textContent = `최종원가 = 단가 × 환율(${curLabel(sp.currency)})${sp.priceUnit === 'y' ? '' : ' × 야드환산'} + 운임 ${sp.ship != null && sp.ship !== '' ? Number(sp.ship).toLocaleString() + '원' : (sp.currency === 'CNY' ? '(기본 운임)' : '0원')} (자동 계산됩니다)`;
+    document.getElementById('c-price').placeholder = '예: 12.5';
+    return;
+  }
   if (type === 'domestic') {
     label.textContent = '고정 원가';
     hint.textContent = '환율 계산 없이, 여기 적은 금액을 그대로 원가로 씁니다.';
@@ -5871,7 +6259,9 @@ function openCostAddModal() {
   document.getElementById('c-item').value = '';
   document.getElementById('c-price').value = '';
   document.getElementById('c-mix').value = '';
-  document.querySelector('input[name="c-type"][value="import"]').checked = true;
+  document.getElementById('c-weight').value = '';
+  { const imp = getSuppliers().filter(s => s.kind === 'overseas'); fillCostSupplierSelect(imp.length === 1 && imp[0].id !== 'cn' ? imp[0].id : ''); }
+  document.querySelector(`input[name="c-type"][value="${getSuppliers().length && !getSuppliers().some(s => s.kind === 'overseas') ? 'domestic' : 'import'}"]`).checked = true;
   onCostTypeChange();
   document.getElementById('costModal').classList.add('open');
 }
@@ -5884,6 +6274,8 @@ function openCostEditModal(id) {
   document.getElementById('c-item').value = c.item;
   document.getElementById('c-price').value = c.price;
   document.getElementById('c-mix').value = c.mix || '';
+  document.getElementById('c-weight').value = c.weight || '';
+  fillCostSupplierSelect(c.supplierId || '');
   document.querySelector(`input[name="c-type"][value="${c.type === 'domestic' ? 'domestic' : 'import'}"]`).checked = true;
   onCostTypeChange();
   document.getElementById('costModal').classList.add('open');
@@ -5895,14 +6287,20 @@ async function saveCost() {
   const price = parseFloat(document.getElementById('c-price').value);
   const type = document.querySelector('input[name="c-type"]:checked').value;
   const mix = document.getElementById('c-mix').value.trim().slice(0, 40);
+  const supplierId = type === 'domestic' ? '' : document.getElementById('c-supplier').value;
+  const weight = parseFloat(document.getElementById('c-weight').value);
   if (!item || !price || price <= 0) { showToast('품목과 가격을 확인해 주세요'); return; }
   if (editingCostId !== null) {
     const c = costs.find(x => x.id === editingCostId);
     c.cat = cat || '미분류'; c.item = item; c.price = price; c.type = type;
     if (mix) c.mix = mix; else delete c.mix; // 혼용률: 비우면 지움
+    if (supplierId) c.supplierId = supplierId; else delete c.supplierId; // 발주처: 없으면 예전 방식
+    if (weight > 0) c.weight = weight; else delete c.weight;
   } else {
     const nc = { id: nextCostId++, cat: cat || '미분류', item, color: null, price, type };
     if (mix) nc.mix = mix;
+    if (supplierId) nc.supplierId = supplierId;
+    if (weight > 0) nc.weight = weight;
     costs.push(nc);
   }
   await persistCosts(); closeCostModal(); render(); showToast('저장 완료');
@@ -5912,7 +6310,8 @@ async function deleteCost(id) {
   costs = costs.filter(x => x.id !== id);
   await persistCosts(); render(); showToast('삭제 완료');
 }
-function openProcessingTypeModal() {
+function openProcessingTypeModal() { openProcessModal(); }
+function _oldOpenProcessingTypeModal() {
   const listEl = document.getElementById('processing-type-list');
   const types = settings.processingTypes || [];
   listEl.innerHTML = types.length === 0 ? '<div class="empty">등록된 가공 종류가 없습니다</div>' : types.map((pt, i) => `
@@ -6000,12 +6399,12 @@ function renderOrderChips() {
 
 async function bulkCompleteOldOrders() {
   const activeOrders = orders.filter(o => !o.done);
-  if (activeOrders.length === 0) { showToast('진행중인 발주가 없습니다'); return; }
+  if (activeOrders.length === 0) { showToast('진행중인 주문이 없습니다'); return; }
   const dates = activeOrders.map(o => o.date).filter(Boolean).sort();
   const maxDate = dates[dates.length - 1];
   const toComplete = activeOrders.filter(o => o.date !== maxDate);
   if (toComplete.length === 0) { showToast(`전부 최신 날짜(${maxDate})라 처리할 게 없습니다`); return; }
-  if (!(await uiConfirm(`${maxDate} 이전 날짜 발주 ${toComplete.length}건을 전부 완료 처리하시겠습니까?`))) return;
+  if (!(await uiConfirm(`${maxDate} 이전 날짜 주문 ${toComplete.length}건을 전부 완료 처리하시겠습니까?`))) return;
   for (const o of toComplete) o.done = true;
   await persistOrders(); render();
   showToast(`${toComplete.length}건 완료 처리했습니다 (${maxDate}만 진행중으로 남음)`);
@@ -6041,8 +6440,8 @@ function renderOrderCard(o, showItemAsTitle) {
     </div>
     <div class="order-progress">
       ${remain > 0
-        ? `<span style="color:var(--danger);font-weight:700;">이월 ${remain}${o.unit || 'y'}</span><span style="color:var(--muted);font-size:12px;"> (발주 ${o.orderQty}${o.unit || 'y'} 중 ${o.received}${o.unit || 'y'} 처리)</span>`
-        : (o.orderQty ? `발주 ${o.orderQty}${o.unit || 'y'} 전량 처리완료` : `처리 ${o.received}${o.unit || 'y'}`)}
+        ? `<span style="color:var(--danger);font-weight:700;">이월 ${remain}${o.unit || 'y'}</span><span style="color:var(--muted);font-size:12px;"> (주문 ${o.orderQty}${o.unit || 'y'} 중 ${o.received}${o.unit || 'y'} 처리)</span>`
+        : (o.orderQty ? `주문 ${o.orderQty}${o.unit || 'y'} 전량 처리완료` : `처리 ${o.received}${o.unit || 'y'}`)}
     </div>
     ${o.note ? `<div class="order-note">${esc(o.note)}</div>` : ''}
     <div class="order-btns">
@@ -6071,7 +6470,7 @@ function renderCustomerShipList() {
   const targetOrders = orders.filter(o => !o.done && String(o.customer).trim() === String(customer).trim());
   document.getElementById('customer-ship-list-title').textContent = `${customer} · 출고 처리 (${targetOrders.length}건 남음)`;
   if (targetOrders.length === 0) {
-    listEl.innerHTML = '<div class="empty">진행중인 발주가 없습니다</div>';
+    listEl.innerHTML = '<div class="empty">진행중인 주문이 없습니다</div>';
     return;
   }
   listEl.innerHTML = targetOrders.map(o => {
@@ -6080,7 +6479,7 @@ function renderCustomerShipList() {
       <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 4px; border-bottom:1px dashed var(--border);">
         <div>
           <div style="font-weight:600; font-size:14px;">${esc(o.item)} ${esc(o.color || '')}</div>
-          <div style="font-size:12px; color:var(--muted);">${o.date ? esc(o.date) + ' · ' : ''}이월 ${remain}${o.unit || 'y'} (발주 ${o.orderQty || 0}${o.unit || 'y'} 중 ${o.received}${o.unit || 'y'} 처리)</div>
+          <div style="font-size:12px; color:var(--muted);">${o.date ? esc(o.date) + ' · ' : ''}이월 ${remain}${o.unit || 'y'} (주문 ${o.orderQty || 0}${o.unit || 'y'} 중 ${o.received}${o.unit || 'y'} 처리)</div>
         </div>
         <button class="btn-receive" onclick="openOrderReceiveModal(${o.id})">출고</button>
       </div>
@@ -6089,7 +6488,7 @@ function renderCustomerShipList() {
 }
 const AUTHORITATIVE_ORDERS_20260810 = []; // [새 시스템] 백야 거래처 발주 목록은 뺌 (원래 값: private/baekya_seed.json). 이 목록을 쓰던 정리 함수는 아무 버튼에도 연결돼 있지 않음
 async function replaceOrdersWithAuthoritative20260810() {
-  if (!(await uiConfirm(`26.08.10자 인쇄물 기준 ${AUTHORITATIVE_ORDERS_20260810.length}건으로 "진행중" 발주를 통째로 교체하겠습니다.\n\n지금 진행중으로 남아있는 기존 발주들은 다 지워지고 이 목록으로 바뀝니다. (완료된 이력은 안 건드립니다)\n\n계속하시겠습니까?`, { ok: '바꾸기' }))) return;
+  if (!(await uiConfirm(`26.08.10자 인쇄물 기준 ${AUTHORITATIVE_ORDERS_20260810.length}건으로 "진행중" 주문을 통째로 교체하겠습니다.\n\n지금 진행중으로 남아있는 기존 주문들은 다 지워지고 이 목록으로 바뀝니다. (완료된 이력은 안 건드립니다)\n\n계속하시겠습니까?`, { ok: '바꾸기' }))) return;
   orders = orders.filter(o => o.done); // 완료된 건 이력은 보존, 진행중인 건 전부 제거
   for (const [customer, factory, item, color, orderQty, unit, note] of AUTHORITATIVE_ORDERS_20260810) {
     orders.push({ id: genUniqueId(), date: '26.08.10', customer, factory, item, color, orderQty, unit, received: 0, note, done: false });
@@ -6105,7 +6504,7 @@ async function printOrderLedger(mode) {
     const t = searchTerm.trim().toLowerCase();
     list2 = list2.filter(o => String(o.customer).toLowerCase().includes(t) || String(o.item).toLowerCase().includes(t));
   }
-  if (list2.length === 0) { showToast(forImage ? '내보낼 진행중 발주가 없습니다' : '인쇄할 진행중 발주가 없습니다'); return; }
+  if (list2.length === 0) { showToast(forImage ? '내보낼 진행중 주문이 없습니다' : '인쇄할 진행중 주문이 없습니다'); return; }
 
   // 연속으로 같은 값이면 빈 칸으로 (중복 표시 제거)
   function dedupeRows(rowObjs, keys) {
@@ -6228,7 +6627,7 @@ async function printOrderLedger(mode) {
       rowTrs.push(trHtml); rowsHtml += trHtml;
     }
 
-    const headerRow = `<tr><th style="width:11%;">발주일</th><th style="width:14%;">거래처</th><th style="width:15%;">공장/연락처</th><th style="width:14%;">품목</th><th style="width:13%;">컬러</th><th style="width:9%;">수량</th><th style="width:24%;">비고</th></tr>`;
+    const headerRow = `<tr><th style="width:11%;">주문일</th><th style="width:14%;">거래처</th><th style="width:15%;">공장/연락처</th><th style="width:14%;">품목</th><th style="width:13%;">컬러</th><th style="width:9%;">수량</th><th style="width:24%;">비고</th></tr>`;
 
     imgSecs.push({ label: `${factoryPriorityLabel(p)} (${bucket.length}건)`, headerRow, trs: rowTrs });
     sections.push(`
@@ -6260,7 +6659,7 @@ async function printOrderLedger(mode) {
     }
     flush();
     const total = pages.length;
-    const imgHtml = pages.map((pg, i) => `<div class="stm-img-page ledger-print" style="width:794px; background:#fff; box-sizing:border-box; font-family:-apple-system,'Malgun Gothic',sans-serif;"><div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;"><h2 style="margin:0; font-size:22px;">이월장부 (진행중 발주 목록)</h2><span style="color:#555; font-size:13px;">${i + 1}/${total}</span></div><div style="color:#555; font-size:13px; margin-bottom:10px;">발행일: ${tomorrowStr()} · 총 ${list2.length}건</div>${pg}</div>`).join('');
+    const imgHtml = pages.map((pg, i) => `<div class="stm-img-page ledger-print" style="width:794px; background:#fff; box-sizing:border-box; font-family:-apple-system,'Malgun Gothic',sans-serif;"><div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;"><h2 style="margin:0; font-size:22px;">이월장부 (진행중 주문 목록)</h2><span style="color:#555; font-size:13px;">${i + 1}/${total}</span></div><div style="color:#555; font-size:13px; margin-bottom:10px;">발행일: ${tomorrowStr()} · 총 ${list2.length}건</div>${pg}</div>`).join('');
     try {
       showToast('이미지 만드는 중...');
       const files = await renderStatementImages(imgHtml, '', '이월장부', 794, { fast: true });
@@ -6282,7 +6681,7 @@ async function printOrderLedger(mode) {
 
   const html = `
     <div class="ledger-print" style="padding:14mm 12mm; font-family:-apple-system,'Malgun Gothic',sans-serif;">
-      <h2 style="margin:0 0 4px;">이월장부 (진행중 발주 목록)</h2>
+      <h2 style="margin:0 0 4px;">이월장부 (진행중 주문 목록)</h2>
       <div style="color:#555; font-size:12px; margin-bottom:6px;">발행일: ${tomorrowStr()} · 총 ${list2.length}건</div>
       ${memoSection}
       ${sections.join('')}
@@ -6347,7 +6746,7 @@ function renderOrders() {
     const t = searchTerm.trim().toLowerCase();
     list2 = list2.filter(o => String(o.customer).toLowerCase().includes(t) || String(o.item).toLowerCase().includes(t));
   }
-  if (list2.length === 0) { list.innerHTML = '<div class="empty">해당 조건의 발주가 없습니다</div>'; return; }
+  if (list2.length === 0) { list.innerHTML = '<div class="empty">해당 조건의 주문이 없습니다</div>'; return; }
 
   if (orderGroupMode === 'customer') {
     renderOrdersByCustomer(list2);
@@ -7021,7 +7420,7 @@ async function confirmSaleEditInner(keepOpen) {
       discount, discountReason: discount > 0 ? discountReason : '',
       extraAmount, extraReason: extraAmount > 0 ? extraReason : '',
       note: noteVal || '수동 추가', invDeductedAmount: inv.ok ? yardsRaw : 0, deductBreakdown: inv.breakdown || null,
-      rateSnapshot: { rate: settings.rate, yard: settings.yard, ship: settings.ship }
+      rateSnapshot: { rate: settings.rate, yard: settings.yard, ship: settings.ship, fx: { ...(settings.fx || {}) } }
     });
     await rememberPrice(customer, item, color, priceRaw);
     if (!customerList.some(c => String(c).trim() === customer)) {
@@ -12755,7 +13154,7 @@ async function editCarryoverBalance(customer, entryId) {
   showToast(`이월 미수금을 ${amount.toLocaleString()}원으로 수정했습니다${overpaidCarryover > 0 ? ` · 이미 받은 돈 중 ${overpaidCarryover.toLocaleString()}원은 선수금으로 기록했습니다` : ''}`);
 }
 async function renameFactoryForOrders(oldFactory, orderIds) {
-  const raw = await askText('공장/연락처 수정', oldFactory === '(연락처 미입력)' ? '' : oldFactory, { desc: `"${oldFactory}" · 발주 ${orderIds.length}건`, label: '공장/연락처' });
+  const raw = await askText('공장/연락처 수정', oldFactory === '(연락처 미입력)' ? '' : oldFactory, { desc: `"${oldFactory}" · 주문 ${orderIds.length}건`, label: '공장/연락처' });
   if (raw === null) return;
   const newFactory = raw.trim();
   if (!newFactory) { showToast('공장/연락처를 입력해 주세요'); return; }
@@ -13277,6 +13676,12 @@ function renderChinaOrders() {
   const list = document.getElementById('list');
   list.innerHTML = '';
 
+  if (!getSuppliers().length && isOwner()) {
+    const tip = document.createElement('div');
+    tip.style.cssText = 'background:var(--b-info);color:var(--primary-dark);border-radius:10px;padding:10px 12px;font-size:13px;margin-bottom:10px;line-height:1.6;';
+    tip.innerHTML = '원단을 사오는 곳(발주처)을 먼저 등록하면, 발주할 때 도착 예정일이 자동으로 계산됩니다. <a href="#" onclick="event.preventDefault(); openSupplierModal();" style="font-weight:700;color:var(--primary-dark);">발주처 등록 ▸</a>';
+    list.appendChild(tip);
+  }
   const waitCount = chinaOrders.filter(o => o.status !== 'received').length;
   const recvCount = chinaOrders.filter(o => o.status === 'received').length;
   document.getElementById('stats').innerHTML = `<span>대기중 ${waitCount}건</span><span>입고완료 ${recvCount}건</span><span>전체 ${chinaOrders.length}건</span>`;
@@ -13297,6 +13702,13 @@ function renderChinaOrders() {
   groupToggleBtn.style.cssText = 'flex:none; margin-left:auto; border:none; background:#eee; color:var(--text); border-radius:20px; padding:6px 14px; font-size:12px; font-weight:600;';
   groupToggleBtn.onclick = () => { chinaOrderGroupMode = chinaOrderGroupMode === 'arrival' ? 'item' : 'arrival'; render(); };
   chipRow.appendChild(groupToggleBtn);
+  if (isOwner()) {
+    const spBtn = document.createElement('button');
+    spBtn.textContent = '발주처 관리';
+    spBtn.style.cssText = 'flex:none; border:none; background:var(--b-info); color:var(--primary-dark); border-radius:20px; padding:6px 14px; font-size:12px; font-weight:600;';
+    spBtn.onclick = openSupplierModal;
+    chipRow.appendChild(spBtn);
+  }
   list.appendChild(chipRow);
 
   let filtered = chinaOrders;
@@ -13338,7 +13750,7 @@ function renderChinaOrdersByArrival(filtered, t) {
   const receivedOnes = filtered.filter(o => o.status === 'received');
   const groups = new Map();
   for (const o of waitingOnes) {
-    const arrival = o.arrivalDate || getChinaOrderArrivalDate(o.date) || '미정';
+    const arrival = o.arrivalDate || arrivalBySupplier(supplierOfOrder(o), o.date) || '미정';
     if (!groups.has(arrival)) groups.set(arrival, []);
     groups.get(arrival).push(o);
   }
@@ -13391,13 +13803,13 @@ function buildChinaOrderCard(o) {
   card.style.cssText = 'background:#fff; border-radius:10px; border:1px solid var(--border); padding:10px 14px; margin-bottom:8px; cursor:pointer;';
   card.onclick = () => openChinaOrderEditModal(o.id);
   const isReceived = o.status === 'received';
-  const arrival = o.arrivalDate || getChinaOrderArrivalDate(o.date);
+  const arrival = o.arrivalDate || arrivalBySupplier(supplierOfOrder(o), o.date);
   card.innerHTML = `
     <div style="display:flex; justify-content:space-between; align-items:center;">
       <div style="min-width:0;">
         <div style="font-weight:700; font-size:14px;">${esc(o.item || '(품명 미정)')}${o.chinaCode ? ` <span style="font-size:11px; color:var(--muted); font-weight:400;">(${esc(o.chinaCode)})</span>` : ''}</div>
         <div style="font-size:14px; font-weight:700; color:#1e4258; margin-top:3px;">${esc(o.color || '')}${o.color && o.qty ? ' · ' : ''}${esc(o.qty || '')}${o.urgent ? ' <span style="color:#c0392b;">· 급송</span>' : ''}</div>
-        <div style="font-size:11px; color:var(--muted); margin-top:2px;">발주 ${esc(o.date)}${arrival ? ` · 도착 ${esc(formatChinaArrivalLabel(arrival))}` : ''}</div>
+        <div style="font-size:11px; color:var(--muted); margin-top:2px;">${getSuppliers().length > 1 && supplierOfOrder(o) ? `${esc(supplierOfOrder(o).name)} · ` : ''}발주 ${esc(o.date)}${arrival ? ` · 도착 ${esc(formatChinaArrivalLabel(arrival))}` : ''}</div>
       </div>
       <div style="display:flex; align-items:center; gap:6px; flex:none; margin-left:8px;">
         <div style="font-size:11px; font-weight:700; padding:3px 8px; border-radius:6px; background:${isReceived ? '#eaf3ec' : '#fdecea'}; color:${isReceived ? '#2f6b46' : '#c0392b'};">${isReceived ? '입고완료' : '대기중'}</div>
@@ -13444,7 +13856,7 @@ function renderChinaOrdersByItem(filtered) {
       rowsWrap.style.cssText = 'border-top:1px solid #f0eee8;';
       items.forEach((o, idx) => {
         const isReceived = o.status === 'received';
-        const arrival = o.arrivalDate || getChinaOrderArrivalDate(o.date);
+        const arrival = o.arrivalDate || arrivalBySupplier(supplierOfOrder(o), o.date);
         const row = document.createElement('div');
         row.style.cssText = `padding:10px 14px; cursor:pointer;${idx < items.length - 1 ? ' border-bottom:1px solid #f5f3ee;' : ''}`;
         row.innerHTML = `
@@ -13568,7 +13980,7 @@ function openChinaOrderAddModal() {
   _editingChinaOrderId = null;
   _chinaMultiAddItems = [];
   _chinaArrivalManuallyEdited = false;
-  document.getElementById('china-modal-title').textContent = '중국 발주 등록';
+  document.getElementById('china-modal-title').textContent = '발주 등록';
   document.getElementById('china-date').value = toDateInputValue(todayStr());
   document.getElementById('china-code').value = '';
   document.getElementById('china-item').value = '';
@@ -13576,7 +13988,7 @@ function openChinaOrderAddModal() {
   document.getElementById('china-qty').value = '';
   document.getElementById('china-urgent').checked = false;
   document.getElementById('china-note').value = '';
-  updateChinaArrivalHint();
+  fillChinaSupplierSelect(null);
   renderChinaMultiAddList();
   document.getElementById('china-add-item-btn').classList.remove('hidden');
   const actions = document.getElementById('china-modal-actions');
@@ -13593,7 +14005,7 @@ function openChinaOrderEditModal(id) {
   _editingChinaOrderId = id;
   _chinaMultiAddItems = [];
   _chinaArrivalManuallyEdited = false;
-  document.getElementById('china-modal-title').textContent = '중국 발주 수정';
+  document.getElementById('china-modal-title').textContent = '발주 수정';
   document.getElementById('china-date').value = toDateInputValue(o.date);
   document.getElementById('china-code').value = o.chinaCode || '';
   document.getElementById('china-item').value = o.item || '';
@@ -13601,6 +14013,7 @@ function openChinaOrderEditModal(id) {
   document.getElementById('china-qty').value = o.qty || '';
   document.getElementById('china-urgent').checked = !!o.urgent;
   document.getElementById('china-note').value = o.note || '';
+  _chinaArrivalManuallyEdited = true; fillChinaSupplierSelect(supplierOfOrder(o) ? supplierOfOrder(o).id : ''); _chinaArrivalManuallyEdited = false;
   if (o.arrivalDate) {
     // 이미 저장된 도착예정일(자동계산이든 직접수정했든)이 있으면 그대로 보여주고, 발주일을 바꾸기 전까진 안 건드림
     document.getElementById('china-arrival-date').value = toDateInputValue(o.arrivalDate);
@@ -13644,7 +14057,7 @@ function clearChinaItemFields() {
 }
 function addChinaOrderMultiItem() {
   const f = readChinaItemFieldsFromForm();
-  if (!f.item && !f.chinaCode) { showToast('품명이나 중국품번 중 하나는 입력해 주세요'); return; }
+  if (!f.item && !f.chinaCode) { showToast('품명이나 품번 중 하나는 입력해 주세요'); return; }
   _chinaMultiAddItems.push(f);
   clearChinaItemFields();
   renderChinaMultiAddList();
@@ -13672,7 +14085,8 @@ function updateChinaArrivalHint() {
   const dateV = document.getElementById('china-date').value;
   if (!dateV) return;
   const dateStr = fromDateInputValue(dateV);
-  const arrival = getChinaOrderArrivalDate(dateStr);
+  const sel = document.getElementById('china-supplier');
+  const arrival = (sel && document.getElementById('china-supplier-wrap').style.display !== 'none') ? (sel.value ? arrivalBySupplier(supplierById(sel.value), dateStr) : null) : getChinaOrderArrivalDate(dateStr);
   if (arrival) document.getElementById('china-arrival-date').value = toDateInputValue(arrival);
 }
 function autoFillChinaItemName() {
@@ -13704,15 +14118,17 @@ async function saveChinaOrderModal() {
   if (!dateV) { showToast('발주일을 선택해 주세요'); return; }
   const date = fromDateInputValue(dateV);
   const arrivalDateV = document.getElementById('china-arrival-date').value;
-  const arrivalDate = arrivalDateV ? fromDateInputValue(arrivalDateV) : getChinaOrderArrivalDate(date);
+  const supplierId = (document.getElementById('china-supplier') || {}).value || '';
+  const arrivalDate = arrivalDateV ? fromDateInputValue(arrivalDateV) : (supplierId ? arrivalBySupplier(supplierById(supplierId), date) : (getSuppliers().length ? null : getChinaOrderArrivalDate(date)));
 
   if (_editingChinaOrderId != null) {
     const f = readChinaItemFieldsFromForm();
-    if (!f.item && !f.chinaCode) { showToast('품명이나 중국품번 중 하나는 입력해 주세요'); return; }
+    if (!f.item && !f.chinaCode) { showToast('품명이나 품번 중 하나는 입력해 주세요'); return; }
     const o = chinaOrders.find(x => x.id === _editingChinaOrderId);
     if (!o) return;
-    const before = { date: o.date, arrivalDate: o.arrivalDate, chinaCode: o.chinaCode, item: o.item, color: o.color, qty: o.qty, urgent: o.urgent, note: o.note };
+    const before = { date: o.date, arrivalDate: o.arrivalDate, chinaCode: o.chinaCode, item: o.item, color: o.color, qty: o.qty, urgent: o.urgent, note: o.note, supplierId: o.supplierId };
     o.date = date; o.arrivalDate = arrivalDate; o.chinaCode = f.chinaCode; o.item = f.item; o.color = f.color; o.qty = f.qty; o.urgent = f.urgent; o.note = f.note;
+    if (supplierId) o.supplierId = supplierId; else delete o.supplierId;
     const saved = await persistChinaOrders();
     if (saved === false) {
       Object.assign(o, before); // 저장 실패했으면 화면에 보이는 값도 원래대로 되돌림 (안 그러면 실제로는 안 바뀐 게 바뀐 것처럼 보임)
@@ -13738,7 +14154,7 @@ async function saveChinaOrderModal() {
   const newOrders = [];
   const newMappings = [];
   for (const f of itemsToSave) {
-    const entry = { id: nextChinaOrderId++, date, arrivalDate, chinaCode: f.chinaCode, item: f.item, color: f.color, qty: f.qty, urgent: f.urgent, note: f.note, status: 'waiting' };
+    const entry = { id: nextChinaOrderId++, date, arrivalDate, chinaCode: f.chinaCode, item: f.item, color: f.color, qty: f.qty, urgent: f.urgent, note: f.note, status: 'waiting', ...(supplierId ? { supplierId } : {}) };
     newOrders.push(entry);
     if (f.chinaCode && f.item && !chinaProductMap.some(m => String(m.chinaCode).trim() === f.chinaCode) && !newMappings.some(m => m.chinaCode === f.chinaCode)) {
       newMappings.push({ id: nextChinaProductMapId++, chinaCode: f.chinaCode, itemName: f.item });
@@ -13952,7 +14368,7 @@ function renderCustomerBuckets(list2) {
     groupDiv.innerHTML = `
       <div class="group-head" onclick="toggleGroup('${escAttr(k)}')">
         <div class="info">
-          <div class="name">${esc(cust)} <button onclick="event.stopPropagation();openOrderAddModal('${cust === '(거래처 미입력)' ? '' : escAttr(cust)}')" style="border:none;background:var(--b-ok);color:#2f6b46;border-radius:6px;padding:3px 9px;font-size:11px;font-weight:700;margin-left:6px;">+ 발주</button> ${cust === '(거래처 미입력)' ? '' : `<button onclick="event.stopPropagation();openRetX(${escAttr(JSON.stringify(cust)).replace(/"/g, '&quot;')}, 'return')" style="border:none;background:var(--b-warn);color:#a15c1e;border-radius:6px;padding:3px 9px;font-size:11px;font-weight:700;margin-left:6px;">반품·불량</button> `}<button onclick="event.stopPropagation();printPreShipmentSelected('${escAttr(cust)}')" style="border:none;background:var(--b-info);color:var(--primary-dark);border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600;margin-left:6px;">선수금 명세서 (선택 건)</button> ${pendingCount > 0 ? `<button onclick="event.stopPropagation();openCustomerShipList('${escAttr(cust)}')" style="border:none;background:var(--b-ok);color:#2f6b46;border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600;margin-left:6px;">출고 처리</button>` : ''}</div>
+          <div class="name">${esc(cust)} <button onclick="event.stopPropagation();openOrderAddModal('${cust === '(거래처 미입력)' ? '' : escAttr(cust)}')" style="border:none;background:var(--b-ok);color:#2f6b46;border-radius:6px;padding:3px 9px;font-size:11px;font-weight:700;margin-left:6px;">+ 주문</button> ${cust === '(거래처 미입력)' ? '' : `<button onclick="event.stopPropagation();openRetX(${escAttr(JSON.stringify(cust)).replace(/"/g, '&quot;')}, 'return')" style="border:none;background:var(--b-warn);color:#a15c1e;border-radius:6px;padding:3px 9px;font-size:11px;font-weight:700;margin-left:6px;">반품·불량</button> `}<button onclick="event.stopPropagation();printPreShipmentSelected('${escAttr(cust)}')" style="border:none;background:var(--b-info);color:var(--primary-dark);border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600;margin-left:6px;">선수금 명세서 (선택 건)</button> ${pendingCount > 0 ? `<button onclick="event.stopPropagation();openCustomerShipList('${escAttr(cust)}')" style="border:none;background:var(--b-ok);color:#2f6b46;border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600;margin-left:6px;">출고 처리</button>` : ''}</div>
           <div class="sub">전체 ${items.length}건 · 진행중 ${pendingCount}건${remainLabel ? ` · ${remainLabel} 남음` : ` · ${qtyLabel}`}</div>
         </div>
         <div class="total"><div class="cnt">${isOpen ? '접기 ▲' : '펼치기 ▼'}</div></div>
@@ -14115,7 +14531,7 @@ function renderItemBuckets(list2) {
 function openOrderAddModal(prefCustomer, prefFactory) { // 이월장부에서 거래처/공장 옆 "+ 발주"/"+ 추가"로 열면 거래처(와 공장)가 미리 채워져 있음. 저장은 새 발주 카드로 붙음(기존 카드는 안 건드림)
   editingOrderId = null;
   const pre = typeof prefCustomer === 'string' && prefCustomer !== '';
-  document.getElementById('orderModalTitle').textContent = pre ? `발주 추가 · ${prefCustomer}` : '새 발주 등록';
+  document.getElementById('orderModalTitle').textContent = pre ? `주문 추가 · ${prefCustomer}` : '새 주문 등록';
   document.getElementById('o-date').value = toDateInputValue(todayStr());
   document.getElementById('o-customer').value = pre ? prefCustomer : '';
   document.getElementById('o-sample').checked = false;
@@ -14186,7 +14602,7 @@ function openOrderEditModal(id) {
   const o = orders.find(x => x.id === id);
   if (!o) return;
   editingOrderId = id;
-  document.getElementById('orderModalTitle').textContent = '발주 수정';
+  document.getElementById('orderModalTitle').textContent = '주문 수정';
   document.getElementById('o-date').value = toDateInputValue(o.date) || toDateInputValue(todayStr());
   document.getElementById('o-customer').value = o.customer || '';
   document.getElementById('o-sample').checked = !!o.isSample;
@@ -14287,7 +14703,7 @@ async function saveOrderAddInner() {
     if (newOrders.length === 0) { showToast('품목을 하나 이상 입력해 주세요'); return; }
     orders.push(...newOrders);
     await persistOrders(); closeOrderAddModal(); render();
-    showToast(`발주 ${newOrders.length}건 등록되었습니다`);
+    showToast(`주문 ${newOrders.length}건 등록되었습니다`);
     return;
   }
 
@@ -14325,8 +14741,8 @@ function getProcessingBaseColor(color) {
   // 가공된 컬러는 보통 국내에 "무지"(가공 전 원단) 상태로 먼저 들어와서 가공하는 과정을 거치니까,
   // 등록해둔 가공 종류(기모/워싱/텐타가공 등, 설정 > 가공 종류 관리) 키워드가 컬러 이름 끝에 붙어있으면 그 앞부분(무지 이름)을 뽑아냄 - 기모만 특별취급하지 않고 전부 다 확인함
   const t = String(color || '').trim();
-  for (const pt of (settings.processingTypes || [])) {
-    const kw = String(pt.keyword || '').trim();
+  for (const kw0 of processKeywords()) {
+    const kw = String(kw0 || '').trim();
     if (!kw) continue;
     const re = new RegExp('^(.+?)\\s*' + kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$');
     const m = t.match(re);
@@ -14535,7 +14951,7 @@ function openOrderReceiveModal(id) {
   const remain = (o.orderQty && o.orderQty > o.received) ? Math.round((o.orderQty - o.received) * 100) / 100 : 0;
   document.getElementById('orderReceiveTitle').textContent = '출고 처리';
   document.getElementById('or-label').textContent = `이번에 출고된 수량(${o.unit || 'y'})`;
-  document.getElementById('or-desc').textContent = `${o.customer} · ${o.item} ${o.color || ''} (${remain > 0 ? '이월 ' + remain + (o.unit || 'y') + ' 남음' : '전량 처리완료'}, 발주 ${o.orderQty || 0}${o.unit || 'y'} 중 ${o.received}${o.unit || 'y'} 처리)`;
+  document.getElementById('or-desc').textContent = `${o.customer} · ${o.item} ${o.color || ''} (${remain > 0 ? '이월 ' + remain + (o.unit || 'y') + ' 남음' : '전량 처리완료'}, 주문 ${o.orderQty || 0}${o.unit || 'y'} 중 ${o.received}${o.unit || 'y'} 처리)`;
   document.getElementById('or-qty').value = '';
   document.getElementById('or-sample-mode').checked = !!o.isSample; // 샘플로 등록한 발주는 샘플 제공이 미리 체크돼서 열림
   document.getElementById('or-price-section').classList.toggle('hidden', !!o.isSample);
@@ -15086,7 +15502,7 @@ async function confirmOrderReceiveInner(o) {
     unitPrice, supplyAmount, taxAmount, saleAmount, paidAmount: 0, yardsEstimated, taxIncluded: !!(supplyAmount && taxIncluded), isFlatTotal: priceMode === 'total',
     note: shipNote, invDeductedAmount: inv.deducted, deductBreakdown: inv.breakdown || null, isSample: isSampleMode || undefined,
     manualCostPerY: manualCostPerYForEntry,
-    rateSnapshot: { rate: settings.rate, yard: settings.yard, ship: settings.ship } // 나중에 환율 바뀌어도 이 매출의 원가는 이때 환율 그대로 고정되게
+    rateSnapshot: { rate: settings.rate, yard: settings.yard, ship: settings.ship, fx: { ...(settings.fx || {}) } } // 나중에 환율 바뀌어도 이 매출의 원가는 이때 환율 그대로 고정되게
   };
   shipmentLog.push(newEntry);
   await persistShipmentLog();
@@ -15433,7 +15849,7 @@ async function openReturnFromMultiOrderForm() {
       newOrders.forEach(o => o.linkGroupId = linkGroupId);
       orders.push(...newOrders);
       await persistOrders();
-      showToast(`발주 ${newOrders.length}건도 같이 등록됐습니다`);
+      showToast(`주문 ${newOrders.length}건도 같이 등록됐습니다`);
     }
   }
   closeOrderAddModal();
@@ -15485,7 +15901,7 @@ async function openReturnFromOrderForm() {
     linkGroupId = targetOrder.linkGroupId || ('link-' + Date.now());
     targetOrder.linkGroupId = linkGroupId;
   }
-  if (targetOrder) { await persistOrders(); showToast('발주 내용을 저장했습니다'); }
+  if (targetOrder) { await persistOrders(); showToast('주문 내용을 저장했습니다'); }
   closeOrderAddModal();
 
   pendingReturnOrderId = null;
@@ -15866,7 +16282,7 @@ async function confirmReturnInner() {
       await persistOrders();
       closeReturnModal();
       render();
-      showToast(`추가금 ${amount.toLocaleString()}원을 선택한 발주(${targetOrders.length}건)에 보류해뒀습니다 (출고할 때 같이 매출로 잡힙니다)`);
+      showToast(`추가금 ${amount.toLocaleString()}원을 선택한 주문(${targetOrders.length}건)에 보류해뒀습니다 (출고할 때 같이 매출로 잡힙니다)`);
       return;
     }
 
@@ -15881,7 +16297,7 @@ async function confirmReturnInner() {
         await persistOrders();
         closeReturnModal();
         render();
-        showToast(`추가금 ${amount.toLocaleString()}원을 발주에 보류해뒀습니다 (출고할 때 같이 매출로 잡힙니다)`);
+        showToast(`추가금 ${amount.toLocaleString()}원을 주문에 보류해뒀습니다 (출고할 때 같이 매출로 잡힙니다)`);
         return;
       }
     }
@@ -16045,7 +16461,7 @@ async function markOrderDone(id) {
     isFullCompletion: true, manualClose: remain <= 0, yardsEstimated: isJeol && remain > 0, taxIncluded,
     unitPrice, supplyAmount, taxAmount, saleAmount, paidAmount: 0,
     note: remain <= 0 ? '' : '', invDeductedAmount: invDeductedAmountFlag, deductBreakdown: invBreakdownFlag,
-    rateSnapshot: { rate: settings.rate, yard: settings.yard, ship: settings.ship }
+    rateSnapshot: { rate: settings.rate, yard: settings.yard, ship: settings.ship, fx: { ...(settings.fx || {}) } }
   });
   await persistShipmentLog();
 
@@ -16070,7 +16486,7 @@ async function reopenOrder(id) {
   await persistOrders(); render(); showToast('다시 진행중으로 옮겼습니다');
 }
 async function deleteOrder(id) {
-  if (!(await uiConfirm('이 발주 건을 삭제하시겠습니까?'))) return;
+  if (!(await uiConfirm('이 주문 건을 삭제하시겠습니까?'))) return;
   const target = orders.find(x => x.id === id);
   let deleteLinkedFee = false;
   let linkedFeeEntry = null;
@@ -16080,9 +16496,9 @@ async function deleteOrder(id) {
     linkedFeeEntry = shipmentLog.find(e => e.linkGroupId === target.linkGroupId && e.isFee);
     if (otherOrdersWithSameLink.length === 0) {
       if (linkedFeeEntry) {
-        deleteLinkedFee = (await uiConfirm(`이 발주랑 같이 등록했던 추가금(${(linkedFeeEntry.saleAmount || 0).toLocaleString()}원${linkedFeeEntry.note ? ` - ${linkedFeeEntry.note}` : ''})도 같이 삭제하시겠습니까?`, { ok: '추가금도 삭제', cancel: '추가금은 남기기', noBackdrop: true }));
+        deleteLinkedFee = (await uiConfirm(`이 주문이랑 같이 등록했던 추가금(${(linkedFeeEntry.saleAmount || 0).toLocaleString()}원${linkedFeeEntry.note ? ` - ${linkedFeeEntry.note}` : ''})도 같이 삭제하시겠습니까?`, { ok: '추가금도 삭제', cancel: '추가금은 남기기', noBackdrop: true }));
       } else if (target.pendingFee) {
-        keepPendingFeeAsStandalone = (await uiConfirm(`이 발주에 보류해뒀던 추가금(${target.pendingFee.amount.toLocaleString()}원${target.pendingFee.note ? ` - ${target.pendingFee.note}` : ''})이 있습니다.\n발주는 삭제하고 추가금은 매출로 남겨두시겠습니까?`, { ok: '추가금은 매출로 남기기', cancel: '추가금도 같이 삭제', danger: false, noBackdrop: true }));
+        keepPendingFeeAsStandalone = (await uiConfirm(`이 주문에 보류해뒀던 추가금(${target.pendingFee.amount.toLocaleString()}원${target.pendingFee.note ? ` - ${target.pendingFee.note}` : ''})이 있습니다.\n주문은 삭제하고 추가금은 매출로 남겨두시겠습니까?`, { ok: '추가금은 매출로 남기기', cancel: '추가금도 같이 삭제', danger: false, noBackdrop: true }));
       }
     }
   }
@@ -16187,7 +16603,7 @@ function renderSampleStmt() {
   const rows = all.filter(r => r.tab === spsTab);
   const listEl = document.getElementById('sps-list');
   if (rows.length === 0) {
-    listEl.innerHTML = `<div class="empty" style="padding:24px 10px;">${spsTab === 'wait' ? '출고 전인 샘플 발주가 없습니다<br><span style="font-size:11px;">이월장부에서 발주 등록할 때 "샘플 발주"를 체크하면 여기 모입니다</span>' : '출고 완료된 샘플이 없습니다'}</div>`;
+    listEl.innerHTML = `<div class="empty" style="padding:24px 10px;">${spsTab === 'wait' ? '출고 전인 샘플 주문이 없습니다<br><span style="font-size:11px;">이월장부에서 주문 등록할 때 "샘플 주문"를 체크하면 여기 모입니다</span>' : '출고 완료된 샘플이 없습니다'}</div>`;
   } else {
     const multi = new Set(rows.map(r => String(r.o.customer || '').trim())).size > 1;
     let lastCust = null, html = '';
@@ -16443,6 +16859,10 @@ function openRateModal() {
   document.getElementById('r-rate').value = settings.rate;
   document.getElementById('r-yard').value = settings.yard;
   document.getElementById('r-ship').value = settings.ship;
+  { // 발주처가 쓰는 외화 환율 (달러·엔·유로)
+    const curs = Array.from(new Set(getSuppliers().map(s => s.currency).filter(c => c && c !== 'KRW' && c !== 'CNY')));
+    document.getElementById('r-fx-wrap').innerHTML = curs.map(c => `<label>환율 (원/${curLabel(c)}${c === 'JPY' ? ', 1엔당' : ''})</label><input class="r-fx" data-cur="${c}" type="number" step="0.01" value="${esc((settings.fx || {})[c] || '')}">`).join('');
+  }
   document.getElementById('rateModal').classList.add('open');
 }
 function closeRateModal() { document.getElementById('rateModal').classList.remove('open'); }
@@ -16451,7 +16871,9 @@ async function saveRate() {
   const yard = parseFloat(document.getElementById('r-yard').value);
   const ship = parseFloat(document.getElementById('r-ship').value);
   if (!rate || !yard || isNaN(ship)) { showToast('값을 확인해 주세요'); return; }
-  settings = { ...settings, rate, yard, ship }; // 예전엔 { rate, yard, ship }만 남겨서 사업자정보/고정비/가공종류 등 나머지 설정이 통째로 지워졌음
+  const fx = { ...(settings.fx || {}) };
+  document.querySelectorAll('#r-fx-wrap .r-fx').forEach(el => { const v = parseFloat(el.value); if (v > 0) fx[el.dataset.cur] = v; else delete fx[el.dataset.cur]; });
+  settings = { ...settings, rate, yard, ship, fx }; // 예전엔 { rate, yard, ship }만 남겨서 사업자정보/고정비/가공종류 등 나머지 설정이 통째로 지워졌음
   await persistSettings();
   updateRateBar(); closeRateModal(); render();
   showToast('환율이 적용되어 전체 원가가 다시 계산되었습니다');
@@ -16905,7 +17327,7 @@ async function restorePriceBookFromHistory() {
   showToast(added > 0 ? `단가 ${added}건을 다시 채웠습니다` : '새로 채울 단가가 없습니다 (전부 이미 저장돼 있습니다)');
 }
 async function repairOrdersFromShipmentLog() {
-  if (!(await uiConfirm('매출/출고 기록을 기준으로, 실제로 나간 것보다 이월장부 진행량이 적게 잡혀있는 발주들을 찾아서 다시 채워넣으겠습니다.\n(줄이는 방향으로는 절대 안 건드립니다) 진행하시겠습니까?'))) return;
+  if (!(await uiConfirm('매출/출고 기록을 기준으로, 실제로 나간 것보다 이월장부 진행량이 적게 잡혀있는 주문들을 찾아서 다시 채워 넣겠습니다.\n(줄이는 방향으로는 절대 안 건드립니다) 진행하시겠습니까?'))) return;
 
   // 발주별로 실제 출고된 순수 y(또는 절→y 환산)를 매출기록에서 다시 합산 (반품/불량/추가금은 제외)
   const derivedByOrder = new Map();
@@ -16931,7 +17353,7 @@ async function repairOrdersFromShipmentLog() {
     }
   }
 
-  if (fixedCount === 0) { showToast('진행량이 유실된 발주를 찾지 못했습니다'); return; }
+  if (fixedCount === 0) { showToast('진행량이 유실된 주문을 찾지 못했습니다'); return; }
   await persistOrders();
   render();
   (await uiAlert(`${fixedCount}건 복구했습니다:\n\n${fixedList.slice(0, 30).join('\n')}${fixedList.length > 30 ? `\n...외 ${fixedList.length - 30}건` : ''}`));
@@ -16942,7 +17364,7 @@ async function archiveOldCompleted() {
   defaultEndDate.setDate(defaultEndDate.getDate() - 30);
   const defaultStartDate = new Date();
   defaultStartDate.setFullYear(defaultStartDate.getFullYear() - 1);
-  const range = await openDateRangeArchiveModal('이월장부 정리', '완료 처리된 발주 중, 이 기간에 완료된 것만 내보내고 목록에서 정리합니다', dateToKFormat(defaultStartDate), dateToKFormat(defaultEndDate));
+  const range = await openDateRangeArchiveModal('이월장부 정리', '완료 처리된 주문 중, 이 기간에 완료된 것만 내보내고 목록에서 정리합니다', dateToKFormat(defaultStartDate), dateToKFormat(defaultEndDate));
   if (!range) return;
   const { startDate, endDate } = range;
 
@@ -16950,7 +17372,7 @@ async function archiveOldCompleted() {
   if (toArchive.length === 0) { showToast('이 기간에 내보낼 완료 건이 없습니다'); return; }
   if (!(await uiConfirm(`${startDate}~${endDate}에 완료 처리된 ${toArchive.length}건을 엑셀(CSV)로 내보내고 목록에서 삭제합니다.\n계속하시겠습니까?`))) return;
 
-  const headers = ['발주날짜', '거래처', '공장', '품목', '칼라', '발주수량', '단위', '처리수량', '비고', '완료날짜'];
+  const headers = ['주문날짜', '거래처', '공장', '품목', '칼라', '주문수량', '단위', '처리수량', '비고', '완료날짜'];
   const rows = toArchive.map(o => [o.date, o.customer, o.factory, o.item, o.color, o.orderQty, o.unit || 'y', o.received, o.note, o.doneDate]);
   const csv = [headers, ...rows].map(r => r.map(v => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`).join(',')).join('\n');
   const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
@@ -16969,7 +17391,7 @@ async function archiveOldCompleted() {
 
 async function hardResetOrders(silent) {
   if (!silent) {
-    if (!(await uiConfirm('새로 올려주신 이월장부 파일 기준으로 발주 목록을 완전히 새로 시작합니다.\n지금까지의 이월장부 내용(완료 처리한 것 포함)은 전부 사라지고, 새 파일 내용으로 교체됩니다.\n계속하시겠습니까?'))) return;
+    if (!(await uiConfirm('새로 올려주신 이월장부 파일 기준으로 주문 목록을 완전히 새로 시작합니다.\n지금까지의 이월장부 내용(완료 처리한 것 포함)은 전부 사라지고, 새 파일 내용으로 교체됩니다.\n계속하시겠습니까?'))) return;
   }
 
   orders = DEFAULT_ORDERS.map(([date, customer, factory, item, color, orderQty, unit, received, note]) =>
