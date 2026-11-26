@@ -356,6 +356,17 @@
     #list { max-width: 1120px; margin: 0 auto; box-sizing: border-box; }
   }
   .carry-chip { display:inline-block; background:#efe9fb; color:#6b4fbb; border-radius:5px; padding:1px 7px; font-weight:700; font-size:12px; }
+.fx-today { margin-left: 8px; font-size: 12px; color: var(--muted); background: rgba(0,0,0,.04); border-radius: 10px; padding: 2px 8px; cursor: pointer; white-space: nowrap; }
+.fx-today.warn { color: #a15c1e; background: #fde9d4; font-weight: 600; }
+.fx-box { margin-top: 12px; background: #f6f4ef; border-radius: 10px; padding: 10px 12px; }
+.fx-head { font-size: 12px; font-weight: 700; color: var(--primary-dark); margin-bottom: 6px; }
+.fx-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; padding: 4px 0; }
+.fx-put { flex: none; border: none; background: var(--primary); color: #fff; border-radius: 8px; padding: 5px 12px; font-size: 12px; font-weight: 700; cursor: pointer; }
+.fx-fee-l { display: block; margin-top: 8px; font-size: 12px; }
+.fx-fee-l small { color: var(--muted); font-weight: 400; }
+.fx-src { margin-top: 6px; font-size: 11px; color: var(--muted); }
+.fx-src a { color: var(--muted); }
+.fx-flash { outline: 2px solid var(--primary); background: #eaf3f8 !important; transition: background .3s; }
 </style>
 </head>
 <body>
@@ -564,13 +575,14 @@
 <div class="modal-overlay" id="rateModal">
   <div class="modal">
     <h3>환율 / 계산 기준 수정</h3>
-    <label>환율 (원/위안)</label>
-    <input id="r-rate" type="number" step="0.1">
-    <label>y 환산 계수</label>
+    <div id="r-cny-wrap"><label>환율 (원/위안)</label>
+    <input id="r-rate" type="number" step="0.1"></div>
+    <label>y 환산 계수 (미터 → 야드)</label>
     <input id="r-yard" type="number" step="0.0001">
-    <label>운임비</label>
-    <input id="r-ship" type="number" step="1">
+    <div id="r-ship-wrap"><label>예상 운임 (원/y)</label>
+    <input id="r-ship" type="number" step="1"></div>
     <div id="r-fx-wrap"></div>
+    <div id="r-fx-today"></div>
     <p style="font-size:12px;color:var(--muted);">여기서 바꾸면 원가표 전체 품목의 최종원가가 자동으로 다시 계산됩니다.</p>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeRateModal()">취소</button>
@@ -4030,6 +4042,92 @@ async function frSetEstimate(spId, val) {
   await persistSettings(); updateRateBar(); frRender(); render(); showToast(`예상 운임을 ${val.toLocaleString()}원으로 바꿨습니다`);
 }
 
+// ===== 오늘 기준 환율 (참고용) =====
+// 무료 공개 환율(하루 한 번 갱신)을 받아서 "참고로만" 보여줌. 원가에는 사장님이 「넣기」→「저장」을 눌러야 들어감
+// - 실패해도 앱은 그대로 (표시만 안 보임) · 가게 데이터는 밖으로 안 보냄 · 하루 한 번만 받음(이 기기에 저장)
+// - 이상한 값(예: 위안 50원)은 버림
+const FX_TODAY_KEY = 'fxToday_v1';
+const FX_SANE = { CNY: [100, 400], USD: [800, 2500], JPY: [4, 20], EUR: [900, 2800] };
+let _fxToday = null, _fxLoading = null;
+function fxTodayCached() {
+  if (_fxToday && _fxToday.day === todayStr()) return _fxToday;
+  try { const j = JSON.parse(localStorage.getItem(FX_TODAY_KEY) || 'null'); if (j && j.day === todayStr() && j.rates) _fxToday = j; } catch (e) { /* 저장 못 쓰는 기기 */ }
+  return _fxToday && _fxToday.day === todayStr() ? _fxToday : null;
+}
+async function fxGetJson(url) {
+  const ctl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+  const t = setTimeout(() => { try { ctl && ctl.abort(); } catch (e) {} }, 7000);
+  try { const r = await fetch(url, { cache: 'no-store', ...(ctl ? { signal: ctl.signal } : {}) }); if (!r.ok) return null; return await r.json(); }
+  catch (e) { return null; } finally { clearTimeout(t); }
+}
+function fxCleanRates(perKrw) { // { CNY: 0.0049 (1원당 위안) } → { CNY: 203.4 (1위안당 원) }
+  const out = {};
+  for (const c of Object.keys(FX_SANE)) { const v = Number(perKrw && perKrw[c]); if (!(v > 0)) continue; const w = 1 / v; const [lo, hi] = FX_SANE[c]; if (w >= lo && w <= hi) out[c] = w; }
+  return Object.keys(out).length ? out : null;
+}
+function loadFxToday() {
+  const c = fxTodayCached(); if (c) return Promise.resolve(c);
+  if (_fxLoading) return _fxLoading;
+  _fxLoading = (async () => {
+    let got = null;
+    for (const u of ['https://api.frankfurter.dev/v1/latest?base=KRW&symbols=CNY,USD,JPY,EUR', 'https://api.frankfurter.app/latest?from=KRW&to=CNY,USD,JPY,EUR']) {
+      const j = await fxGetJson(u); const rates = j && fxCleanRates(j.rates);
+      if (rates) { got = { src: 'ECB 기준환율', date: String(j.date || ''), rates }; break; }
+    }
+    if (!got) {
+      const j = await fxGetJson('https://open.er-api.com/v6/latest/KRW'); const rates = j && j.result === 'success' && fxCleanRates(j.rates);
+      if (rates) { const d = j.time_last_update_unix ? new Date(j.time_last_update_unix * 1000) : new Date(); got = { src: 'ExchangeRate-API', link: 'https://www.exchangerate-api.com', date: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`, rates }; }
+    }
+    if (got) { got.day = todayStr(); _fxToday = got; try { localStorage.setItem(FX_TODAY_KEY, JSON.stringify(got)); } catch (e) {} }
+    return got;
+  })().finally(() => { _fxLoading = null; });
+  return _fxLoading;
+}
+function fxFeePct() { const v = Number(settings.fxFeePct); return v >= 0 && v <= 5 ? v : 0; }
+function fxRound(cur, v) { return cur === 'JPY' ? Math.round(v * 100) / 100 : cur === 'CNY' ? Math.round(v * 10) / 10 : Math.round(v); }
+function fxSuggest(cur, feePct) { const t = fxTodayCached(); const base = t && t.rates[cur]; if (!base) return null; const fee = feePct != null ? feePct : fxFeePct(); return { base: fxRound(cur, base), apply: fxRound(cur, base * (1 + fee / 100)), fee, date: t.date, src: t.src, link: t.link }; }
+function fxMine(cur) { return cur === 'CNY' ? Number(settings.rate) : Number((settings.fx || {})[cur]); }
+// 환율 줄 옆: "오늘 기준 203.4" (지금 쓰는 환율과 3% 넘게 차이 나면 주황색)
+function fxTodayBadgeHtml(curs) {
+  const t = fxTodayCached(); if (!t) return '';
+  const bits = []; let warn = false;
+  for (const c of curs) {
+    const s = fxSuggest(c); if (!s) continue;
+    const mine = fxMine(c); if (mine > 0 && Math.abs(mine - s.apply) / s.apply > 0.03) warn = true;
+    bits.push(`${s.base.toLocaleString()}${curs.length > 1 ? '/' + curLabel(c) : ''}`);
+  }
+  if (!bits.length) return '';
+  return ` <span class="fx-today${warn ? ' warn' : ''}" title="${esc(t.src)} · ${esc(t.date)} 기준. 누르면 환율 수정" onclick="openRateModal()">오늘 기준 ${bits.join(' · ')}${warn ? ' · 차이 큼' : ''}</span>`;
+}
+// 환율 수정 창 안: 통화마다 "오늘 기준 → 수수료 더한 값 [넣기]"
+function fxRenderModalToday() {
+  const box = document.getElementById('r-fx-today'); if (!box) return;
+  const sps = getSuppliers(); const curs = sps.length ? [...new Set(sps.map(s => s.currency).filter(c => c && c !== 'KRW'))] : ['CNY'];
+  if (!curs.length) { box.innerHTML = ''; return; }
+  const feeEl = document.getElementById('r-fx-fee'); const fee = feeEl ? Math.min(5, Math.max(0, parseFloat(feeEl.value) || 0)) : fxFeePct();
+  const t = fxTodayCached();
+  const rows = !t ? `<div class="fx-row" style="color:var(--muted);">${_fxLoading ? '오늘 환율 불러오는 중…' : '오늘 환율을 불러오지 못했습니다. 직접 넣어 주세요'}</div>` : curs.map(c => {
+    const s = fxSuggest(c, fee); if (!s) return `<div class="fx-row" style="color:var(--muted);">${curLabel(c)}: 오늘 환율 정보 없음</div>`;
+    return `<div class="fx-row"><span>1${curLabel(c)} 오늘 기준 <b>${s.base.toLocaleString()}</b>원${fee ? ` → 수수료 ${fee}% 더해 <b>${s.apply.toLocaleString()}</b>원` : ''}</span><button type="button" class="fx-put" onclick="fxPut('${c}', ${s.apply})">넣기</button></div>`;
+  }).join('');
+  box.innerHTML = `<div class="fx-box"><div class="fx-head">오늘 환율 (참고)</div>${rows}
+    <label class="fx-fee-l">송금 수수료 % <small>(은행 송금 환율은 기준보다 보통 1-2% 비쌈 · 0-5)</small></label>
+    <input id="r-fx-fee" type="number" step="0.1" min="0" max="5" value="${fee}" oninput="fxRenderModalTodayKeep()">
+    ${t ? `<div class="fx-src">${t.link ? `<a href="${t.link}" target="_blank" rel="noopener">Rates By Exchange Rate API</a>` : esc(t.src)} · ${esc(t.date)} · 「넣기」 후 「저장」을 눌러야 원가에 반영됩니다</div>` : ''}</div>`;
+}
+function fxRenderModalTodayKeep() { // 수수료 칸 입력 중에는 칸을 다시 그리지 않고 줄만 바꿈 (커서 유지)
+  const feeEl = document.getElementById('r-fx-fee'); const v = feeEl ? feeEl.value : '';
+  const pos = feeEl ? feeEl.selectionStart : null;
+  fxRenderModalToday();
+  const n = document.getElementById('r-fx-fee'); if (n) { n.value = v; n.focus(); try { if (pos != null) n.setSelectionRange(pos, pos); } catch (e) {} }
+}
+function fxPut(cur, v) {
+  const el = cur === 'CNY' ? document.getElementById('r-rate') : document.querySelector(`#r-fx-wrap .r-fx[data-cur="${cur}"]`);
+  if (!el) return;
+  el.value = v; el.classList.add('fx-flash'); setTimeout(() => el.classList.remove('fx-flash'), 900);
+  showToast(`${curLabel(cur)} 환율 칸에 ${v.toLocaleString()}원을 넣었습니다. 「저장」을 눌러야 적용됩니다`);
+}
+
 // ---------- 원가 계산 ----------
 function finalCost(c, color, skipKeywordFee, rateOverride) {
   // c: {type, price} 또는 과거 데이터 호환을 위해 price 숫자만 올 수도 있음
@@ -4043,13 +4141,27 @@ function getProcessingFeeForColor(color, item) {
   if (color == null) return 0;
   return processCostFor({ item: item || '', weight: (findCostFor(item || '') || {}).weight }, color).fee;
 }
+function rateBarSuppliers() { return getSuppliers().filter(s => s.currency && s.currency !== 'KRW'); }
+function needRateBar() { return rateBarSuppliers().length > 0; } // 국내 발주처만 쓰는 가게는 환율 줄 자체를 안 보여줌
 function updateRateBar() {
-  document.getElementById('rateDisplay').textContent = settings.rate.toLocaleString();
-  document.getElementById('yardDisplay').textContent = settings.yard;
-  document.getElementById('shipDisplay').textContent = settings.ship.toLocaleString();
-  const _unset = !settings.rate; // 환율이 비어있으면 숫자 대신 "환율 미설정"만 보여줌
-  document.getElementById('rateInfo').style.display = _unset ? 'none' : '';
-  document.getElementById('rateUnset').style.display = _unset ? '' : 'none';
+  const sps = rateBarSuppliers();
+  const curs = [...new Set(sps.map(s => s.currency))];
+  const fx = settings.fx || {};
+  const parts = []; let unset = false;
+  for (const c of curs) {
+    const v = c === 'CNY' ? Number(settings.rate) : Number(fx[c]);
+    if (!(v > 0)) { unset = true; parts.push(`환율 <b>미설정</b>(${curLabel(c)})`); continue; }
+    parts.push(`${parts.length ? '' : '환율 '}<b>${v.toLocaleString()}</b>원/${curLabel(c)}`);
+  }
+  if (sps.some(s => s.priceUnit !== 'y')) parts.push(`야드환산 <b>${settings.yard}</b>`);
+  if (sps.some(s => s.currency === 'CNY' && (s.ship == null || s.ship === ''))) parts.push(`운임 <b>${Number(settings.ship || 0).toLocaleString()}</b>원`);
+  else { const own = sps.filter(s => s.ship != null && s.ship !== ''); if (own.length === 1) parts.push(`운임 <b>${Number(own[0].ship).toLocaleString()}</b>원`); }
+  document.getElementById('rateInfo').innerHTML = parts.join(' · ') + fxTodayBadgeHtml(curs);
+  if (curs.length && !fxTodayCached() && !_fxLoading) loadFxToday().then(t => { if (t) updateRateBar(); });
+  document.getElementById('rateInfo').style.display = '';
+  document.getElementById('rateUnset').style.display = 'none';
+  const bar = document.getElementById('rateBar'); if (bar) bar.classList.toggle('rate-warn', unset);
+  if (bar && typeof currentTab !== 'undefined' && currentTab === 'cost') bar.classList.toggle('hidden', !sps.length);
 }
 
 // ---------- 탭 ----------
@@ -5043,7 +5155,7 @@ function renderInv() {
   const list = document.getElementById('list');
   list.innerHTML = '';
   renderLowStockAlerts(list);
-  if (itemGroups.length === 0) { list.innerHTML += '<div class="empty">해당 조건의 재고가 없습니다</div>'; return; }
+  if (itemGroups.length === 0) { list.insertAdjacentHTML('beforeend', '<div class="empty">해당 조건의 재고가 없습니다</div>'); return; }
   const carryIdx = buildCarryoverIndex();
   const pendingOfColor = (item, color) => { // {list, viaBase} - 가공 컬러는 자기 이름으로 발주가 없을 때만 무지 발주를 대신 보여줌 (알림과 같은 규칙)
     let list = pendIdx.pendingMap.get(pendIdx.normKey(`${item}|${color}`)) || [];
@@ -5294,7 +5406,7 @@ function renderStockCheckView() {
   countLabel.textContent = `${doneSet.size}/${items.length} 확인함`;
   list.appendChild(countLabel);
 
-  if (items.length === 0) { list.innerHTML += '<div class="empty">이 날짜에 출고/반품된 품목이 없습니다</div>'; return; }
+  if (items.length === 0) { list.insertAdjacentHTML('beforeend', '<div class="empty">이 날짜에 출고/반품된 품목이 없습니다</div>'); return; }
 
   let shown = items;
   if (stockCheckHideDone) shown = items.filter(it => !doneSet.has(`${it.item}|${it.color}`));
@@ -6267,7 +6379,8 @@ async function deleteAllRollsForItem(item) {
 
 // ================= 원가표 탭 =================
 function renderCost() {
-  document.getElementById('rateBar').classList.remove('hidden');
+  document.getElementById('rateBar').classList.toggle('hidden', !needRateBar());
+  updateRateBar();
   const items = new Set(costs.map(c => c.item)).size;
   document.getElementById('stats').innerHTML = `<span>품목 ${items}종 등록됨</span>`;
   renderChips();
@@ -6300,7 +6413,7 @@ function renderCost() {
     frBtn.onclick = () => openFreightModal();
     list.appendChild(frBtn);
   }
-  if (list2.length === 0) { list.innerHTML += '<div class="empty">해당 조건의 원가 데이터가 없습니다</div>'; return; }
+  if (list2.length === 0) { list.insertAdjacentHTML('beforeend', '<div class="empty">해당 조건의 원가 데이터가 없습니다</div>'); return; }
 
   for (const c of list2) {
     const won = Math.round(finalCost(c));
@@ -10324,7 +10437,7 @@ function renderItemMonthlyStatsView() {
     const t = searchTerm.trim().toLowerCase();
     filtered = filtered.filter(e => String(e.item).toLowerCase().includes(t));
   }
-  if (filtered.length === 0) { list.innerHTML += '<div class="empty">출고 기록이 없습니다</div>'; return; }
+  if (filtered.length === 0) { list.insertAdjacentHTML('beforeend', '<div class="empty">출고 기록이 없습니다</div>'); return; }
 
   const byPeriod = new Map();
   for (const e of filtered) {
@@ -10512,7 +10625,7 @@ function renderPaymentLedgerView() {
   const totalOnline = payments.filter(p => p.method === 'online').reduce((s, p) => s + p.amount, 0);
   document.getElementById('stats').innerHTML = `<span>입금 합계 ${(totalCash + totalOnline).toLocaleString()}원</span><span>현금 ${totalCash.toLocaleString()}원</span><span>온라인 ${totalOnline.toLocaleString()}원</span>`;
 
-  if (payments.length === 0) { list.innerHTML += '<div class="empty">입금 기록이 없습니다</div>'; return; }
+  if (payments.length === 0) { list.insertAdjacentHTML('beforeend', '<div class="empty">입금 기록이 없습니다</div>'); return; }
 
   // 거래처별 현재 남은 미수금(오늘 기준 최신 상태) 미리 계산 - 전체 흐름 누적계산으로 초과입금/미수금 상쇄까지 정확히 반영
   const unpaidByCustomer = new Map();
@@ -11639,7 +11752,7 @@ async function renderBackupManagerList() {
   });
 
   list.removeChild(loadingMsg);
-  if (byMoment.size === 0) { list.innerHTML += '<div class="empty">아직 백업이 없습니다</div>'; return; }
+  if (byMoment.size === 0) { list.insertAdjacentHTML('beforeend', '<div class="empty">아직 백업이 없습니다</div>'); return; }
 
   const moments = Array.from(byMoment.entries()).sort((a, b) => (b[1].savedAt || '').localeCompare(a[1].savedAt || ''));
 
@@ -17092,21 +17205,33 @@ function openRateModal() {
   document.getElementById('r-rate').value = settings.rate;
   document.getElementById('r-yard').value = settings.yard;
   document.getElementById('r-ship').value = settings.ship;
+  { // 위안 발주처가 없으면 위안 환율·운임 칸은 숨김 (발주처가 아예 없을 때는 처음 설정할 수 있게 그대로 보여줌)
+    const sps = getSuppliers(); const hasCny = !sps.length || sps.some(s => s.currency === 'CNY');
+    document.getElementById('r-cny-wrap').style.display = hasCny ? '' : 'none';
+    document.getElementById('r-ship-wrap').style.display = (!sps.length || sps.some(s => s.currency === 'CNY' && (s.ship == null || s.ship === ''))) ? '' : 'none';
+  }
   { // 발주처가 쓰는 외화 환율 (달러·엔·유로)
     const curs = Array.from(new Set(getSuppliers().map(s => s.currency).filter(c => c && c !== 'KRW' && c !== 'CNY')));
     document.getElementById('r-fx-wrap').innerHTML = curs.map(c => `<label>환율 (원/${curLabel(c)}${c === 'JPY' ? ', 1엔당' : ''})</label><input class="r-fx" data-cur="${c}" type="number" step="0.01" value="${esc((settings.fx || {})[c] || '')}">`).join('');
   }
   document.getElementById('rateModal').classList.add('open');
+  fxRenderModalToday();
+  if (!fxTodayCached()) loadFxToday().then(() => { if (document.getElementById('rateModal').classList.contains('open') && !(document.activeElement && document.activeElement.id === 'r-fx-fee')) fxRenderModalToday(); });
 }
 function closeRateModal() { document.getElementById('rateModal').classList.remove('open'); }
 async function saveRate() {
   const rate = parseFloat(document.getElementById('r-rate').value);
   const yard = parseFloat(document.getElementById('r-yard').value);
   const ship = parseFloat(document.getElementById('r-ship').value);
-  if (!rate || !yard || isNaN(ship)) { showToast('값을 확인해 주세요'); return; }
+  const cnyOn = document.getElementById('r-cny-wrap').style.display !== 'none';
+  const shipOn = document.getElementById('r-ship-wrap').style.display !== 'none';
+  if ((cnyOn && !rate) || !yard || (shipOn && isNaN(ship))) { showToast('값을 확인해 주세요'); return; }
+  const feeEl = document.getElementById('r-fx-fee');
+  const feeRaw = feeEl && feeEl.value !== '' ? parseFloat(feeEl.value) : 0;
+  if (!(feeRaw >= 0 && feeRaw <= 5)) { showToast('송금 수수료는 0-5% 사이로 넣어 주세요'); return; }
   const fx = { ...(settings.fx || {}) };
   document.querySelectorAll('#r-fx-wrap .r-fx').forEach(el => { const v = parseFloat(el.value); if (v > 0) fx[el.dataset.cur] = v; else delete fx[el.dataset.cur]; });
-  settings = { ...settings, rate, yard, ship, fx }; // 예전엔 { rate, yard, ship }만 남겨서 사업자정보/고정비/가공종류 등 나머지 설정이 통째로 지워졌음
+  settings = { ...settings, rate: cnyOn ? rate : settings.rate, yard, ship: shipOn ? ship : settings.ship, fx, fxFeePct: Math.round(feeRaw * 100) / 100 }; // 예전엔 { rate, yard, ship }만 남겨서 사업자정보/고정비/가공종류 등 나머지 설정이 통째로 지워졌음
   await persistSettings();
   updateRateBar(); closeRateModal(); render();
   showToast('환율이 적용되어 전체 원가가 다시 계산되었습니다');
