@@ -2,7 +2,7 @@
 // 원칙: 장부 데이터(파이어베이스 서버 주고받기)는 절대 저장해두지 않음 → 항상 서버의 최신 값
 //       화면 파일(app.html)은 "인터넷 먼저" → 고친 버전이 바로 보이고, 인터넷이 끊겼을 때만 마지막 화면을 보여줌
 //       파이어베이스 프로그램 파일·아이콘처럼 안 바뀌는 것만 저장해서 빨리 열리게
-const VER = 'v1';
+const VER = 'v2';
 const SHELL = `shell-${VER}`, LIB = `lib-${VER}`;
 const SHELL_FILES = ['./app.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 
