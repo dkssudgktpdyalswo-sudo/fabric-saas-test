@@ -2105,6 +2105,7 @@ async function openImportModal() {
       <label class="sm-btn" style="cursor:pointer;">2. 채운 파일 올리기<input type="file" accept=".xlsx,.xls" onchange="importPick(this)" style="display:none;"></label>
     </div>
     <div id="imp-body" style="margin-top:12px;"></div>
+    <div id="imp-history">${importHistoryHtml()}</div>
     <div style="text-align:right;margin-top:12px;"><button class="sm-btn gray" onclick="if(!_impSaving)document.getElementById('importModal').remove()">닫기</button></div>
   </div>`;
 }
@@ -2169,6 +2170,7 @@ async function importSave() {
   if (keys.some(k => recheck[k].add.length !== plan[k].add.length)) { _imp.plan = recheck; renderImportPreview(); showToast('그사이 장부가 바뀌어서 다시 비교했어요. 내용을 확인하고 다시 눌러주세요'); return; }
   if (!confirm('엑셀 내용을 장부에 넣을까요? (이미 있는 기록은 바뀌지 않아요)')) return;
   _impSaving = true;
+  const B = 'imp' + Date.now().toString(36); // 이번 엑셀 묶음 표시 - 나중에 이 묶음만 골라서 되돌림
   const body = document.getElementById('imp-body'); const done = [], failed = [];
   body.innerHTML = '장부에 넣는 중... 창을 닫거나 새로고침하지 마세요';
   if (plan.arch) shipmentLogArchivedCache = plan.arch;
@@ -2180,16 +2182,23 @@ async function importSave() {
   const step = async (k, fn) => { if (!plan[k].add.length) return true; const undo = snap[k](); let ok = false; try { ok = await fn(); } catch (e) { ok = false; } if (ok === false) undo(); (ok === false ? failed : done).push(IMPORT_LBL[k]); return ok !== false; };
   try {
     let ok = await step('custs', async () => { customerList = customerList.concat(plan.custs.add); return persistCustomerList(); });
-    if (ok) ok = await step('items', async () => { for (const x of plan.items.add) swatchInfo.push({ id: nextSwatchId++, cat: autoDeriveCat(x.item), item: x.item, color: x.color, order: x.order, chinaCode: null }); return persistSwatchInfo(); });
-    if (ok) ok = await step('rolls', async () => { for (const x of plan.rolls.add) rolls.push({ id: nextId++, cat: autoDeriveCat(x.item), item: x.item, color: x.color, tang: x.tang, qty: x.qty, inDate: x.inDate || todayStr() }); return persistRolls(); });
-    if (ok) ok = await step('costs', async () => { for (const x of plan.costs.add) { const c = { id: nextCostId++, cat: autoDeriveCat(x.item), item: x.item, color: null, price: x.price, type: x.type }; if (x.mix) c.mix = x.mix; costs.push(c); } return persistCosts(); });
-    if (ok) ok = await step('orders', async () => { for (const x of plan.orders.add) orders.push({ id: genUniqueId(), date: x.date, customer: x.customer, factory: x.factory, item: x.item, color: x.color, orderQty: x.orderQty, unit: x.unit, received: 0, note: x.note, done: false }); return persistOrders(); });
+    if (ok) ok = await step('items', async () => { for (const x of plan.items.add) swatchInfo.push({ id: nextSwatchId++, cat: autoDeriveCat(x.item), item: x.item, color: x.color, order: x.order, chinaCode: null, importBatch: B }); return persistSwatchInfo(); });
+    if (ok) ok = await step('rolls', async () => { for (const x of plan.rolls.add) rolls.push({ id: nextId++, cat: autoDeriveCat(x.item), item: x.item, color: x.color, tang: x.tang, qty: x.qty, inDate: x.inDate || todayStr(), importBatch: B, importQty: x.qty }); return persistRolls(); });
+    if (ok) ok = await step('costs', async () => { for (const x of plan.costs.add) { const c = { id: nextCostId++, cat: autoDeriveCat(x.item), item: x.item, color: null, price: x.price, type: x.type, importBatch: B }; if (x.mix) c.mix = x.mix; costs.push(c); } return persistCosts(); });
+    if (ok) ok = await step('orders', async () => { for (const x of plan.orders.add) orders.push({ id: genUniqueId(), date: x.date, customer: x.customer, factory: x.factory, item: x.item, color: x.color, orderQty: x.orderQty, unit: x.unit, received: 0, note: x.note, done: false, importBatch: B }); return persistOrders(); });
     if (ok) ok = await step('unpaid', async () => {
       for (const x of plan.unpaid.add) shipmentLog.push({ id: genUniqueId(), date: x.date, orderId: null, customer: x.customer, factory: '', item: '이월 미수금', color: '', amount: 1, unit: 'y', yardsShipped: 1, remainAfter: 0, isFullCompletion: true,
-        unitPrice: x.amount, supplyAmount: x.amount, taxAmount: 0, saleAmount: x.amount, paidAmount: 0, note: `${x.date} 기준 이월 미수금 (엑셀 세팅)` });
+        unitPrice: x.amount, supplyAmount: x.amount, taxAmount: 0, saleAmount: x.amount, paidAmount: 0, note: `${x.date} 기준 이월 미수금 (엑셀 세팅)`, importBatch: B });
       return persistShipmentLog();
     });
   } finally { _impSaving = false; }
+  if (done.length) {
+    const rec = { id: B, at: new Date().toISOString(), by: (ME && ME.name) || '', counts: Object.fromEntries(Object.keys(IMPORT_LBL).filter(k => done.includes(IMPORT_LBL[k])).map(k => [k, plan[k].add.length])),
+      custsAdded: done.includes('거래처') ? plan.custs.add.slice() : [], unpaidTotal: done.includes('기초미수금') ? total : 0 };
+    settings = { ...settings, importBatches: [rec, ...(settings.importBatches || [])].slice(0, 20) };
+    const okRec = await persistSettings();
+    if (okRec === false) showToast('엑셀 기록은 들어갔지만 "되돌리기 목록" 저장에 실패했어요');
+  }
   render();
   let check = '';
   if (done.includes('기초미수금')) { // 넣기 전·후 장부로 거래처마다 "늘어난 금액 = 엑셀 금액"인지 다시 계산
@@ -2203,6 +2212,91 @@ async function importSave() {
     ${skipped.length ? `<div style="font-size:12.5px;color:var(--muted);margin-top:4px;">안 넣은 것(이미 있음 등): ${skipped.join(', ')}</div>` : ''}
     ${failed.length ? `<div class="err">저장 실패: ${failed.join(', ')} - 새로고침 후 같은 파일을 다시 올리면 안 들어간 것만 이어서 들어가요</div>` : ''}${check}`;
   _imp = null;
+  const hist = document.getElementById('imp-history'); if (hist) hist.innerHTML = importHistoryHtml();
+}
+
+// ----- 엑셀 세팅 되돌리기 (사장만, 7일 안, 올린 뒤 손대지 않았을 때만, 묶음 통째로) -----
+const IMPORT_UNDO_DAYS = 7;
+function importEntryTouched(e) { return !!((e.payments && e.payments.length) || Number(e.paidAmount) > 0 || e.paid || Number(e.discount) > 0 || Number(e.deductAmount) > 0 || e.isReturn || e.isDefect); }
+function checkImportUndo(rec) { // -> { ok, why[], counts }
+  const why = []; const B = rec.id;
+  const ageDays = (Date.now() - new Date(rec.at).getTime()) / 86400000;
+  if (!(ageDays <= IMPORT_UNDO_DAYS)) why.push(`올린 지 ${IMPORT_UNDO_DAYS}일이 지났어요`);
+  const c = rec.counts || {};
+  const part = new Set(rec.partialUndo || []); // 지난번에 일부만 되돌려진 경우: 이미 지운 부분은 "없어졌다"고 막지 않음
+  const gone = (label, n) => part.has(label) && n === 0;
+  const myRolls = rolls.filter(r => r.importBatch === B);
+  if (c.rolls && myRolls.length !== c.rolls && !gone('재고', myRolls.length)) why.push(`올린 재고 중 ${c.rolls - myRolls.length}롤이 이미 출고되거나 지워졌어요`);
+  const changed = myRolls.filter(r => Number(r.qty) !== Number(r.importQty)).length;
+  if (changed) why.push(`올린 재고 중 ${changed}롤의 마수가 바뀌었어요 (출고 등)`);
+  const myOrders = orders.filter(o => o.importBatch === B);
+  if (c.orders && myOrders.length !== c.orders && !gone('미출고이월', myOrders.length)) why.push('올린 이월 주문 중 일부가 이미 지워졌어요');
+  const usedOrders = myOrders.filter(o => Number(o.received) > 0 || o.done || shipmentLog.some(e => e.orderId === o.id)).length;
+  if (usedOrders) why.push(`올린 이월 주문 중 ${usedOrders}건이 이미 출고됐어요`);
+  const myUnpaid = shipmentLog.filter(e => e.importBatch === B);
+  if (c.unpaid && myUnpaid.length !== c.unpaid && !gone('기초미수금', myUnpaid.length)) why.push('올린 이월 미수금 중 일부가 보관함으로 넘어갔거나 지워졌어요');
+  const paidN = myUnpaid.filter(importEntryTouched).length;
+  if (paidN) why.push(`올린 이월 미수금 중 ${paidN}곳에 입금·공제 처리가 있어요`);
+  return { ok: why.length === 0, why };
+}
+async function undoImportBatch(id) {
+  if (!isOwner() || _impSaving) return;
+  const rec = (settings.importBatches || []).find(r => r.id === id); if (!rec || rec.undone) return;
+  const chk = checkImportUndo(rec);
+  if (!chk.ok) { alert('되돌릴 수 없어요:\n- ' + chk.why.join('\n- ')); return; }
+  const c = rec.counts || {};
+  const desc = Object.keys(IMPORT_LBL).filter(k => c[k]).map(k => `${IMPORT_LBL[k]} ${c[k]}`).join(', ');
+  if (!confirm(`${new Date(rec.at).toLocaleString('ko-KR')}에 올린 엑셀을 통째로 되돌릴까요?\n\n지워지는 것: ${desc}\n(그 뒤에 따로 입력한 기록은 그대로예요)`)) return;
+  _impSaving = true;
+  const B = rec.id;
+  // 거래처 이름은 그 뒤에 다른 기록이 생긴 곳은 남김
+  const usedNames = new Set(shipmentLog.filter(e => e.importBatch !== B).map(e => String(e.customer || '').trim()).concat(orders.filter(o => o.importBatch !== B).map(o => String(o.customer || '').trim())));
+  const dropNames = new Set((rec.custsAdded || []).filter(n => !usedNames.has(n)));
+  const unpaidNames = shipmentLog.filter(e => e.importBatch === B).map(e => ({ n: String(e.customer).trim(), a: Number(e.saleAmount) || 0 }));
+  const before = unpaidNames.length ? withFullArchiveMerged(() => getCustomerTrueUnpaidAll()) : null;
+  const snapAll = { sl: shipmentLog.slice(), or: orders.slice(), co: costs.slice(), ro: rolls.slice(), sw: swatchInfo.slice(), cl: customerList.slice() };
+  const steps = [
+    ['기초미수금', () => { shipmentLog = shipmentLog.filter(e => e.importBatch !== B); return persistShipmentLog(); }, () => { shipmentLog = snapAll.sl; }, () => snapAll.sl.some(e => e.importBatch === B)],
+    ['미출고이월', () => { orders = orders.filter(o => o.importBatch !== B); return persistOrders(); }, () => { orders = snapAll.or; }, () => snapAll.or.some(o => o.importBatch === B)],
+    ['원가표', () => { costs = costs.filter(x => x.importBatch !== B); return persistCosts(); }, () => { costs = snapAll.co; }, () => snapAll.co.some(x => x.importBatch === B)],
+    ['재고', () => { rolls = rolls.filter(r => r.importBatch !== B); return persistRolls(); }, () => { rolls = snapAll.ro; }, () => snapAll.ro.some(r => r.importBatch === B)],
+    ['품목·컬러', () => { swatchInfo = swatchInfo.filter(x => x.importBatch !== B); return persistSwatchInfo(); }, () => { swatchInfo = snapAll.sw; }, () => snapAll.sw.some(x => x.importBatch === B)],
+    ['거래처', () => { customerList = customerList.filter(n => !dropNames.has(String(n).trim())); return persistCustomerList(); }, () => { customerList = snapAll.cl; }, () => dropNames.size > 0],
+  ];
+  const done = [], failed = [];
+  try {
+    for (const [label, run, undo, has] of steps) {
+      if (!has()) continue;
+      let ok = false; try { ok = await run(); } catch (e) { ok = false; }
+      if (ok === false) { undo(); failed.push(label); break; }
+      done.push(label);
+    }
+    settings = { ...settings, importBatches: (settings.importBatches || []).map(r => r.id === B ? { ...r, undone: failed.length ? false : new Date().toISOString(), partialUndo: failed.length ? [...new Set([...(r.partialUndo || []), ...done])] : undefined } : r) };
+    await persistSettings();
+  } finally { _impSaving = false; }
+  render();
+  let msg = failed.length ? `일부만 되돌렸어요 (${done.join(', ') || '없음'}). ${failed.join(', ')}에서 저장이 실패했어요. 새로고침 후 다시 눌러주세요.` : `되돌렸어요: ${done.join(', ')}`;
+  if (before && done.includes('기초미수금')) {
+    const after = withFullArchiveMerged(() => getCustomerTrueUnpaidAll());
+    const bad = unpaidNames.filter(x => Math.round((before.get(x.n) || 0) - (after.get(x.n) || 0)) !== x.a);
+    msg += bad.length ? `\n\n⚠️ 미수금이 예상과 다르게 바뀐 거래처: ${bad.map(x => x.n).join(', ')} - 개발 담당에게 알려주세요` : `\n\n미수금 확인 ✔ ${unpaidNames.length}곳 모두 올렸던 금액만큼 정확히 줄었어요`;
+  }
+  alert(msg);
+  openImportModal();
+}
+function importHistoryHtml() {
+  const list = (settings.importBatches || []).slice(0, 10);
+  if (!list.length) return '';
+  const rows = list.map(r => {
+    const c = r.counts || {}; const desc = Object.keys(IMPORT_LBL).filter(k => c[k]).map(k => `${IMPORT_LBL[k]} ${c[k]}`).join(', ');
+    let right;
+    if (r.undone) right = '<span style="color:var(--muted)">되돌림</span>';
+    else { const chk = checkImportUndo(r); right = chk.ok ? `<button class="sm-btn red" onclick="undoImportBatch('${escAttr(r.id)}')">되돌리기</button>` : `<span style="color:var(--muted);font-size:11.5px;">되돌릴 수 없음<br>${esc(chk.why[0])}</span>`; }
+    return `<tr><td style="font-size:12px;">${esc(new Date(r.at).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }))}<br><span style="color:var(--muted)">${esc(desc)}</span></td><td style="text-align:right;">${right}</td></tr>`;
+  }).join('');
+  return `<div style="margin-top:16px;font-weight:700;font-size:14px;">최근 엑셀 세팅 기록</div>
+    <div style="font-size:11.5px;color:var(--muted);margin:2px 0 4px;">잘못 올렸으면 ${IMPORT_UNDO_DAYS}일 안에, 올린 재고·미수금·이월에 아직 손대지 않았을 때 통째로 되돌릴 수 있어요.</div>
+    <table>${rows}</table>`;
 }
 // ----- 직원 관리 (사장만) -----
 function staffMakerAuth() { // 직원 계정을 만들 때 사장 로그인이 풀리지 않게 별도 연결을 씀
