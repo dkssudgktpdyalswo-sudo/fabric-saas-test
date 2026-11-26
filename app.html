@@ -994,6 +994,8 @@
     <input id="biz-loc" placeholder="예: 동대문종합시장 A동 0000호">
     <label>카카오톡 채널 채팅 주소 (고객 페이지·장부 링크의 문의 버튼)</label>
     <input id="biz-kakao" placeholder="예: https://pf.kakao.com/_xxxxx/chat" autocapitalize="off">
+    <label>거래처가 보는 화면 색 (고객 페이지·장부 링크·카톡용 재고표 이미지)</label>
+    <div id="biz-theme" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px;"></div>
     <label>로고·QR 이미지 (사진·그림 파일 아무거나 - 맞는 크기로 자동으로 줄여요)</label>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;">
       <div>로고 (명세서·샘플 내역서)<br><img id="bi-logoPrint" style="max-width:100%;max-height:40px;display:block;margin:4px 0;"><input type="file" accept="image/*" onchange="brandPick(this,'logoPrint')" style="font-size:11px;width:100%;"><a href="#" id="bx-logoPrint" onclick="brandClear('logoPrint');return false;" style="font-size:11px;color:var(--danger);">지우기</a></div>
@@ -1481,7 +1483,7 @@ let SHOP_NAME = '';
 // 새 가게는 처음부터 "끝남"으로 표시하는 백야용 일회성 정리 작업들
 //  carryoverUnpaidApplied: 백야 2026-08-06 이월 미수금 넣기 / meiWonNameFixed: 백야 거래처 이름 고치기
 //  feeEntriesFixed: 옛날 방식 운임비(1y로 적은 것)를 추가금으로 바꾸기 / legacyCleanupOff: 기모 컬러 중복 순번 정리
-const NEW_SHOP_FLAGS = { carryoverUnpaidApplied: true, meiWonNameFixed: true, feeEntriesFixed: true, legacyCleanupOff: true }; // 가게 만들 때 정한 이름 (shops/{id}.name)
+const NEW_SHOP_FLAGS = { carryoverUnpaidApplied: true, meiWonNameFixed: true, feeEntriesFixed: true, legacyCleanupOff: true, theme: 'white' }; // theme: 새 가게는 화이트로 시작 // 가게 만들 때 정한 이름 (shops/{id}.name)
 const BRAND_IMG_KEYS = ['logoPrint', 'logoWeb', 'qrPrint', 'qrWeb'];
 let BRAND_IMG = {}; // 가게 로고·QR (data/brand 문서) - 로그인 후 한 번 불러옴
 let _brandPending = {};
@@ -1493,34 +1495,59 @@ function textLogoSrc(name) { // 로고 이미지가 없을 때 상호를 회색 
   return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="80" viewBox="0 0 ${w} 80"><text x="0" y="62" font-size="58" font-weight="700" fill="#595959" font-family="-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif">${t}</text></svg>`);
 }
 async function loadBrandImages() {
-  try { const d = await shopCol('data').doc('brand').get(); const o = d.exists ? d.data() : {}; BRAND_IMG = {}; for (const k of BRAND_IMG_KEYS) if (typeof o[k] === 'string' && o[k].startsWith('data:image/')) BRAND_IMG[k] = o[k]; }
+  try { const d = await shopCol('data').doc('brand').get(); const o = d.exists ? d.data() : {}; BRAND_IMG = {}; for (const k of BRAND_IMG_KEYS) if (typeof o[k] === 'string' && o[k].startsWith('data:image/')) { BRAND_IMG[k] = o[k]; if (Number(o[k + 'AR']) > 0) BRAND_IMG[k + 'AR'] = Number(o[k + 'AR']); } }
   catch (e) { BRAND_IMG = {}; }
 }
 const BRAND_MAX_SIDE = { logoPrint: 800, logoWeb: 800, qrPrint: 500, qrWeb: 500 }; // 인쇄에도 충분한 크기
 const BRAND_MAX_BYTES = 150 * 1024; // 이미지 4개가 한 문서(최대 1MB)에 같이 들어가서 하나당 150KB 안으로 줄임
-function shrinkImageFile(file, maxSide, maxBytes) { // 큰 사진·로고를 브라우저에서 줄여서 data URL로 (투명 배경은 PNG로 유지)
+function findContentBox(img, w, h) { // 로고 둘레의 흰 여백·투명 부분을 찾아 잘라낼 영역 (못 찾으면 전체)
+  try {
+    const sc = Math.min(1, 1200 / Math.max(w, h)), cw = Math.max(1, Math.round(w * sc)), ch = Math.max(1, Math.round(h * sc));
+    const c = document.createElement('canvas'); c.width = cw; c.height = ch;
+    const g = c.getContext('2d'); g.drawImage(img, 0, 0, cw, ch);
+    const d = g.getImageData(0, 0, cw, ch).data;
+    const at = (x, y) => (y * cw + x) * 4;
+    const corners = [at(0, 0), at(cw - 1, 0), at(0, ch - 1), at(cw - 1, ch - 1)];
+    const transparentBg = corners.some(i => d[i + 3] < 250);
+    const isBg = (i) => transparentBg ? d[i + 3] <= 16 : (d[i + 3] <= 16 || (d[i] > 242 && d[i + 1] > 242 && d[i + 2] > 242));
+    let x0 = cw, y0 = ch, x1 = -1, y1 = -1;
+    for (let y = 0; y < ch; y++) for (let x = 0; x < cw; x++) if (!isBg(at(x, y))) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+    if (x1 < 0) return { sx: 0, sy: 0, sw: w, sh: h };
+    const pad = Math.round(Math.max(x1 - x0, y1 - y0) * 0.03);
+    x0 = Math.max(0, x0 - pad); y0 = Math.max(0, y0 - pad); x1 = Math.min(cw - 1, x1 + pad); y1 = Math.min(ch - 1, y1 + pad);
+    return { sx: x0 / sc, sy: y0 / sc, sw: (x1 - x0 + 1) / sc, sh: (y1 - y0 + 1) / sc };
+  } catch (e) { return { sx: 0, sy: 0, sw: w, sh: h }; }
+}
+function shrinkImageFile(file, maxSide, maxBytes, opts) { // 큰 사진·로고를 브라우저에서 줄여서 data URL로 (투명 배경은 PNG로 유지). opts.trim: 로고 둘레 여백 잘라냄 / opts.withAr: {data, ar} 로 돌려줌
+  opts = opts || {};
   return new Promise((ok, no) => {
     const url = URL.createObjectURL(file);
     const img = new Image();
     img.onload = () => {
       URL.revokeObjectURL(url);
       try {
-        let w = img.naturalWidth, h = img.naturalHeight;
-        if (!w || !h) { no(new Error('size')); return; }
+        const W0 = img.naturalWidth, H0 = img.naturalHeight;
+        if (!W0 || !H0) { no(new Error('size')); return; }
+        const box = opts.trim ? findContentBox(img, W0, H0) : { sx: 0, sy: 0, sw: W0, sh: H0 };
+        if (opts.square) { // QR: 짧은 쪽을 늘려 정사각형 영역으로 (가운데 맞춤, 바깥은 흰색) → 정사각형 칸에 넣어도 안 찌그러짐
+          const m = Math.max(box.sw, box.sh); box.sx -= (m - box.sw) / 2; box.sy -= (m - box.sh) / 2; box.sw = m; box.sh = m;
+        }
+        const w = box.sw, h = box.sh;
+        const done = (d) => ok(opts.withAr ? { data: d, ar: Math.round((w / h) * 100) / 100 } : d);
         const draw = (side, mime, q) => {
           const r = Math.min(1, side / Math.max(w, h));
           const cw = Math.max(1, Math.round(w * r)), ch = Math.max(1, Math.round(h * r));
           const c = document.createElement('canvas'); c.width = cw; c.height = ch;
           const g = c.getContext('2d');
-          if (mime === 'image/jpeg') { g.fillStyle = '#fff'; g.fillRect(0, 0, cw, ch); } // JPEG은 투명이 없어서 흰 바탕
+          if (mime === 'image/jpeg' || opts.square) { g.fillStyle = '#fff'; g.fillRect(0, 0, cw, ch); } // JPEG·QR은 흰 바탕
           g.imageSmoothingQuality = 'high';
-          g.drawImage(img, 0, 0, cw, ch);
+          g.drawImage(img, box.sx, box.sy, box.sw, box.sh, 0, 0, cw, ch);
           return c.toDataURL(mime, q);
         };
         const bytes = (d) => Math.round((d.length - d.indexOf(',') - 1) * 3 / 4);
         // 1) PNG로 시도(투명 유지) → 크면 크기를 줄여가며 → 그래도 크면 JPEG
-        for (const side of [maxSide, Math.round(maxSide * 0.75), Math.round(maxSide * 0.55)]) { const d = draw(side, 'image/png'); if (bytes(d) <= maxBytes) { ok(d); return; } }
-        for (const [side, q] of [[maxSide, 0.88], [maxSide, 0.75], [Math.round(maxSide * 0.7), 0.75], [Math.round(maxSide * 0.5), 0.7]]) { const d = draw(side, 'image/jpeg', q); if (bytes(d) <= maxBytes) { ok(d); return; } }
+        for (const side of [maxSide, Math.round(maxSide * 0.75), Math.round(maxSide * 0.55)]) { const d = draw(side, 'image/png'); if (bytes(d) <= maxBytes) { done(d); return; } }
+        for (const [side, q] of [[maxSide, 0.88], [maxSide, 0.75], [Math.round(maxSide * 0.7), 0.75], [Math.round(maxSide * 0.5), 0.7]]) { const d = draw(side, 'image/jpeg', q); if (bytes(d) <= maxBytes) { done(d); return; } }
         no(new Error('toobig'));
       } catch (e) { no(e); }
     };
@@ -1534,7 +1561,10 @@ async function brandPick(input, key) {
   if (f.size > 30 * 1024 * 1024) { showToast('30MB 넘는 파일은 못 올려요'); return; }
   showToast('이미지를 맞는 크기로 줄이는 중...');
   try {
-    _brandPending[key] = await shrinkImageFile(f, BRAND_MAX_SIDE[key] || 800, BRAND_MAX_BYTES);
+    const isLogo = /^logo/.test(key);
+    const res = await shrinkImageFile(f, BRAND_MAX_SIDE[key] || 800, BRAND_MAX_BYTES, { trim: true, square: !isLogo, withAr: true }); // 로고·QR 모두 여백 자르기, QR은 정사각형으로
+    _brandPending[key] = res.data;
+    if (isLogo) _brandPending[key + 'AR'] = res.ar; // 로고 가로세로 비율 - 정사각형에 가까운 로고는 더 크게 보여줌
     const im = document.getElementById('bi-' + key); if (im) im.src = _brandPending[key];
     brandRefreshClearLinks();
     showToast('이미지를 넣었어요. 아래 "저장"을 눌러야 반영돼요');
@@ -1543,16 +1573,35 @@ async function brandPick(input, key) {
   }
 }
 function brandClear(key) { // 잘못 올린 로고·QR 지우기 (저장을 눌러야 반영)
-  _brandPending[key] = '';
+  _brandPending[key] = ''; if (/^logo/.test(key)) _brandPending[key + 'AR'] = 0;
   const im = document.getElementById('bi-' + key); if (im) im.removeAttribute('src');
   brandRefreshClearLinks();
 }
 function brandRefreshClearLinks() { // 이미지가 있을 때만 "지우기" 보이게
   for (const k of BRAND_IMG_KEYS) { const a = document.getElementById('bx-' + k); if (!a) continue; const v = (k in _brandPending) ? _brandPending[k] : BRAND_IMG[k]; a.style.display = v ? '' : 'none'; }
 }
+const THEMES = { // [새 시스템] 거래처가 보는 화면(고객 페이지·장부 링크·카톡용 재고표 이미지) 색 세트 - 글씨가 잘 보이게 미리 맞춘 5가지
+  white: { name: '화이트', paper: '#ffffff', strip: '#f7f7f7', hair: '#e3e3e3', ink: '#2f2f2f', muted: '#767676', brand: '#555555', line2: '#ececec', line3: '#e9e9e9', line4: '#e4e4e4', tint: '#f4f4f4', tint2: '#efefef', faint: '#a6a6a6', faint2: '#b8b8b8' },
+  gray: { name: '라이트 그레이', paper: '#f1f1f1', strip: '#f8f8f8', hair: '#dadada', ink: '#333333', muted: '#777777', brand: '#555555', line2: '#e4e4e4', line3: '#e2e2e2', line4: '#dcdcdc', tint: '#ededed', tint2: '#e9e9e9', faint: '#a2a2a2', faint2: '#b4b4b4' },
+  pink: { name: '연핑크', paper: '#efeaea', strip: '#f6f2f2', hair: '#ddd5d5', ink: '#3a3636', muted: '#7d7676', brand: '#595959', line2: '#e8e2e2', line3: '#e6e1e1', line4: '#e3dcdc', tint: '#f1ecec', tint2: '#eceae4', faint: '#a39c9c', faint2: '#b5adad' },
+  beige: { name: '베이지', paper: '#f3eee6', strip: '#f9f6f0', hair: '#e0d8ca', ink: '#3a3530', muted: '#7d756a', brand: '#5d564c', line2: '#ebe4d8', line3: '#e8e1d5', line4: '#e4dccf', tint: '#f4efe7', tint2: '#eee8dd', faint: '#a59d90', faint2: '#b8b0a3' },
+  blue: { name: '블루그레이', paper: '#edf0f3', strip: '#f6f8fa', hair: '#d5dbe2', ink: '#2f3640', muted: '#6f7883', brand: '#4b5663', line2: '#e3e7ec', line3: '#e1e5ea', line4: '#dce1e7', tint: '#eef1f4', tint2: '#e8ecf0', faint: '#9aa2ac', faint2: '#aeb5be' },
+};
+function curTheme() { return THEMES[settings && settings.theme] ? settings.theme : 'pink'; } // 색을 안 고른 예전 가게(백야)는 지금 색(연핑크) 그대로
+function TH() { return THEMES[curTheme()]; }
+let _themePick = null;
+function renderThemePicker() {
+  const el = document.getElementById('biz-theme'); if (!el) return;
+  el.innerHTML = Object.entries(THEMES).map(([id, t]) => `<button type="button" onclick="_themePick='${id}';renderThemePicker()" style="display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:8px;font-size:12px;background:#fff;border:2px solid ${_themePick === id ? 'var(--primary)' : 'var(--border)'};font-weight:${_themePick === id ? 700 : 400};"><span style="width:18px;height:18px;border-radius:4px;background:${t.paper};border:1px solid ${t.hair};display:inline-block;"></span>${t.name}${_themePick === id ? ' ✓' : ''}</button>`).join('');
+}
+function logoScale(key) { // 옆으로 긴 글자 로고(가로가 세로의 4배 이상, 예: 백야)는 그대로, 정사각형에 가까울수록 크게
+  const ar = Number(BRAND_IMG[key + 'AR']) || 0;
+  if (!BRAND_IMG[key] || !ar || ar >= 4) return 1;
+  return ar < 1.6 ? 1.9 : (ar < 2.6 ? 1.6 : 1.3);
+}
 async function publishBrand() { // 고객 페이지·장부 링크가 읽는 공개 정보 (누구나 읽을 수 있는 곳이라 사업자번호·계좌는 안 넣음)
   try {
-    await shopCol('public').doc('brand').set({ name: shopDisplayName(), loc: settings.shopLoc || '', tel: settings.bizTel || '', kakaoUrl: settings.kakaoUrl || '', logo: BRAND_IMG.logoWeb || '', updatedAt: new Date().toISOString() });
+    await shopCol('public').doc('brand').set({ name: shopDisplayName(), loc: settings.shopLoc || '', tel: settings.bizTel || '', kakaoUrl: settings.kakaoUrl || '', logo: BRAND_IMG.logoWeb || '', logoAR: Number(BRAND_IMG.logoWebAR) || 0, theme: curTheme(), updatedAt: new Date().toISOString() });
   } catch (e) { showToast('고객 페이지용 가게 정보를 올리지 못했어요'); }
 }
 function shopCol(name) { if (typeof db === 'undefined' || !db) throw new Error('nodb'); if (!SHOP_ID) throw new Error('noshop'); return db.collection('shops').doc(SHOP_ID).collection(name); }
@@ -7859,7 +7908,7 @@ function cpRender() {
   head.innerHTML = `${esc(it.item)} <span style="font-weight:400; color:var(--muted); font-size:12px;">사진 ${done} / ${it.colors.length}컬러</span>`;
   list.innerHTML = it.colors.map((c, i) => {
     const v = _catPhotos[c.nk]; const dot = catDotColor(c.color);
-    const thumb = v ? `<img src="${v}" style="width:52px; height:52px; object-fit:cover; border-radius:6px; flex:none;">` : `<div style="width:52px; height:52px; border-radius:6px; flex:none; background:${dot || '#eceae4'}; border:1px solid rgba(0,0,0,.12); box-sizing:border-box;"></div>`;
+    const thumb = v ? `<img src="${v}" style="width:52px; height:52px; object-fit:cover; border-radius:6px; flex:none;">` : `<div style="width:52px; height:52px; border-radius:6px; flex:none; background:${dot || TH().tint2}; border:1px solid rgba(0,0,0,.12); box-sizing:border-box;"></div>`;
     return `<div style="display:flex; align-items:center; gap:10px; padding:6px 0; border-bottom:1px solid #f0f0f0;">${thumb}<div style="flex:1; min-width:0; font-size:14px;"><b>${esc(c.color)}</b><div style="font-size:11px; color:${v ? '#1f7a3a' : 'var(--muted)'};">${v ? '등록됨' : '미등록'}</div></div><button type="button" onclick="cpPick(${i})" style="border:none; background:#e8edf5; color:#3d4f6b; border-radius:7px; padding:7px 10px; font-size:12px; font-weight:600;">${v ? '변경' : '등록'}</button>${v ? `<button type="button" onclick="cpRemove(${i})" style="border:none; background:#f6e3e3; color:#a33; border-radius:7px; padding:7px 8px; font-size:12px;">삭제</button>` : ''}</div>`;
   }).join('');
 }
@@ -7905,7 +7954,7 @@ async function buildCatalogPages(cfg, items) {
     }
   }
   // ── 디자인 토큰: 잉크(남색) + 웜그레이 + 절제된 골드 포인트 ──
-  const INK = '#3a3636', BRAND = '#595959', MUTED = '#7d7676', HAIR = '#ddd5d5', PAPER = '#efeaea', STRIP = '#f6f2f2'; // 백야 로고 회색(#595959)과 카드 바탕색(#efeaea)
+  const _T = TH(), INK = _T.ink, BRAND = _T.brand, MUTED = _T.muted, HAIR = _T.hair, PAPER = _T.paper, STRIP = _T.strip; // [새 시스템] 가게가 고른 색 (예전 값 = 연핑크) // 백야 로고 회색(#595959)과 카드 바탕색(#efeaea)
   const swOf = (g) => { // 이 타일의 스왓치 번호: 무지 것, 없으면 기모 등 변형 것, 그래도 없으면 무지 이름으로 찾아봄
     let sw = g.main.sw && (g.main.sw.order != null || g.main.sw.orderSpring != null) ? g.main.sw : null;
     if (!sw) for (const v of g.variants) if (v.c.sw && (v.c.sw.order != null || v.c.sw.orderSpring != null)) { sw = v.c.sw; break; }
@@ -7954,7 +8003,7 @@ async function buildCatalogPages(cfg, items) {
       return `<div style="background:#fff; border:${isBest ? `2px solid ${BRAND}` : `1px solid ${HAIR}`}; border-radius:10px; overflow:hidden; min-width:0; min-height:0; display:flex; flex-direction:column;">
         ${strip}
         <div style="display:flex; gap:10px; align-items:center; padding:7px 10px; flex:1; min-height:0;">
-          <div style="width:${sz}px; height:${sz}px; flex:none; border-radius:8px; ${ph ? `background:url('${ph}') center/cover no-repeat;` : `background:${dot || '#eceae4'};`} border:1px solid rgba(0,0,0,.15); box-sizing:border-box; display:flex; align-items:center; justify-content:center; color:#b5b09f; font-size:24px; font-weight:700;">${ph || dot ? '' : esc(String(c.color).slice(0, 1))}</div>
+          <div style="width:${sz}px; height:${sz}px; flex:none; border-radius:8px; ${ph ? `background:url('${ph}') center/cover no-repeat;` : `background:${dot || TH().tint2};`} border:1px solid rgba(0,0,0,.15); box-sizing:border-box; display:flex; align-items:center; justify-content:center; color:#b5b09f; font-size:24px; font-weight:700;">${ph || dot ? '' : esc(String(c.color).slice(0, 1))}</div>
           <div style="flex:1; min-width:0;">
             <div style="font-size:${nfs}px; font-weight:700; line-height:1.15; color:${INK}; word-break:keep-all; overflow-wrap:anywhere;">${esc(c.color)}</div>
             ${wbody}
@@ -7966,7 +8015,7 @@ async function buildCatalogPages(cfg, items) {
       const ph = photoOf(g);
       return `<div style="background:#fff; border:${isBest ? `2px solid ${BRAND}` : `1px solid ${HAIR}`}; border-radius:10px; overflow:hidden; min-width:0; display:flex; flex-direction:column;">
         ${strip}
-        <div style="height:160px; ${ph ? `background:url('${ph}') center/cover no-repeat;` : `background:${dot || '#eceae4'};`} display:flex; align-items:center; justify-content:center; color:#b5b09f; font-size:44px; font-weight:700;">${ph || dot ? '' : esc(String(c.color).slice(0, 1))}</div>
+        <div style="height:160px; ${ph ? `background:url('${ph}') center/cover no-repeat;` : `background:${dot || TH().tint2};`} display:flex; align-items:center; justify-content:center; color:#b5b09f; font-size:44px; font-weight:700;">${ph || dot ? '' : esc(String(c.color).slice(0, 1))}</div>
         <div style="padding:10px 12px 12px; border-top:1px solid ${HAIR};">
           <div style="font-size:22px; font-weight:700; line-height:1.2; color:${INK}; word-break:keep-all; overflow-wrap:anywhere;">${esc(c.color)}</div>
           ${body}
@@ -7976,7 +8025,7 @@ async function buildCatalogPages(cfg, items) {
     return `<div style="background:#fff; border:${isBest ? `2px solid ${BRAND}` : `1px solid ${HAIR}`}; border-radius:10px; overflow:hidden; min-width:0; display:flex; flex-direction:column;">
         ${strip}
         <div style="display:flex; gap:12px; align-items:center; padding:12px; flex:1;">
-          <div style="width:64px; height:64px; flex:none; border-radius:8px; background:${dot || '#eceae4'}; border:1px solid rgba(0,0,0,.15); box-sizing:border-box; display:flex; align-items:center; justify-content:center; color:#b5b09f; font-size:26px; font-weight:700;">${dot ? '' : esc(String(c.color).slice(0, 1))}</div>
+          <div style="width:64px; height:64px; flex:none; border-radius:8px; background:${dot || TH().tint2}; border:1px solid rgba(0,0,0,.15); box-sizing:border-box; display:flex; align-items:center; justify-content:center; color:#b5b09f; font-size:26px; font-weight:700;">${dot ? '' : esc(String(c.color).slice(0, 1))}</div>
           <div style="flex:1; min-width:0;">
             <div style="font-size:23px; font-weight:700; line-height:1.2; color:${INK}; word-break:keep-all; overflow-wrap:anywhere;">${esc(c.color)}</div>
             ${body}
@@ -7999,10 +8048,10 @@ async function buildCatalogPages(cfg, items) {
         </div>
       </div>`;
   const headOf = (it, pageNo, total) => wide ? `<div style="background:${PAPER}; color:${INK}; border-bottom:2px solid ${BRAND}; padding:12px 24px 10px; flex:none;">
-        <div style="display:flex; justify-content:space-between; align-items:center;"><img src="${B.logo}" style="display:block; height:20px; width:auto;"><span style="display:flex; align-items:center; gap:8px; font-size:14px; letter-spacing:.5px; color:${MUTED};">${isNew ? `<span style="background:${BRAND}; color:#fff; font-weight:800; letter-spacing:2px; font-size:12px; padding:1px 8px; border-radius:4px;">NEW</span>` : ''}<span>${esc(cfg.title)}${total > 1 ? ` · ${pageNo}/${total}` : ''}</span></span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center;"><img src="${B.logo}" style="display:block; height:${Math.round(20 * logoScale('logoWeb'))}px; width:auto;"><span style="display:flex; align-items:center; gap:8px; font-size:14px; letter-spacing:.5px; color:${MUTED};">${isNew ? `<span style="background:${BRAND}; color:#fff; font-weight:800; letter-spacing:2px; font-size:12px; padding:1px 8px; border-radius:4px;">NEW</span>` : ''}<span>${esc(cfg.title)}${total > 1 ? ` · ${pageNo}/${total}` : ''}</span></span></div>
         <div style="margin-top:8px; display:flex; align-items:baseline; gap:14px;"><div style="font-size:34px; font-weight:800; line-height:1.15; letter-spacing:-.5px; word-break:keep-all; overflow-wrap:anywhere;">${esc(it.item)}</div>${it.mix ? `<div style="font-size:15px; color:${MUTED}; flex:none;">혼용률 ${esc(it.mix)}</div>` : ''}</div>
       </div>` : `<div style="background:${PAPER}; color:${INK}; border-bottom:2px solid ${BRAND}; padding:22px 24px 18px;">
-        <div style="display:flex; justify-content:space-between; align-items:center;"><img src="${B.logo}" style="display:block; height:22px; width:auto;"><span style="font-size:15px; letter-spacing:.5px; color:${MUTED};">${total > 1 ? `${pageNo}/${total}` : ''}</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center;"><img src="${B.logo}" style="display:block; height:${Math.round(22 * logoScale('logoWeb'))}px; width:auto;"><span style="font-size:15px; letter-spacing:.5px; color:${MUTED};">${total > 1 ? `${pageNo}/${total}` : ''}</span></div>
         <div style="margin-top:16px; display:flex; align-items:center; gap:8px; font-size:15px; letter-spacing:.5px; color:${MUTED};">${isNew ? `<span style="background:${BRAND}; color:#fff; font-weight:800; letter-spacing:2px; font-size:13px; padding:1px 8px; border-radius:4px;">NEW</span>` : ''}<span>${esc(cfg.title)}</span></div>
         <div style="margin-top:4px; font-size:38px; font-weight:800; line-height:1.15; letter-spacing:-.5px; word-break:keep-all; overflow-wrap:anywhere;">${esc(it.item)}</div>
         ${it.mix ? `<div style="font-size:16px; margin-top:6px; color:${MUTED};">혼용률 ${esc(it.mix)}</div>` : ''}
@@ -8022,7 +8071,7 @@ async function buildCatalogPages(cfg, items) {
         ? `<div style="flex:1; min-height:0; margin-top:${Math.round(PH * 0.03)}px; background:#fff; padding:19px; box-sizing:border-box;"><div style="width:100%; height:100%; background:url('${photo}') center/cover no-repeat;"></div></div>`
         : `<div style="margin-top:20px; background:#fff; padding:14px; box-sizing:border-box;"><div style="width:100%; height:${PW - side * 2 - 28}px; background:url('${photo}') center/cover no-repeat;"></div></div>`;
       out.push(`<div class="stm-img-page" style="width:${PW}px; ${fixed ? `height:${PH}px; display:flex; flex-direction:column; overflow:hidden; padding:${Math.round(PH * 0.05)}px ${side}px ${Math.round(PH * 0.045)}px;` : `padding:24px ${side}px 34px;`} box-sizing:border-box; background:${PAPER}; color:${INK}; font-family:${fontFam};">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex:none;"><img src="${B.logo}" style="display:block; height:${fixed ? 25 : 22}px; width:auto;"><span style="font-size:${fixed ? 15 : 13}px; letter-spacing:${fixed ? 5 : 4}px; color:${MUTED};">${isNew ? 'NEW ARRIVAL' : esc(cfg.title)}</span></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; flex:none;"><img src="${B.logo}" style="display:block; height:${Math.round((fixed ? 25 : 22) * logoScale('logoWeb'))}px; width:auto;"><span style="font-size:${fixed ? 15 : 13}px; letter-spacing:${fixed ? 5 : 4}px; color:${MUTED};">${isNew ? 'NEW ARRIVAL' : esc(cfg.title)}</span></div>
         ${frame}
         <div style="flex:none; margin-top:${fixed ? Math.round(PH * 0.025) : 22}px;"><div style="font-size:${fixed ? 43 : 36}px; font-weight:800; line-height:1.15; letter-spacing:-.5px; word-break:keep-all; overflow-wrap:anywhere;">${esc(it.item)}</div>${it.mix ? `<div style="font-size:${fixed ? 18 : 16}px; margin-top:6px; color:${MUTED};">혼용률 ${esc(it.mix)}</div>` : ''}</div>
         ${igFoot}
@@ -8039,7 +8088,7 @@ async function buildCatalogPages(cfg, items) {
         const tags = g.variants.length ? [{ label: '무지' }, ...g.variants].map(m => m.label).filter(Boolean) : [];
         const chips = tags.map(t => `<span style="flex:none; border:1px solid #bbb; border-radius:${Math.round(10 * K)}px; padding:1px ${Math.round(8 * K)}px; font-size:${Math.round(13 * K)}px; color:#6b6460; margin-left:5px; white-space:nowrap;">${esc(t)}</span>`).join('');
         return `<div style="position:relative; min-width:0; min-height:0; background:#fff; display:flex; flex-direction:column; overflow:hidden;">
-          <div style="flex:1; min-height:0; position:relative; ${ph ? `background:url('${ph}') center/cover no-repeat;` : `background:${dot || '#eceae4'};`}">${!ph && !dot ? `<div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#b5b09f; font-size:60px; font-weight:700;">${esc(String(c.color).slice(0, 1))}</div>` : ''}</div>
+          <div style="flex:1; min-height:0; position:relative; ${ph ? `background:url('${ph}') center/cover no-repeat;` : `background:${dot || TH().tint2};`}">${!ph && !dot ? `<div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#b5b09f; font-size:60px; font-weight:700;">${esc(String(c.color).slice(0, 1))}</div>` : ''}</div>
           <div style="flex:none; height:${Math.round(50 * K)}px; box-sizing:border-box; display:flex; align-items:center; border-top:1px solid #eee;">${numBlocks}<div style="display:flex; align-items:center; min-width:0; padding:0 ${Math.round(8 * K)}px 0 ${Math.round((numBlocks ? 10 : 12) * K)}px;"><b style="font-size:${Math.round(19 * K)}px; color:#2b2727; line-height:1.15; word-break:keep-all; overflow-wrap:anywhere;">${esc(c.color)}</b>${chips}</div></div>
           ${isBest ? `<div style="position:absolute; inset:0; border:3px solid ${BRAND}; box-sizing:border-box;"></div><div style="position:absolute; left:0; top:0; background:${BRAND}; color:#fff; padding:${Math.round(4 * K)}px ${Math.round(10 * K)}px; font-size:${Math.round(13 * K)}px; font-weight:800; letter-spacing:2px;">★ BEST</div>` : ''}
         </div>`;
@@ -8071,9 +8120,9 @@ async function buildCatalogPages(cfg, items) {
     }
     for (const gs of sp) {
       out.push(pageWrap(wide
-        ? `${headOf(it, no++, total)}<div style="flex:1; min-height:0; display:grid; grid-template-columns:repeat(3, 1fr); grid-template-rows:${gs.length <= 3 ? 'repeat(1, 190px)' : `repeat(${Math.ceil(gs.length / 3)}, 1fr)`}; align-content:${gs.length <= 3 ? 'center' : 'stretch'}; gap:8px; padding:10px 14px; background:#efeaea;">${gs.map(g => tileHtml(g, itemSpring, photoMode, Math.ceil(gs.length / 3))).join('')}</div>`
+        ? `${headOf(it, no++, total)}<div style="flex:1; min-height:0; display:grid; grid-template-columns:repeat(3, 1fr); grid-template-rows:${gs.length <= 3 ? 'repeat(1, 190px)' : `repeat(${Math.ceil(gs.length / 3)}, 1fr)`}; align-content:${gs.length <= 3 ? 'center' : 'stretch'}; gap:8px; padding:10px 14px; background:${TH().paper};">${gs.map(g => tileHtml(g, itemSpring, photoMode, Math.ceil(gs.length / 3))).join('')}</div>`
         : `${headOf(it, no++, total)}
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; padding:20px 20px 22px; background:#efeaea;">${gs.map(g => tileHtml(g, itemSpring, photoMode)).join('')}</div>`));
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; padding:20px 20px 22px; background:${TH().paper};">${gs.map(g => tileHtml(g, itemSpring, photoMode)).join('')}</div>`));
     }
     return out;
   };
@@ -8692,7 +8741,7 @@ function renderPubList() {
     const list = _pubIdx.entries.filter(e => e.sec === sec);
     html += `<div style="font-size:13px; font-weight:800; margin:12px 0 4px;">${esc(PUB_SECS[sec])} <span style="font-weight:400; color:var(--muted);">${list.length}개</span></div>`;
     if (list.length === 0) { html += '<div style="font-size:12px; color:var(--muted); padding:4px 0;">아직 없어요</div>'; continue; }
-    html += list.map((e, k) => `<div style="display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid #f0f0f0;">${e.thumb ? `<img src="${e.thumb}" style="width:38px; height:38px; border-radius:6px; object-fit:cover; flex:none;">` : `<div style="width:38px; height:38px; border-radius:6px; background:${e.tc || '#eceae4'}; flex:none;"></div>`}<div style="flex:1; min-width:0;"><div style="font-size:14px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${esc(e.item)}</div><div style="font-size:11px; color:var(--muted);">${esc(e.date || '')} · 이미지 ${e.n}장</div></div>`
+    html += list.map((e, k) => `<div style="display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid #f0f0f0;">${e.thumb ? `<img src="${e.thumb}" style="width:38px; height:38px; border-radius:6px; object-fit:cover; flex:none;">` : `<div style="width:38px; height:38px; border-radius:6px; background:${e.tc || TH().tint2}; flex:none;"></div>`}<div style="flex:1; min-width:0;"><div style="font-size:14px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${esc(e.item)}</div><div style="font-size:11px; color:var(--muted);">${esc(e.date || '')} · 이미지 ${e.n}장</div></div>`
       + `<button type="button" ${k === 0 ? 'disabled' : ''} onclick="pubMove('${e.id}', -1)" style="border:none; background:#eee; color:#555; border-radius:6px; padding:6px 9px; font-size:12px; ${k === 0 ? 'opacity:.35;' : ''}">▲</button><button type="button" ${k === list.length - 1 ? 'disabled' : ''} onclick="pubMove('${e.id}', 1)" style="border:none; background:#eee; color:#555; border-radius:6px; padding:6px 9px; font-size:12px; ${k === list.length - 1 ? 'opacity:.35;' : ''}">▼</button><button type="button" onclick="pubRemove('${e.id}')" style="border:none; background:#f6e3e3; color:#a33; border-radius:6px; padding:6px 9px; font-size:12px;">삭제</button></div>`).join('');
   }
   box.innerHTML = html;
@@ -15514,7 +15563,7 @@ function spsSlipHtml(slip, today, withTax) {
   const grand = total + tax;
   const totalText = grand > 0 ? `원정 (₩ ${grand.toLocaleString()})` : '-';
   return `<div class="sp${withTax ? ' tx' : ''}"><div class="kind">샘플 내역서</div>
-    <div class="logo"><img src="${BRAND_IMG.logoPrint || textLogoSrc(shopDisplayName())}" alt=""></div>
+    <div class="logo"><img src="${BRAND_IMG.logoPrint || textLogoSrc(shopDisplayName())}" alt=""${logoScale('logoPrint') !== 1 ? ` style="height:${Math.round(24 * logoScale('logoPrint'))}px"` : ''}></div>
     <div class="head"><div class="sup"><span class="badge">공급자</span><br>
       <span class="k">등록번호</span>${esc(biz.number)}<br>
       <span class="k">상호·성명</span><b>${esc(biz.name)}&nbsp;&nbsp;${esc(biz.owner)}</b><br>
@@ -15645,6 +15694,7 @@ function openBizInfoModal() {
   document.getElementById('biz-fax').value = settings.bizFax || '';
   document.getElementById('biz-loc').value = settings.shopLoc || '';
   document.getElementById('biz-kakao').value = settings.kakaoUrl || '';
+  _themePick = curTheme(); renderThemePicker();
   _brandPending = {};
   for (const k of BRAND_IMG_KEYS) { const im = document.getElementById('bi-' + k); if (im) { if (BRAND_IMG[k]) im.src = BRAND_IMG[k]; else im.removeAttribute('src'); } }
   brandRefreshClearLinks();
@@ -15666,14 +15716,15 @@ async function saveBizInfo() {
     bizTel: document.getElementById('biz-tel').value.trim(),
     bizFax: document.getElementById('biz-fax').value.trim(),
     shopLoc: document.getElementById('biz-loc').value.trim(),
+    theme: THEMES[_themePick] ? _themePick : curTheme(),
     kakaoUrl: (() => { const v = document.getElementById('biz-kakao').value.trim(); return /^https:\/\/[^\s"'<>]+$/.test(v) ? v : ''; })(),
   };
   const ok = await persistSettings();
   if (ok === false) return;
   if (Object.keys(_brandPending).length) {
     const next = { ...BRAND_IMG, ..._brandPending };
-    for (const k of BRAND_IMG_KEYS) if (!next[k]) delete next[k]; // 지운 이미지
-    const docData = { stamp: SCHEMA_STAMP, updatedAt: new Date().toISOString() }; for (const k of BRAND_IMG_KEYS) docData[k] = next[k] || '';
+    for (const k of BRAND_IMG_KEYS) if (!next[k]) { delete next[k]; delete next[k + 'AR']; } // 지운 이미지
+    const docData = { stamp: SCHEMA_STAMP, updatedAt: new Date().toISOString() }; for (const k of BRAND_IMG_KEYS) { docData[k] = next[k] || ''; if (/^logo/.test(k)) docData[k + 'AR'] = Number(next[k + 'AR']) || 0; }
     try { await shopCol('data').doc('brand').set(docData); BRAND_IMG = next; _brandPending = {}; }
     catch (e) { showToast('로고·QR 이미지를 저장하지 못했어요. 다시 시도해주세요'); return; }
   }

@@ -5,63 +5,63 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="referrer" content="no-referrer-when-downgrade">
 <meta name="robots" content="noindex,nofollow">
-<meta name="theme-color" content="#efeaea">
+<meta name="theme-color" content="#ffffff">
 <title>신상 · Best</title>
 <style>
-:root { --ink:#3a3636; --brand:#595959; --muted:#7d7676; --hair:#ddd5d5; --paper:#efeaea; --strip:#f6f2f2; }
+:root { --ink:#2f2f2f; --brand:#555555; --muted:#767676; --hair:#e3e3e3; --paper:#ffffff; --strip:#f7f7f7; --line2:#ececec; --line3:#e9e9e9; --line4:#e4e4e4; --tint:#f4f4f4; --tint2:#efefef; --faint:#a6a6a6; --faint2:#b8b8b8; }
 * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
 html, body { background:var(--paper); color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif; }
 body { max-width:720px; margin:0 auto; min-height:100vh; padding-bottom:calc(72px + env(safe-area-inset-bottom)); }
 a { color:inherit; text-decoration:none; }
 .top { position:sticky; top:0; z-index:10; background:var(--paper); border-bottom:2px solid var(--brand); }
 .brand { display:flex; align-items:center; justify-content:space-between; padding:12px 16px 8px; }
-.brand img { height:20px; display:block; }
+.brand img { height:20px; display:block; } .brand img.sq { height:calc(20px * var(--k)); }
 .brand .loc { font-size:12px; color:var(--muted); }
 .tabs { display:flex; padding:0 8px; }
 .tabs a { flex:1; text-align:center; padding:11px 0 12px; font-size:16px; font-weight:700; color:var(--muted); border-bottom:3px solid transparent; margin-bottom:-2px; }
 .tabs a.on { color:var(--ink); border-bottom-color:var(--brand); }
 .sub { padding:12px 14px 2px; }
-.seg { display:flex; background:#e3dcdc; border-radius:10px; padding:3px; }
+.seg { display:flex; background:var(--line4); border-radius:10px; padding:3px; }
 .seg a { flex:1; text-align:center; font-size:15px; font-weight:700; padding:9px 0; border-radius:8px; color:var(--muted); }
 .seg a.on { background:var(--brand); color:#fff; }
 .search { width:100%; border:1px solid var(--hair); background:#fff; border-radius:10px; padding:12px 14px; font-size:16px; color:var(--ink); outline:none; }
 .list { padding:6px 14px 14px; }
 .card { display:flex; align-items:center; gap:14px; background:#fff; border:1px solid var(--hair); border-radius:12px; padding:12px; margin-top:10px; }
 .card:active { background:var(--strip); }
-.th { width:72px; height:72px; border-radius:10px; flex:none; object-fit:cover; border:1px solid rgba(0,0,0,.1); background:#eceae4; }
+.th { width:72px; height:72px; border-radius:10px; flex:none; object-fit:cover; border:1px solid rgba(0,0,0,.1); background:var(--tint2); }
 .meta { flex:1; min-width:0; }
 .tag { display:inline-block; background:var(--brand); color:#fff; font-size:11px; font-weight:800; letter-spacing:1.5px; padding:1px 7px; border-radius:4px; margin-bottom:4px; }
 .nm { font-size:19px; font-weight:800; line-height:1.2; letter-spacing:-.3px; word-break:keep-all; overflow-wrap:anywhere; }
 .ds { font-size:13px; color:var(--muted); margin-top:4px; }
-.chev { color:#b5adad; font-size:26px; flex:none; line-height:1; }
+.chev { color:var(--faint2); font-size:26px; flex:none; line-height:1; }
 .empty, .msg { text-align:center; color:var(--muted); font-size:15px; padding:64px 20px; line-height:1.7; }
 .msg button { margin-top:14px; border:none; background:var(--brand); color:#fff; border-radius:10px; padding:11px 22px; font-size:15px; font-weight:700; }
-.skel { height:96px; border-radius:12px; margin:10px 14px 0; background:linear-gradient(90deg,#e8e2e2,#f1ecec,#e8e2e2); background-size:200% 100%; animation:sh 1.2s infinite; }
+.skel { height:96px; border-radius:12px; margin:10px 14px 0; background:linear-gradient(90deg,var(--line2),var(--tint),var(--line2)); background-size:200% 100%; animation:sh 1.2s infinite; }
 @keyframes sh { to { background-position:-200% 0; } }
 .dhead { position:sticky; top:0; z-index:10; background:var(--paper); border-bottom:2px solid var(--brand); display:flex; align-items:center; gap:4px; padding:6px 10px 6px 4px; }
 .dhead .back { width:44px; height:44px; display:flex; align-items:center; justify-content:center; font-size:30px; color:var(--ink); border:none; background:none; }
 .dhead .t { font-size:19px; font-weight:800; letter-spacing:-.3px; word-break:keep-all; overflow-wrap:anywhere; }
 .pages img { display:block; width:100%; height:auto; }
-.mat { display:block; width:calc(100% - 32px); margin:12px 16px 0; border-radius:12px; aspect-ratio:4/3; object-fit:cover; background:#eceae4; }
-.pages .ph { width:100%; aspect-ratio:3/4; background:linear-gradient(90deg,#e8e2e2,#f1ecec,#e8e2e2); background-size:200% 100%; animation:sh 1.2s infinite; }
+.mat { display:block; width:calc(100% - 32px); margin:12px 16px 0; border-radius:12px; aspect-ratio:4/3; object-fit:cover; background:var(--tint2); }
+.pages .ph { width:100%; aspect-ratio:3/4; background:linear-gradient(90deg,var(--line2),var(--tint),var(--line2)); background-size:200% 100%; animation:sh 1.2s infinite; }
 .pages > * + * { margin-top:8px; }
-.chip { display:inline-block; font-size:11.5px; font-weight:800; border-radius:5px; padding:1px 7px; line-height:1.5; background:#e6e1e1; color:#7d7676; margin-top:6px; }
+.chip { display:inline-block; font-size:11.5px; font-weight:800; border-radius:5px; padding:1px 7px; line-height:1.5; background:var(--line3); color:var(--muted); margin-top:6px; }
 .sgrid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; padding:10px 14px; }
 .sw { background:#fff; border:1px solid var(--hair); border-radius:12px; overflow:hidden; }
-.sw .ph { aspect-ratio:1/1; background-size:cover; background-position:center; background-color:#e8e2e2; position:relative; }
+.sw .ph { aspect-ratio:1/1; background-size:cover; background-position:center; background-color:var(--line2); position:relative; }
 .sw .no { font-weight:800; font-size:15px; padding:6px 8px 0; word-break:keep-all; overflow-wrap:anywhere; line-height:1.25; }
 .sw .vh { display:grid; grid-template-columns:1fr 1fr; margin-top:5px; border-top:1px solid var(--hair); }
 .sw .vh .h { padding:5px 8px 0; min-width:0; }
 .sw .vh .h + .h { border-left:1px solid var(--hair); }
 .sw .vh .l { font-size:13px; font-weight:700; color:var(--ink); }
-.sw .vh .h.out .l, .sw .vh .h.low .l { color:#a39c9c; }
+.sw .vh .h.out .l, .sw .vh .h.low .l { color:var(--faint); }
 .sw .vh .h.out .l { text-decoration:line-through; }
 .sw .vh .chip { margin-top:3px; font-size:10px; padding:1px 4px; white-space:nowrap; letter-spacing:-.4px; }
 .sw .st { padding:3px 8px 0; }
 .sw .st .chip { margin-top:0; }
 .sw::after { content:''; display:block; height:8px; }
 .sw.out .ph, .sw.low .ph { filter:grayscale(1); opacity:.5; }
-.sw.out .no { color:#a39c9c; text-decoration:line-through; }
+.sw.out .no { color:var(--faint); text-decoration:line-through; }
 .sw.low .no { color:#8a8383; }
 .sw .x { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-weight:900; color:#6b6565; font-size:16px; letter-spacing:1px; }
 .tog { display:flex; justify-content:space-between; align-items:center; padding:12px 16px 0; }
@@ -84,14 +84,23 @@ a { color:inherit; text-decoration:none; }
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script>
-let LOGO = ''; // [새 시스템] 가게 로고 - 가게의 공개 정보(public/brand)에서 읽음
+const THEMES = { // [새 시스템] 거래처가 보는 화면(고객 페이지·장부 링크·카톡용 재고표 이미지) 색 세트 - 글씨가 잘 보이게 미리 맞춘 5가지
+  white: { name: '화이트', paper: '#ffffff', strip: '#f7f7f7', hair: '#e3e3e3', ink: '#2f2f2f', muted: '#767676', brand: '#555555', line2: '#ececec', line3: '#e9e9e9', line4: '#e4e4e4', tint: '#f4f4f4', tint2: '#efefef', faint: '#a6a6a6', faint2: '#b8b8b8' },
+  gray: { name: '라이트 그레이', paper: '#f1f1f1', strip: '#f8f8f8', hair: '#dadada', ink: '#333333', muted: '#777777', brand: '#555555', line2: '#e4e4e4', line3: '#e2e2e2', line4: '#dcdcdc', tint: '#ededed', tint2: '#e9e9e9', faint: '#a2a2a2', faint2: '#b4b4b4' },
+  pink: { name: '연핑크', paper: '#efeaea', strip: '#f6f2f2', hair: '#ddd5d5', ink: '#3a3636', muted: '#7d7676', brand: '#595959', line2: '#e8e2e2', line3: '#e6e1e1', line4: '#e3dcdc', tint: '#f1ecec', tint2: '#eceae4', faint: '#a39c9c', faint2: '#b5adad' },
+  beige: { name: '베이지', paper: '#f3eee6', strip: '#f9f6f0', hair: '#e0d8ca', ink: '#3a3530', muted: '#7d756a', brand: '#5d564c', line2: '#ebe4d8', line3: '#e8e1d5', line4: '#e4dccf', tint: '#f4efe7', tint2: '#eee8dd', faint: '#a59d90', faint2: '#b8b0a3' },
+  blue: { name: '블루그레이', paper: '#edf0f3', strip: '#f6f8fa', hair: '#d5dbe2', ink: '#2f3640', muted: '#6f7883', brand: '#4b5663', line2: '#e3e7ec', line3: '#e1e5ea', line4: '#dce1e7', tint: '#eef1f4', tint2: '#e8ecf0', faint: '#9aa2ac', faint2: '#aeb5be' },
+};
+function applyTheme(id) { const t = THEMES[id] || THEMES.white; const r = document.documentElement.style; for (const k of ['paper', 'strip', 'hair', 'ink', 'muted', 'brand', 'line2', 'line3', 'line4', 'tint', 'tint2', 'faint', 'faint2']) r.setProperty('--' + k, t[k]); const mt = document.querySelector('meta[name="theme-color"]'); if (mt) mt.setAttribute('content', t.paper); }
+let LOGO = ''; let LOGO_AR = 0; // 로고 가로세로 비율 (옆으로 긴 로고는 그대로, 정사각형에 가까우면 크게) // [새 시스템] 가게 로고 - 가게의 공개 정보(public/brand)에서 읽음
 let BRAND = { name: '', loc: '', tel: '', kakaoUrl: '' };
 async function loadBrand() { // 실패해도 페이지는 그대로 보이게
-  try { const d = await pubDocs().doc('brand').get(); if (d.exists) { const o = d.data(); BRAND = { name: String(o.name || ''), loc: String(o.loc || ''), tel: String(o.tel || ''), kakaoUrl: /^https:\/\//.test(o.kakaoUrl || '') ? o.kakaoUrl : '' }; LOGO = /^data:image\//.test(o.logo || '') ? o.logo : ''; } } catch (e) { /* 기본값 */ }
+  try { const d = await pubDocs().doc('brand').get(); if (d.exists) { const o = d.data(); BRAND = { name: String(o.name || ''), loc: String(o.loc || ''), tel: String(o.tel || ''), kakaoUrl: /^https:\/\//.test(o.kakaoUrl || '') ? o.kakaoUrl : '' }; LOGO = /^data:image\//.test(o.logo || '') ? o.logo : ''; LOGO_AR = Number(o.logoAR) || 0; const th = THEMES[o.theme] ? o.theme : 'pink'; applyTheme(th); try { localStorage.setItem('theme_' + SHOP_ID, th); } catch (e) { /* 저장 못 해도 괜찮음 */ } } } catch (e) { /* 기본값 */ }
 }
-function logoHtml() { return LOGO ? `<img src="${LOGO}" alt="${esc(BRAND.name)}">` : `<b style="font-size:20px;letter-spacing:1px;">${esc(BRAND.name)}</b>`; }
+function logoHtml() { const k = LOGO_AR > 0 && LOGO_AR < 4 ? (LOGO_AR < 1.6 ? 1.9 : (LOGO_AR < 2.6 ? 1.6 : 1.3)) : 1; return LOGO ? `<img src="${LOGO}" alt="${esc(BRAND.name)}"${k !== 1 ? ` class="sq" style="--k:${k}"` : ''}>` : `<b style="font-size:20px;letter-spacing:1px;">${esc(BRAND.name)}</b>`; }
 const cfg = { apiKey: "AIzaSyCeWjdi2yBaBsiVSydDYHDAmQAT4hsGs6I", authDomain: "fabric-saas-test.firebaseapp.com", projectId: "fabric-saas-test", appId: "1:93481473112:web:5f88067e0e01dfba24e62d" }; // [새 시스템] 새 Firebase 프로젝트 설정값
 const SHOP_ID = (() => { try { const v = new URLSearchParams(location.search).get('shop'); if (v && /^[a-z0-9-]{2,30}$/.test(v)) return v; } catch (e) { /* 기본 가게 */ } return 'baekya'; })(); // [새 시스템] 어느 가게 페이지인지
+try { const t0 = localStorage.getItem('theme_' + SHOP_ID); if (t0) applyTheme(t0); } catch (e) { /* 기억된 색 없음 */ } // 지난번에 본 이 가게 색을 먼저 칠해서 깜빡임 줄임
 function pubDocs() { return db.collection('shops').doc(SHOP_ID).collection('public'); } // [새 시스템] 가게별 공개 공간만 읽음
 const app = document.getElementById('app');
 let db = null, idx = null, loadErr = false;
