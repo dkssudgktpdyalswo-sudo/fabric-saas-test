@@ -25,6 +25,7 @@
   .meta { font-size: 12.5px; color: var(--muted); margin-top: 4px; line-height: 1.6; word-break: break-all; }
   .chip { display: inline-block; border-radius: 10px; padding: 2px 8px; font-size: 11.5px; font-weight: 800; margin-left: 6px; vertical-align: 2px; }
   .chip.pending { background: #fdf0d8; color: #9a5b00; } .chip.active { background: #e6f2ea; color: #1e6b3d; } .chip.suspended { background: #fdecea; color: var(--danger); }
+  .chip.prem { background: #f6eed9; color: #8a6a1f; }
   .acts { display: flex; gap: 6px; flex: none; }
   .empty { text-align: center; color: var(--muted); padding: 30px 0; font-size: 14px; }
   code { background: #f1efea; padding: 3px 6px; border-radius: 5px; font-size: 13px; word-break: break-all; }
@@ -105,13 +106,29 @@ function render() {
     const acts = k === 'pending' ? `<button class="btn main" onclick="setStatus('${esc(s.id)}', 'active', this)">승인</button><button class="btn danger" onclick="setStatus('${esc(s.id)}', 'suspended', this)">거절</button>`
       : k === 'active' ? `<button class="btn danger" onclick="setStatus('${esc(s.id)}', 'suspended', this)">사용 중지</button>`
       : `<button class="btn main" onclick="setStatus('${esc(s.id)}', 'active', this)">다시 사용</button>`;
+    const prem = s.plan === 'premium';
+    const planBtn = k === 'active' ? `<button class="btn ${prem ? '' : 'main'}" onclick="setPlan('${esc(s.id)}', '${prem ? 'basic' : 'premium'}', this)">${prem ? '프리미엄 끄기' : '프리미엄 켜기'}</button>` : '';
     return `<div class="card"><div class="row"><div style="min-width:0;">
-      <div class="nm">${esc(s.name || '(이름 없음)')}<span class="chip ${k}">${LABEL[k]}</span></div>
+      <div class="nm">${esc(s.name || '(이름 없음)')}<span class="chip ${k}">${LABEL[k]}</span>${prem ? '<span class="chip prem">프리미엄</span>' : ''}</div>
       <div class="meta">가게 코드 ${esc(s.id)} · 사장 ${esc(s.ownerName || '')} ${esc(s.ownerEmail || '')}<br>신청 ${esc(String(s.createdAt || '').slice(0, 10))}${s.statusAt ? ` · 상태 변경 ${esc(String(s.statusAt).slice(0, 10))}` : ''}</div>
-    </div><div class="acts">${acts}</div></div></div>`;
+    </div><div class="acts">${acts}${planBtn}</div></div></div>`;
   }).join('');
   $('app').innerHTML = `<div class="tabs">${tabs}</div>${cards || '<div class="empty">해당하는 가게가 없습니다</div>'}
     <p class="meta" style="text-align:center;">승인하면 그 가게 화면이 저절로 열립니다. 사용 중지해도 장부 내용은 지워지지 않습니다.</p>`;
+}
+// 프리미엄(홍보 탭) 켜기·끄기 - 끄는 건 한 번 더 누르게
+async function setPlan(id, plan, btn) {
+  if (plan !== 'premium' && btn.dataset.sure !== '1') {
+    btn.dataset.sure = '1'; const old = btn.textContent; btn.textContent = '한 번 더 누르면 끄기';
+    setTimeout(() => { if (btn.isConnected) { btn.dataset.sure = ''; btn.textContent = old; } }, 3000); return;
+  }
+  btn.disabled = true;
+  try {
+    const at = new Date().toISOString();
+    await db.collection('shops').doc(id).update({ plan, planAt: at });
+    const s = SHOPS.find(x => x.id === id); if (s) { s.plan = plan; s.planAt = at; }
+    toast(plan === 'premium' ? '프리미엄 켜기 완료' : '프리미엄 끄기 완료'); render();
+  } catch (e) { btn.disabled = false; toast('바꾸지 못했습니다 (' + (e.code || e.message) + ')'); }
 }
 // 중지·거절은 실수 방지로 한 번 더 누르게
 async function setStatus(id, status, btn) {

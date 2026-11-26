@@ -116,7 +116,7 @@ async function runAll() {
     await expectDenied('19. 직원S가 백업 삭제', () => D(S, SA, 'backups', 'x').delete());
     await expectDenied('20. 직원S가 다른 계정을 자기 가게에 연결', () => S.db.collection('users').doc(B.uid).set({ shopId: SA }));
     await expectDenied('21. 사장A가 자기 역할 바꾸기', () => D(A, SA, 'members', A.uid).update({ role: 'staff' }));
-    await expectOk('22. 공개 페이지는 로그인 없이 읽힘', async () => { await D(A, SA, 'public', 'pubIndex').set({ data: '{}' }); const p = firebase.initializeApp(cfg, 'anon' + rnd); await p.firestore().collection('shops').doc(SA).collection('public').doc('pubIndex').get(); });
+    await expectOk('22. 가게 이름표(장부 링크용)는 로그인 없이 읽힘', async () => { await D(A, SA, 'public', 'brand').set({ name: '시험' }); const p = firebase.initializeApp(cfg, 'anon' + rnd); await p.firestore().collection('shops').doc(SA).collection('public').doc('brand').get(); });
     await expectDenied('23. 로그인 안 한 사람이 장부 읽기', () => firebase.app('anon' + rnd).firestore().collection('shops').doc(SA).collection('data').doc('rolls').get());
     await expectOk('24. 사장A가 직원S 사용 중지', () => D(A, SA, 'members', S.uid).update({ active: false }));
     await expectDenied('25. 사용 중지된 직원S가 장부 읽기', () => D(S, SA, 'data', 'rolls').get());
@@ -125,6 +125,18 @@ async function runAll() {
     await expectOk('28. 사용 중지돼도 장부 읽기는 됨 (내용 보관)', () => D(A, SA, 'data', 'rolls').get());
     await expectOk('29. 운영자가 A 가게 다시 사용', () => approve(SA, 'active'));
     await expectOk('30. 다시 사용 후 사장A 저장 됨', () => D(A, SA, 'data', 'rolls').set({ data: '[]', rev: 6, stamp: 2 }));
+    // 프리미엄(홍보·고객 페이지): 운영자만 켬, 안 켠 가게는 고객 페이지를 올리지도 보이지도 않음, 장부 링크는 모든 가게
+    const anonPub = (id) => firebase.app('anon' + rnd).firestore().collection('shops').doc(SA).collection('public').doc(id).get();
+    await expectDenied('31. 사장A가 스스로 프리미엄 켜기', () => A.db.collection('shops').doc(SA).update({ plan: 'premium' }));
+    await expectDenied('32. 프리미엄 아닌 가게가 고객 페이지 올리기', () => D(A, SA, 'public', 'pubIndex').set({ data: '{}' }));
+    await expectOk('33. 프리미엄 아니어도 장부 링크 올리기', () => D(A, SA, 'public', 'ledger_rt' + rnd).set({ data: '{}' }));
+    await expectOk('34. 장부 링크는 로그인 없이 열림', () => anonPub('ledger_rt' + rnd));
+    await expectDenied('35. 운영자도 이상한 구독값은 못 넣음', () => ADM.db.collection('shops').doc(SA).update({ plan: 'gold' }));
+    await expectOk('36. 운영자가 A 가게 프리미엄 켜기', () => ADM.db.collection('shops').doc(SA).update({ plan: 'premium', planAt: new Date().toISOString() }));
+    await expectOk('37. 프리미엄 가게는 고객 페이지 올리기 됨', () => D(A, SA, 'public', 'pubIndex').set({ data: '{}' }));
+    await expectOk('38. 고객 페이지는 로그인 없이 열림', () => anonPub('pubIndex'));
+    await expectOk('39. 운영자가 프리미엄 끄기', () => ADM.db.collection('shops').doc(SA).update({ plan: 'basic', planAt: new Date().toISOString() }));
+    await expectDenied('40. 프리미엄 끄면 고객 페이지 바로 닫힘', () => anonPub('pubIndex'));
   } catch (e) { log(false, '검사 준비 실패', e.code || e.message); }
   document.getElementById('sum').innerHTML = fail === 0 ? `<span class="ok">전부 통과 (${pass}개)</span>` : `<span class="bad">실패 ${fail}개 / 통과 ${pass}개</span>`;
 }
