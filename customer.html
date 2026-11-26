@@ -69,7 +69,43 @@ a { color:inherit; text-decoration:none; }
 .tog .sv { width:42px; height:24px; border-radius:12px; background:#aaa; position:relative; flex:none; }
 .tog .sv::after { content:''; position:absolute; left:2px; top:2px; width:20px; height:20px; border-radius:50%; background:#fff; transition:left .15s; }
 .tog .sv.on { background:var(--brand); } .tog .sv.on::after { left:20px; }
+.ds2 { font-size:13.5px; color:var(--ink); margin-top:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.fi { margin:12px 16px 0; padding:14px; border:1px solid var(--hair); border-radius:12px; background:#fff; }
+.fi .d { font-size:15px; line-height:1.65; color:var(--ink); word-break:keep-all; overflow-wrap:anywhere; }
+.fi .tg { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:12px; }
+.fi .tg b { font-size:12px; color:var(--muted); font-weight:700; margin-right:2px; }
+.fi .tg span { font-size:13px; padding:3px 10px; border-radius:999px; background:var(--tint); color:var(--ink); }
+.fi .tg span.u { background:var(--brand); color:#fff; }
+.fi dl { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px 8px; margin:14px 0 0; padding-top:12px; border-top:1px solid var(--line2); }
+.fi dt { font-size:11.5px; color:var(--muted); } .fi dd { font-size:14px; font-weight:700; margin:2px 0 0; word-break:keep-all; overflow-wrap:anywhere; }
+.fi > :first-child { margin-top:0; padding-top:0; border-top:0; }
 .note { padding:8px 16px 14px; font-size:12.5px; color:var(--muted); line-height:1.6; }
+.sw.pick { outline:3px solid var(--brand); outline-offset:-1px; }
+.sw .ck { position:absolute; top:6px; right:6px; width:24px; height:24px; border-radius:50%; background:rgba(255,255,255,.92); border:2px solid var(--hair); display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:900; color:transparent; }
+.sw.pick .ck { background:var(--brand); border-color:var(--brand); color:#fff; }
+.sgrid.rq .sw { cursor:pointer; -webkit-tap-highlight-color:transparent; }
+.rqhint { padding:2px 16px 0; font-size:13px; color:var(--muted); }
+.rq-bar { position:fixed; left:0; right:0; bottom:calc(76px + env(safe-area-inset-bottom)); z-index:19; display:flex; justify-content:center; padding:0 14px; pointer-events:none; }
+.rq-bar button { pointer-events:auto; width:100%; max-width:692px; border:none; border-radius:14px; background:var(--ink); color:#fff; font-size:16px; font-weight:800; padding:15px 0; box-shadow:0 6px 18px rgba(0,0,0,.18); font-family:inherit; }
+.rq-btn { display:block; width:calc(100% - 32px); margin:12px 16px 0; border:1.5px solid var(--brand); background:#fff; color:var(--brand); border-radius:12px; padding:13px 0; font-size:15.5px; font-weight:800; font-family:inherit; }
+.rq-ov { position:fixed; inset:0; z-index:50; background:rgba(0,0,0,.42); display:flex; align-items:flex-end; justify-content:center; }
+.rq-sh { width:100%; max-width:720px; max-height:92vh; overflow:auto; background:var(--paper); border-radius:18px 18px 0 0; padding:18px 18px calc(18px + env(safe-area-inset-bottom)); }
+.rq-sh h3 { margin:0; font-size:19px; font-weight:800; }
+.rq-sh .what { margin-top:6px; font-size:14px; color:var(--muted); line-height:1.5; word-break:keep-all; }
+.rq-sh label { display:block; font-size:13px; font-weight:700; color:var(--muted); margin:16px 0 6px; }
+.rq-seg { display:flex; background:var(--line4); border-radius:10px; padding:3px; }
+.rq-seg button { flex:1; border:none; background:none; border-radius:8px; padding:10px 0; font-size:15px; font-weight:700; color:var(--muted); font-family:inherit; }
+.rq-seg button.on { background:var(--brand); color:#fff; }
+.rq-sh input, .rq-sh textarea { width:100%; box-sizing:border-box; border:1px solid var(--hair); background:#fff; border-radius:10px; padding:12px; font-size:16px; color:var(--ink); font-family:inherit; outline:none; }
+.rq-sh textarea { resize:none; height:70px; }
+.rq-go { display:block; width:100%; margin-top:18px; border:none; border-radius:12px; background:var(--brand); color:#fff; font-size:16.5px; font-weight:800; padding:15px 0; font-family:inherit; }
+.rq-go:disabled { opacity:.5; }
+.rq-sub { display:block; width:100%; margin-top:8px; border:none; background:none; color:var(--muted); font-size:14.5px; padding:10px 0; font-family:inherit; }
+.rq-done { text-align:center; padding:14px 0 4px; }
+.rq-done .big { font-size:40px; }
+.rq-done b { display:block; font-size:18px; margin-top:6px; }
+.rq-done p { font-size:14px; color:var(--muted); margin:8px 0 0; line-height:1.6; }
+.rq-err { color:#b3261e; font-size:13.5px; margin-top:10px; line-height:1.5; }
 .bar { position:fixed; left:0; right:0; bottom:0; z-index:20; background:var(--paper); border-top:1px solid var(--hair); padding:10px 14px calc(10px + env(safe-area-inset-bottom)); }
 .bar { display:flex; gap:8px; justify-content:center; }
 .bar a { flex:1; display:flex; align-items:center; justify-content:center; gap:6px; max-width:342px; background:var(--brand); color:#fff; border-radius:12px; padding:14px 0; font-size:16px; font-weight:800; white-space:nowrap; }
@@ -80,6 +116,8 @@ a { color:inherit; text-decoration:none; }
 <body>
 <div id="app"></div>
 <div class="bar" id="bar"></div>
+<div class="rq-bar" id="rqbar" style="display:none"></div>
+<div id="rqsheet"></div>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -93,9 +131,9 @@ const THEMES = { // [새 시스템] 거래처가 보는 화면(고객 페이지�
 };
 function applyTheme(id) { const t = THEMES[id] || THEMES.white; const r = document.documentElement.style; for (const k of ['paper', 'strip', 'hair', 'ink', 'muted', 'brand', 'line2', 'line3', 'line4', 'tint', 'tint2', 'faint', 'faint2']) r.setProperty('--' + k, t[k]); const mt = document.querySelector('meta[name="theme-color"]'); if (mt) mt.setAttribute('content', t.paper); }
 let LOGO = ''; let LOGO_AR = 0; // 로고 가로세로 비율 (옆으로 긴 로고는 그대로, 정사각형에 가까우면 크게) // [새 시스템] 가게 로고 - 가게의 공개 정보(public/brand)에서 읽음
-let BRAND = { name: '', loc: '', tel: '', kakaoUrl: '' };
+let BRAND = { name: '', loc: '', tel: '', kakaoUrl: '', req: true };
 async function loadBrand() { // 실패해도 페이지는 그대로 보이게
-  try { const d = await pubDocs().doc('brand').get(); if (d.exists) { const o = d.data(); BRAND = { name: String(o.name || ''), loc: String(o.loc || ''), tel: String(o.tel || ''), kakaoUrl: /^https:\/\//.test(o.kakaoUrl || '') ? o.kakaoUrl : '' }; LOGO = /^data:image\//.test(o.logo || '') ? o.logo : ''; LOGO_AR = Number(o.logoAR) || 0; const th = THEMES[o.theme] ? o.theme : 'pink'; applyTheme(th); try { localStorage.setItem('theme_' + SHOP_ID, th); } catch (e) { /* 저장 못 해도 괜찮음 */ } } } catch (e) { /* 기본값 */ }
+  try { const d = await pubDocs().doc('brand').get(); if (d.exists) { const o = d.data(); BRAND = { name: String(o.name || ''), loc: String(o.loc || ''), tel: String(o.tel || ''), kakaoUrl: /^https:\/\//.test(o.kakaoUrl || '') ? o.kakaoUrl : '', req: o.req !== false }; LOGO = /^data:image\//.test(o.logo || '') ? o.logo : ''; LOGO_AR = Number(o.logoAR) || 0; const th = THEMES[o.theme] ? o.theme : 'pink'; applyTheme(th); try { localStorage.setItem('theme_' + SHOP_ID, th); } catch (e) { /* 저장 못 해도 괜찮음 */ } } } catch (e) { /* 기본값 */ }
 }
 function logoHtml() { const k = LOGO_AR > 0 && LOGO_AR < 4 ? (LOGO_AR < 1.6 ? 1.9 : (LOGO_AR < 2.6 ? 1.6 : 1.3)) : 1; return LOGO ? `<img src="${LOGO}" alt="${esc(BRAND.name)}"${k !== 1 ? ` class="sq" style="--k:${k}"` : ''}>` : `<b style="font-size:20px;letter-spacing:1px;">${esc(BRAND.name)}</b>`; }
 const cfg = { apiKey: "AIzaSyCeWjdi2yBaBsiVSydDYHDAmQAT4hsGs6I", authDomain: "fabric-saas-test.firebaseapp.com", projectId: "fabric-saas-test", appId: "1:93481473112:web:5f88067e0e01dfba24e62d" }; // [새 시스템] 새 Firebase 프로젝트 설정값
@@ -134,13 +172,26 @@ function cardHtml(e, p, s) {
   const tag = p === 'best' ? '<span class="tag">★ BEST</span>' : (p === 'new' && isRecent(e.date) ? '<span class="tag">NEW</span>' : '');
   const sub = [e.mix, e.colors ? `컬러 ${e.colors}` : ''].filter(Boolean).join(' · ');
   const go_ = { p, i: e.id }; if (s) go_.s = s;
-  return `<a class="card" href="${url(go_)}" data-go='${JSON.stringify(go_)}'>${th}<div class="meta">${tag}<div class="nm">${esc(e.item)}</div><div class="ds">${esc(sub)}${p === 'new' && e.date ? `${sub ? ' · ' : ''}${esc(e.date)} 입고` : ''}</div></div><span class="chev">›</span></a>`;
+  return `<a class="card" href="${url(go_)}" data-go='${JSON.stringify(go_)}'>${th}<div class="meta">${tag}<div class="nm">${esc(e.item)}</div>${e.info && typeof e.info.desc === 'string' && e.info.desc ? `<div class="ds2">${esc(e.info.desc)}</div>` : ''}<div class="ds">${esc(sub)}${p === 'new' && e.date ? `${sub ? ' · ' : ''}${esc(e.date)} 입고` : ''}</div></div><span class="chev">›</span></a>`;
 }
+function infoHtml(info, mix) { // 원단 소개·용도·특징·스펙 (가게에서 적은 것만, 빈 칸은 안 보임)
+  const o = (info && typeof info === 'object') ? info : {};
+  const arr = v => Array.isArray(v) ? v.filter(x => typeof x === 'string' && x) : [];
+  const spec = [['혼용률', mix || o.mix], ['폭', o.w], ['중량', o.g], ['조직', o.weave], ['가공', o.fin], ['원산지', o.org]].filter(x => typeof x[1] === 'string' && x[1]);
+  const use = arr(o.use), feel = arr(o.feel);
+  let h = '';
+  if (typeof o.desc === 'string' && o.desc) h += `<div class="d">${esc(o.desc)}</div>`;
+  if (use.length) h += `<div class="tg"><b>추천 용도</b>${use.map(x => `<span class="u">${esc(x)}</span>`).join('')}</div>`;
+  if (feel.length) h += `<div class="tg"><b>특징</b>${feel.map(x => `<span>${esc(x)}</span>`).join('')}</div>`;
+  if (spec.length) h += `<dl>${spec.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>`;
+  return h ? `<div class="fi">${h}</div>` : '';
+}
+function hasInfo(info) { return !!(info && typeof info === 'object' && Object.keys(info).length); }
 function stockCard(e) {
   const th = e.th ? `<img class="th" src="${e.th}" alt="">` : `<div class="th" style="background:#eceae4"></div>`;
   const sub = [e.mix, e.n ? `컬러 ${e.n}` : ''].filter(Boolean).join(' · ');
   const go_ = { p: 'stock', i: e.id };
-  return `<a class="card" href="${url(go_)}" data-go='${JSON.stringify(go_)}'>${th}<div class="meta"><div class="nm">${esc(e.item)}</div><div class="ds">${esc(sub)}</div>${e.out > 0 ? `<span class="chip">품절 ${e.out}</span>` : ''}</div><span class="chev">›</span></a>`;
+  return `<a class="card" href="${url(go_)}" data-go='${JSON.stringify(go_)}'>${th}<div class="meta"><div class="nm">${esc(e.item)}</div>${typeof e.dsc === 'string' && e.dsc ? `<div class="ds2">${esc(e.dsc)}</div>` : ''}<div class="ds">${esc(sub)}</div>${e.out > 0 ? `<span class="chip">품절 ${e.out}</span>` : ''}</div><span class="chev">›</span></a>`;
 }
 function stockCards(items) { return items.length ? items.map(stockCard).join('') : '<div class="empty">준비 중이에요</div>'; }
 function swGrid(o) {
@@ -151,15 +202,17 @@ function swGrid(o) {
     if (c.v) { // 무지/기모 묶인 칸: 아래를 반반으로 나눠 각각의 상태를 바로 옆에 보여줌
       foot = `<div class="vh">${c.v.map(x => `<div class="h${x.s === 2 ? ' out' : x.s === 1 ? ' low' : ''}"><div class="l">${esc(x.n)}</div>${x.s > 0 ? `<span class="chip">${x.s === 2 ? '품절' : '샘플가능'}</span>` : ''}</div>`).join('')}</div>`;
     } else foot = c.s > 0 ? `<div class="st"><span class="chip">${lbl(c.s)}</span></div>` : '';
-    return `<div class="sw${c.s === 2 ? ' out' : c.s === 1 ? ' low' : ''}"><div class="ph"${c.t ? ` style="background-image:url(${c.t})"` : ''}>${c.s === 2 ? '<div class="x">품절</div>' : ''}</div><div class="no">${esc(c.c)}</div>${foot}</div>`;
+    return `<div class="sw${c.s === 2 ? ' out' : c.s === 1 ? ' low' : ''}${rqOn() && rqSel.has(c.c) ? ' pick' : ''}" data-c="${esc(c.c)}"><div class="ph"${c.t ? ` style="background-image:url(${c.t})"` : ''}>${c.s === 2 ? '<div class="x">품절</div>' : ''}${rqOn() ? '<span class="ck">✓</span>' : ''}</div><div class="no">${esc(c.c)}</div>${foot}</div>`;
   }).join('') || '<div class="empty" style="grid-column:1/-1;padding:30px 0">보여줄 컬러가 없어요</div>';
 }
 function stockDetailBody(o) {
   const nOut = o.cols.filter(c => c.s > 0).length;
-  const sub = [o.mix, `컬러 ${o.cols.length}`, o.date ? `${o.date} 입고` : ''].filter(Boolean).join(' · ');
-  return (o.p ? `<img class="mat" src="${o.p}" alt="${esc(o.item)}">` : '') + `<div style="padding:10px 16px 0;font-size:13.5px;color:var(--muted)">${esc(sub)}</div>`
+  const fi = hasInfo(o.info) ? infoHtml(o.info, o.mix) : ''; // 원단 정보가 있으면 혼용률은 그 안에 같이 보임
+  const sub = [fi ? '' : o.mix, `컬러 ${o.cols.length}`, o.date ? `${o.date} 입고` : ''].filter(Boolean).join(' · ');
+  return (o.p ? `<img class="mat" src="${o.p}" alt="${esc(o.item)}">` : '') + fi + `<div style="padding:10px 16px 0;font-size:13.5px;color:var(--muted)">${esc(sub)}</div>`
     + (nOut > 0 ? `<div class="tog"><button type="button" id="hideBtn"><span>품절 컬러 숨기기</span><span class="sv${hideOut ? ' on' : ''}"></span></button><span style="font-size:12px;color:var(--muted)">품절 ${nOut}</span></div>` : '')
-    + `<div class="sgrid" id="sgrid">${swGrid(o)}</div><div class="note">· 재고는 수시로 바뀌어요.<br>· <b>정확한 수량은 채널을 통해 담당자분과 확인해주시길 바랍니다.</b></div>`;
+    + (rqOn() ? '<div class="rqhint">컬러를 눌러 고르면 샘플감·스와치를 요청할 수 있어요.</div>' : '')
+    + `<div class="sgrid${rqOn() ? ' rq' : ''}" id="sgrid">${swGrid(o)}</div><div class="note">· 재고는 수시로 바뀌어요.<br>· <b>정확한 수량은 채널을 통해 담당자분과 확인해주시길 바랍니다.</b></div>`;
 }
 function listView(P) {
   if (!idx) return head(P.p) + (loadErr ? `<div class="msg">불러오지 못했어요.<br>잠시 후 다시 시도해주세요.<br><button onclick="boot()">다시 불러오기</button></div>` : '<div class="skel"></div><div class="skel"></div><div class="skel"></div>');
@@ -194,10 +247,12 @@ function detailView(P) {
   const bar = `<div class="dhead"><a class="back" href="${url(back)}" data-go='${JSON.stringify(back)}' aria-label="뒤로">‹</a><div class="t">${esc(e ? e.item : '')}</div></div>`;
   if (!idx) return bar + '<div class="skel"></div>';
   if (!e) return bar + '<div class="empty">내려간 품목이에요</div>';
-  return bar + `<div class="pages" id="pages">${Array.from({ length: e.n }, (_, i) => `<div class="ph" id="ph${i}"></div>`).join('')}</div>`;
+  return bar + (hasInfo(e.info) ? infoHtml(e.info, e.mix) : '') + (rqOn() ? `<button type="button" class="rq-btn" id="rqItemBtn">이 원단 샘플·문의 요청</button>` : '') + '<div style="height:12px"></div>' + `<div class="pages" id="pages">${Array.from({ length: e.n }, (_, i) => `<div class="ph" id="ph${i}"></div>`).join('')}</div>`;
 }
 async function render() {
   const P = params();
+  if (rq) rqClose();
+  rqBar();
   if (P.p === 'stock' && (sErr || (sIdx && !stockOpen()))) { history.replaceState({}, '', url({ p: 'new' })); return render(); } // 잠긴 재고 탭 주소로 들어오면 신상으로
   if (P.i && P.p === 'stock') {
     const e0 = sIdx && sIdx.items.find(x => x.id === P.i);
@@ -211,8 +266,9 @@ async function render() {
     if (params().i !== P.i) return;
     const body = document.getElementById('sbody'); if (!body) return;
     if (!o || !Array.isArray(o.cols)) { body.innerHTML = '<div class="empty">불러오지 못했어요</div>'; return; }
-    const paint = () => { body.innerHTML = stockDetailBody(o); const hb = document.getElementById('hideBtn'); if (hb) hb.addEventListener('click', () => { hideOut = !hideOut; paint(); }); };
-    paint();
+    if (rqItemId !== e0.id) { rqSel.clear(); rqItemId = e0.id; } rqItemName = o.item || e0.item;
+    const paint = () => { body.innerHTML = stockDetailBody(o); const hb = document.getElementById('hideBtn'); if (hb) hb.addEventListener('click', () => { hideOut = !hideOut; paint(); }); rqWire(); };
+    paint(); rqBar();
     return;
   }
   if (P.i) {
@@ -220,6 +276,7 @@ async function render() {
     window.scrollTo(0, 0);
     const e = idx && idx.entries.find(x => x.id === P.i);
     if (e) {
+      const rb = document.getElementById('rqItemBtn'); if (rb) rb.addEventListener('click', () => rqOpen(e.item, true));
       document.title = e.item + ' · ' + BRAND.name;
       const pages = await getPages(e);
       if (params().i !== P.i) return; // 그 사이 다른 화면으로 옮겼으면 그리지 않음
@@ -236,6 +293,94 @@ async function render() {
     document.getElementById('stocklist').innerHTML = list.length ? list.map(stockCard).join('') : '<div class="empty">검색 결과가 없어요</div>';
   });
 }
+// ── 손님 요청 (샘플감·스와치·문의): 가게 요청함(requests)에 "추가"만. 실패하면 채널 채팅·전화로 ──
+const rqOn = () => BRAND.req !== false;
+const RQ_KIND = { sample: '샘플감', swatch: '스와치', ask: '문의' };
+let rqSel = new Set(), rqItemId = '', rqItemName = '', rq = null, rqBusy = false, rqLastAt = 0;
+function rqBar() {
+  const b = document.getElementById('rqbar'); if (!b) return; const P = params();
+  const show = rqOn() && !rq && P.p === 'stock' && !!P.i && rqSel.size > 0;
+  b.style.display = show ? '' : 'none';
+  b.innerHTML = show ? `<button type="button" onclick="rqOpen(rqItemName, false)">컬러 ${rqSel.size}개 요청하기</button>` : '';
+}
+function rqWire() { // 재고 상세: 컬러 칸을 눌러 고르기
+  const g = document.getElementById('sgrid'); if (!g || !rqOn()) return;
+  g.addEventListener('click', ev => {
+    const el = ev.target.closest('.sw[data-c]'); if (!el) return;
+    const c = el.getAttribute('data-c');
+    if (rqSel.has(c)) rqSel.delete(c); else { if (rqSel.size >= 20) return; rqSel.add(c); }
+    el.classList.toggle('pick', rqSel.has(c)); rqBar();
+  });
+}
+function rqSaved() { try { return localStorage.getItem('rqName_' + SHOP_ID) || ''; } catch (e) { return ''; } }
+function rqOpen(item, free) {
+  if (!item) return;
+  rq = { item: String(item), free: !!free, kind: 'sample', qty: 1, cols: free ? '' : [...rqSel].join(', '), name: rqSaved(), memo: '', step: 'form', err: '', failed: false };
+  rqPaint(); rqBar();
+}
+function rqClose() { rq = null; document.getElementById('rqsheet').innerHTML = ''; document.body.style.overflow = ''; rqBar(); }
+function rqSync() {
+  if (!rq || rq.step !== 'form') return;
+  const v = id => { const e = document.getElementById(id); return e ? e.value : null; };
+  if (v('rq-name') != null) rq.name = v('rq-name'); if (v('rq-memo') != null) rq.memo = v('rq-memo'); if (v('rq-cols') != null) rq.cols = v('rq-cols');
+}
+function rqSet(k, val) { rqSync(); rq[k] = val; rq.err = ''; rqPaint(); }
+function rqText() {
+  return `[${RQ_KIND[rq.kind]} 요청] ${rq.item}${rq.cols.trim() ? ' · ' + rq.cols.trim() : ''}${rq.kind === 'sample' ? ` · 각 ${rq.qty}야드` : ''}${rq.memo.trim() ? ' · ' + rq.memo.trim() : ''}${rq.name.trim() ? ' — ' + rq.name.trim() : ''}`;
+}
+function rqPaint() {
+  const el = document.getElementById('rqsheet'); if (!rq) { el.innerHTML = ''; return; }
+  document.body.style.overflow = 'hidden';
+  const tel = BRAND.tel.replace(/[^0-9]/g, '');
+  const alt = BRAND.kakaoUrl ? `<button type="button" class="rq-go" onclick="rqKakao()">채널 채팅으로 보내기</button>` : (tel ? `<a class="rq-go" style="text-align:center;text-decoration:none" href="tel:${tel}">전화로 문의하기</a>` : '');
+  if (rq.step === 'done') {
+    el.innerHTML = `<div class="rq-ov" onclick="if(event.target===this)rqClose()"><div class="rq-sh"><div class="rq-done"><div class="big">✓</div><b>요청이 전달됐어요</b><p>${esc(BRAND.name || '가게')}에서 확인 후 연락드릴게요.<br>급하시면 채널 채팅이나 전화로도 알려주세요.</p></div>${BRAND.kakaoUrl ? `<button type="button" class="rq-sub" style="color:var(--brand);font-weight:700" onclick="rqKakao()">채널 채팅으로도 보내기</button>` : ''}<button type="button" class="rq-go" onclick="rqClose()">확인</button></div></div>`;
+    return;
+  }
+  const memoPh = rq.kind === 'ask' ? '예: 재입고 언제 되나요? 300야드 가능할까요?' : (rq.kind === 'swatch' ? '예: 받으실 주소나 시간' : '예: 내일 오전에 받고 싶어요');
+  el.innerHTML = `<div class="rq-ov" onclick="if(event.target===this)rqClose()"><div class="rq-sh">
+    <h3>요청하기</h3>
+    <div class="what"><b style="color:var(--ink)">${esc(rq.item)}</b>${!rq.free && rq.cols ? ' · ' + esc(rq.cols) : ''}</div>
+    <label>무엇이 필요하세요?</label>
+    <div class="rq-seg">${Object.keys(RQ_KIND).map(k => `<button type="button" class="${rq.kind === k ? 'on' : ''}" onclick="rqSet('kind','${k}')">${RQ_KIND[k]}</button>`).join('')}</div>
+    ${rq.kind === 'sample' ? `<label>컬러당 수량</label><div class="rq-seg">${[1, 2, 3, 5].map(n => `<button type="button" class="${rq.qty === n ? 'on' : ''}" onclick="rqSet('qty',${n})">${n}야드</button>`).join('')}</div>` : ''}
+    ${rq.free ? `<label>컬러 (번호나 이름)</label><input id="rq-cols" maxlength="100" placeholder="예: 3번, 5번 블랙" value="${esc(rq.cols)}">` : ''}
+    <label>상호 (필수)</label><input id="rq-name" maxlength="30" placeholder="예: 한빛봉제" autocomplete="organization" value="${esc(rq.name)}">
+    <label>메모 (선택)</label><textarea id="rq-memo" maxlength="200" placeholder="${memoPh}">${esc(rq.memo)}</textarea>
+    ${rq.err ? `<div class="rq-err">${esc(rq.err)}</div>` : ''}
+    ${rq.failed ? alt : `<button type="button" class="rq-go" id="rq-go" onclick="rqSend()"${rqBusy ? ' disabled' : ''}>${rqBusy ? '보내는 중…' : '요청 보내기'}</button>`}
+    <button type="button" class="rq-sub" onclick="rqClose()">닫기</button>
+  </div></div>`;
+}
+async function rqSend() {
+  rqSync(); if (!rq || rqBusy) return;
+  const name = rq.name.replace(/\s+/g, ' ').trim().slice(0, 30);
+  if (!name) { rq.err = '상호를 적어주세요.'; return rqPaint(); }
+  if (rq.free && rq.kind !== 'ask' && !rq.cols.trim()) { rq.err = '컬러 번호나 이름을 적어주세요.'; return rqPaint(); }
+  if (Date.now() - rqLastAt < 15000) { rq.err = '방금 요청을 보냈어요. 잠시 후 다시 보내주세요.'; return rqPaint(); }
+  rqBusy = true; rq.err = ''; rqPaint();
+  const doc = { at: firebase.firestore.FieldValue.serverTimestamp(), kind: rq.kind, item: rq.item.slice(0, 60), cols: rq.cols.replace(/\s+/g, ' ').trim().slice(0, 300), qty: rq.kind === 'sample' ? rq.qty : 0, name, memo: rq.memo.trim().slice(0, 200), done: false, v: 1 };
+  try {
+    if (!db) throw new Error('nodb');
+    await db.collection('shops').doc(SHOP_ID).collection('requests').add(doc);
+    try { localStorage.setItem('rqName_' + SHOP_ID, name); } catch (e) { /* 기억 못 해도 괜찮음 */ }
+    rqLastAt = Date.now(); rq.step = 'done'; rq.name = name;
+    if (!rq.free) { rqSel.clear(); document.querySelectorAll('.sw.pick').forEach(x => x.classList.remove('pick')); }
+  } catch (e) {
+    rq.failed = true; rq.err = BRAND.kakaoUrl ? '요청을 보내지 못했어요. 아래 버튼을 누르면 요청 문구가 복사되고 채널 채팅이 열려요.' : '요청을 보내지 못했어요. 전화로 문의해주세요.';
+  }
+  rqBusy = false; rqPaint();
+}
+async function rqKakao() { // 채널 채팅은 글을 미리 채울 수 없어서 문구를 복사해 두고 엶
+  rqSync(); const t = rqText(); let ok = false;
+  try { await navigator.clipboard.writeText(t); ok = true; } catch (e) {
+    try { const ta = document.createElement('textarea'); ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); ok = document.execCommand('copy'); ta.remove(); } catch (e2) { ok = false; }
+  }
+  const sh = document.querySelector('.rq-sh');
+  if (sh) sh.insertAdjacentHTML('beforeend', `<div class="rq-err" style="color:var(--ink)">${ok ? '요청 문구를 복사했어요. 채팅창에 붙여넣어 주세요.' : '채팅창에 아래 문구를 보내주세요.<br>' + esc(t)}</div>`);
+  if (BRAND.kakaoUrl) setTimeout(() => { location.href = BRAND.kakaoUrl; }, ok ? 900 : 2500);
+}
+window.addEventListener('popstate', () => { if (rq) rqClose(); });
 function o_open_ok(sd) { try { return sd.exists && JSON.parse(sd.data().data || '{}').open === true; } catch (e) { return false; } }
 async function boot() {
   loadErr = false; idx = null; sIdx = null; sErr = false; render();

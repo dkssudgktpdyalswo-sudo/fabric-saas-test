@@ -137,6 +137,28 @@ async function runAll() {
     await expectOk('38. 고객 페이지는 로그인 없이 열림', () => anonPub('pubIndex'));
     await expectOk('39. 운영자가 프리미엄 끄기', () => ADM.db.collection('shops').doc(SA).update({ plan: 'basic', planAt: new Date().toISOString() }));
     await expectDenied('40. 프리미엄 끄면 고객 페이지 바로 닫힘', () => anonPub('pubIndex'));
+    // 손님 요청함: 로그인 없이 "추가"만, 정해진 칸·길이만, 보기·처리는 사장·매니저
+    const RQ = (db) => db.collection('shops').doc(SA).collection('requests');
+    const anonDb = () => firebase.app('anon' + rnd).firestore();
+    const req = (x) => Object.assign({ at: ST(), kind: 'sample', item: 'A-201', cols: '3 블루그레이', qty: 2, name: '시험봉제', memo: '', done: false, v: 1 }, x || {});
+    let reqId = null;
+    await expectDenied('41. 프리미엄 아닌 가게에 손님 요청 남기기', () => RQ(anonDb()).add(req()));
+    await expectOk('42. 운영자가 A 가게 프리미엄 다시 켜기', () => ADM.db.collection('shops').doc(SA).update({ plan: 'premium', planAt: new Date().toISOString() }));
+    await expectOk('43. 손님이 로그인 없이 샘플감 요청 남기기', async () => { const r = await RQ(anonDb()).add(req()); reqId = r.id; });
+    await expectDenied('44. 정해진 칸 말고 다른 칸(단가) 끼워 넣기', () => RQ(anonDb()).add(req({ price: 1 })));
+    await expectDenied('45. 상호 없이 요청', () => RQ(anonDb()).add(req({ name: '' })));
+    await expectDenied('46. 너무 긴 메모 (201자)', () => RQ(anonDb()).add(req({ memo: 'x'.repeat(201) })));
+    await expectDenied('47. 처리 완료로 꾸며서 남기기', () => RQ(anonDb()).add(req({ done: true })));
+    await expectDenied('48. 이상한 종류(kind)', () => RQ(anonDb()).add(req({ kind: 'order' })));
+    await expectDenied('49. 손님이 요청 목록 보기', () => RQ(anonDb()).get());
+    await expectDenied('50. 사장B가 A 가게 요청 보기', () => RQ(B.db).get());
+    await expectOk('51. 사장A가 요청 보기', () => RQ(A.db).get());
+    await expectOk('52. 사장A가 처리 완료 표시', () => RQ(A.db).doc(reqId || 'x').update({ done: true, doneAt: new Date().toISOString(), doneBy: '사장' }));
+    await expectDenied('53. 사장A도 손님이 쓴 내용은 못 바꿈', () => RQ(A.db).doc(reqId || 'x').update({ name: '바꿈' }));
+    await expectDenied('54. 손님이 요청 지우기', () => RQ(anonDb()).doc(reqId || 'x').delete());
+    await expectOk('55. 사장A가 직원S 다시 사용', () => D(A, SA, 'members', S.uid).update({ active: true }));
+    await expectDenied('56. 직원S는 요청 못 봄 (홍보는 매니저 이상)', () => RQ(S.db).get());
+    await expectOk('57. 사장A가 요청 지우기', () => RQ(A.db).doc(reqId || 'x').delete());
   } catch (e) { log(false, '검사 준비 실패', e.code || e.message); }
   document.getElementById('sum').innerHTML = fail === 0 ? `<span class="ok">전부 통과 (${pass}개)</span>` : `<span class="bad">실패 ${fail}개 / 통과 ${pass}개</span>`;
 }

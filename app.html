@@ -398,6 +398,15 @@
   .cat-sec-h { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; margin-bottom: 6px; font-size: 13px; font-weight: 700; color: var(--primary-dark); }
   .cat-sec-h small { font-weight: 500; color: var(--muted); margin-left: 4px; }
   .cat-mini { border: none; background: var(--b-info); color: var(--primary-dark); border-radius: 8px; padding: 6px 10px; font-size: 12px; font-weight: 600; cursor: pointer; flex: none; }
+  .fi-help { font-size: 12.5px; color: var(--muted); margin: -4px 0 6px; line-height: 1.5; }
+  .fi-cnt { float: right; font-size: 11.5px; color: var(--muted); font-weight: 400; }
+  #fi-desc { resize: vertical; min-height: 58px; line-height: 1.5; }
+  .fi-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .fi-chip { border: 1px solid var(--border); background: #fff; color: #3d4f6b; border-radius: 999px; padding: 6px 11px; font-size: 13px; cursor: pointer; font-family: inherit; }
+  .fi-chip.on { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .fi-chip.add { border-style: dashed; color: var(--muted); }
+  .fi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px; }
+  .pm-ph-txt small .fi-ok { color: #2f9e6a; font-weight: 700; } .pm-ph-txt small .fi-no { color: #b06a00; font-weight: 700; }
   .cat-mini.gray { background: var(--b-sub); color: #555; font-weight: 500; }
   .cat-cand-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 7px 0; border-bottom: 1px solid #f0ede6; font-size: 14px; }
   .cat-cand-row small { display: block; font-size: 11px; color: var(--muted); }
@@ -422,6 +431,20 @@
   .pm-photo-top { display: flex; gap: 8px; align-items: center; margin: 10px 0; }
   #promoPane .pm-chk { display: flex; align-items: center; gap: 4px; font-size: 12px; white-space: nowrap; margin: 0; color: var(--text); }
   .pm-chk input { width: auto; margin: 0; }
+  .pm-badge { display: inline-block; min-width: 18px; margin-left: 4px; padding: 0 5px; border-radius: 999px; background: #c0392b; color: #fff; font-size: 11px; line-height: 18px; vertical-align: 1px; }
+  .tab-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #e2543f; margin-left: 3px; vertical-align: 6px; }
+  #pm-req { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 4px 14px 14px; margin-top: 8px; }
+  .rq-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 12px 0 4px; font-size: 13px; color: var(--muted); }
+  .rq-row { border-bottom: 1px solid #f0ede6; padding: 12px 0; }
+  .rq-row.done { opacity: .55; }
+  .rq-h { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .rq-h b { font-size: 15px; }
+  .rq-k { font-size: 11.5px; font-weight: 700; border-radius: 6px; padding: 2px 7px; background: var(--b-info); color: var(--primary-dark); }
+  .rq-k.sample { background: #e6f4ec; color: #1f7a3a; } .rq-k.ask { background: #f3eee4; color: #7a5a1f; }
+  .rq-t { margin-left: auto; font-size: 12px; color: var(--muted); }
+  .rq-w { margin-top: 5px; font-size: 14px; word-break: keep-all; overflow-wrap: anywhere; }
+  .rq-m { margin-top: 4px; font-size: 13px; color: #555; background: #f7f5f0; border-radius: 8px; padding: 6px 9px; word-break: keep-all; overflow-wrap: anywhere; }
+  .rq-a { display: flex; gap: 6px; margin-top: 8px; }
   .pm-ph-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid #f0ede6; }
   .pm-ph-row img, .pm-ph-none { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; flex: none; }
   .pm-ph-none { background: #eee; color: #999; font-size: 11px; display: flex; align-items: center; justify-content: center; }
@@ -436,6 +459,13 @@
   .pm-lock-note { color: var(--muted) !important; font-size: 13px !important; }
   .pm-lock-acts { display: flex; gap: 8px; flex-wrap: wrap; }
   .pm-lock-acts a { text-decoration: none; text-align: center; flex: 1; }
+  .cat-best-note { font-size: 11.5px; color: var(--muted); margin: 4px 0 6px; }
+  .cat-best-item { margin: 0 0 8px; font-size: 13px; }
+  .cat-best-item b { display: block; margin-bottom: 3px; }
+  .cat-best-chip { display: inline-block; margin: 0 4px 4px 0; padding: 4px 9px; border-radius: 13px; font-size: 12px; cursor: pointer; background: #eee; color: #555; border: 1px solid transparent; }
+  .cat-best-chip.auto { background: var(--primary); color: #fff; }
+  .cat-best-chip.on { background: #fff; color: var(--primary-dark); border-color: var(--primary); font-weight: 700; }
+  .cat-best-chip.off { background: #f6f6f6; color: #aaa; text-decoration: line-through; }
 </style>
 </head>
 <body>
@@ -495,7 +525,7 @@
     <button class="tab-btn" id="tab-cost" onclick="switchTab('cost')">원가</button>
     <button class="tab-btn" id="tab-order" onclick="switchTab('order')">이월장부</button>
     <button class="tab-btn" id="tab-sales" onclick="switchTab('sales')">매출·수금</button>
-    <button class="tab-btn" id="tab-promo" onclick="switchTab('promo')">홍보</button>
+    <button class="tab-btn" id="tab-promo" onclick="switchTab('promo')">홍보<span class="tab-dot hidden" id="tab-promo-dot"></span></button>
   </div>
 </header>
 
@@ -579,9 +609,10 @@
   <div id="pm-lock" class="hidden"></div>
   <div id="pm-main">
   <div class="pm-sum" id="pm-sum"></div>
-  <div class="pm-seg"><button type="button" id="pm-seg-new" onclick="promoSeg('new')">신상</button><button type="button" id="pm-seg-stock" onclick="promoSeg('stock')">재고표</button><button type="button" id="pm-seg-photo" onclick="promoSeg('photo')">사진</button></div>
+  <div class="pm-seg"><button type="button" id="pm-seg-new" onclick="promoSeg('new')">신상</button><button type="button" id="pm-seg-stock" onclick="promoSeg('stock')">재고표</button><button type="button" id="pm-seg-photo" onclick="promoSeg('photo')">사진·정보</button><button type="button" id="pm-seg-req" onclick="promoSeg('req')">요청<span class="pm-badge hidden" id="pm-req-n"></span></button></div>
   <div id="pm-host"></div>
   <div id="pm-photo" class="hidden"></div>
+  <div id="pm-req" class="hidden"></div>
   </div>
 </div>
 
@@ -651,6 +682,33 @@
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeCostModal()">취소</button>
       <button class="btn-save" onclick="saveCost()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 원단 정보 (고객 페이지에 보이는 소개·스펙) -->
+<div class="modal-overlay" id="fiModal">
+  <div class="modal">
+    <h3 id="fi-title">원단 정보</h3>
+    <p class="fi-help">고객 페이지에 그대로 보입니다. 모두 선택 입력이고, 비운 칸은 보이지 않습니다.</p>
+    <label>소개 문구 <span class="fi-cnt" id="fi-desc-cnt">0/100</span></label>
+    <textarea id="fi-desc" class="rx-in" rows="2" maxlength="100" placeholder="예: 가볍고 시원한 여름 블라우스용 레이온입니다. 비침이 적습니다." oninput="fiCount()"></textarea>
+    <label>추천 용도</label>
+    <div class="fi-chips" id="fi-use"></div>
+    <label>특징</label>
+    <div class="fi-chips" id="fi-feel"></div>
+    <div class="fi-grid">
+      <div><label>혼용률</label><input id="fi-mix" class="rx-in" maxlength="40" placeholder="예: R 91 · SP 9" autocomplete="off"></div>
+      <div><label>폭</label><input id="fi-w" class="rx-in" maxlength="20" placeholder='예: 58"' autocomplete="off"></div>
+      <div><label>중량</label><input id="fi-g" class="rx-in" maxlength="20" placeholder="예: 395g/y" autocomplete="off"></div>
+      <div><label>조직</label><input id="fi-weave" class="rx-in" maxlength="20" placeholder="예: 싱글, 쭈리" autocomplete="off"></div>
+      <div><label>가공</label><input id="fi-fin" class="rx-in" maxlength="20" placeholder="예: P/D, 기모" autocomplete="off"></div>
+      <div><label>원산지</label><input id="fi-org" class="rx-in" maxlength="20" placeholder="예: 중국, 국내" autocomplete="off"></div>
+    </div>
+    <button type="button" class="rx-link" id="fi-copy" onclick="fiCopyLast()"></button>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeFabricInfo()">취소</button>
+      <button class="btn-save" id="fi-save" onclick="saveFabricInfo()">저장</button>
     </div>
   </div>
 </div>
@@ -1108,7 +1166,7 @@
         <option value="promo">채널 메시지용 (4:3)</option>
         <option value="ig45">인스타 게시물 (4:5 세로 · 1080×1350)</option>
       </select>
-      <details id="cat-more" style="margin-top:8px;"><summary style="font-size:13px; font-weight:600; color:var(--primary-dark); cursor:pointer;">재고 표시 · 베스트 컬러</summary>
+      <details id="cat-more" style="margin-top:8px;"><summary style="font-size:13px; font-weight:600; color:var(--primary-dark); cursor:pointer;">재고 표시 · BEST 컬러</summary>
       <div id="cat-opts">
       <label>재고 표시</label>
       <select id="cat-display" onchange="catOnDisplayChange()" style="width:100%;">
@@ -1118,10 +1176,12 @@
       </select>
       <div id="cat-low-wrap" style="font-size:12px; color:var(--muted); margin-top:6px;">소량 기준 <input id="cat-low" type="number" min="1" style="width:70px; padding:4px;"> y 미만 소량</div>
       <div style="margin-top:8px;">
-        <label style="display:flex; align-items:center; gap:6px; font-size:13px; color:#333; margin:6px 0;"><input type="checkbox" style="width:auto; flex:none; margin:0;" id="cat-bestcolor"> 베스트 컬러 표시</label>
-        <div style="font-size:12px; color:var(--muted); margin:2px 0 6px 22px;">집계 기간
-          <select id="cat-bestdays" style="padding:3px;"><option value="30">최근 30일</option><option value="90">최근 90일</option><option value="365">최근 1년</option></select>
+        <label style="display:flex; align-items:center; gap:6px; font-size:13px; color:#333; margin:6px 0;"><input type="checkbox" style="width:auto; flex:none; margin:0;" id="cat-bestcolor" onchange="catRenderBestPick()"> BEST 컬러 표시</label>
+        <div style="font-size:12px; color:var(--muted); margin:2px 0 6px 22px; display:flex; flex-wrap:wrap; gap:6px 12px; align-items:center;">
+          <span>집계 기간 <select id="cat-bestdays" onchange="catRenderBestPick()" style="padding:3px; width:auto;"><option value="30">최근 30일</option><option value="90">최근 90일</option><option value="365">최근 1년</option></select></span>
+          <span>자동 TOP <input id="cat-bestn" type="number" min="1" max="20" style="width:56px; padding:3px;" oninput="catBestSetN(this.value)"> 개</span>
         </div>
+        <div id="cat-bestpick"></div>
       </div>
       </div></details>
       <div id="cat-photo-wrap"><label>소재 사진</label>
@@ -1864,7 +1924,7 @@ function logoScale(key) { // 옆으로 긴 글자 로고(가로가 세로의 4�
 }
 async function publishBrand() { // 고객 페이지·장부 링크가 읽는 공개 정보 (누구나 읽을 수 있는 곳이라 사업자번호·계좌는 안 넣음)
   try {
-    await shopCol('public').doc('brand').set({ name: shopDisplayName(), loc: settings.shopLoc || '', tel: settings.bizTel || '', kakaoUrl: settings.kakaoUrl || '', logo: BRAND_IMG.logoWeb || '', logoAR: Number(BRAND_IMG.logoWebAR) || 0, theme: curTheme(), updatedAt: new Date().toISOString() });
+    await shopCol('public').doc('brand').set({ name: shopDisplayName(), loc: settings.shopLoc || '', tel: settings.bizTel || '', kakaoUrl: settings.kakaoUrl || '', logo: BRAND_IMG.logoWeb || '', logoAR: Number(BRAND_IMG.logoWebAR) || 0, theme: curTheme(), req: !(settings && settings.reqOff), updatedAt: new Date().toISOString() });
   } catch (e) { showToast('고객 페이지용 가게 정보를 올리지 못했습니다'); }
 }
 function shopCol(name) { if (typeof db === 'undefined' || !db) throw new Error('nodb'); if (!SHOP_ID) throw new Error('noshop'); return db.collection('shops').doc(SHOP_ID).collection(name); }
@@ -2142,6 +2202,7 @@ function showShopStatusPane(status, shopName) {
   showLockPane('pending');
 }
 function applyRoleChrome() {
+  setTimeout(rqWatch, 0); // 손님 요청함 듣기 (매니저 이상 + 프리미엄일 때만)
   salesAdminUnlocked = canSeeSales();
   document.body.classList.toggle('no-cost', !canSeeCost());
   document.body.classList.toggle('no-sales', !canSeeSales());
@@ -4356,8 +4417,8 @@ function unitCalcDetail(spVal, rateOverride) {
 
 // ===== 홍보 탭 (사장·매니저) =====
 // 신상 목록·재고표·사진을 한 화면에서. 이미지 만들기·고객 페이지는 기존 기능 그대로 씀
-let _promoSeg = (() => { try { const v = localStorage.getItem('promoSeg'); return ['new', 'stock', 'photo'].includes(v) ? v : 'new'; } catch (e) { return 'new'; } })();
-let _pmPhotoQ = '', _pmPhotoOnlyMissing = false;
+let _promoSeg = (() => { try { const v = localStorage.getItem('promoSeg'); return ['new', 'stock', 'photo', 'req'].includes(v) ? v : 'new'; } catch (e) { return 'new'; } })();
+let _pmPhotoQ = '', _pmPhotoOnlyMissing = false, _pmInfoOnlyMissing = false;
 function promoLockHtml() {
   const c = SERVICE_SUPPORT || {};
   const contact = [c.kakao ? `<a class="ui-btn ui-btn-main" href="${esc(c.kakao)}" target="_blank" rel="noopener">카카오톡 문의</a>` : '', c.tel ? `<a class="ui-btn ui-btn-sub" href="tel:${esc(c.tel)}">전화 문의 ${esc(c.tel)}</a>` : ''].join('');
@@ -4379,10 +4440,11 @@ function promoEnter() {
 }
 function promoSeg(seg, quiet) {
   _promoSeg = seg; try { localStorage.setItem('promoSeg', seg); } catch (e) {}
-  for (const k of ['new', 'stock', 'photo']) document.getElementById('pm-seg-' + k).classList.toggle('on', k === seg);
-  document.getElementById('pm-host').classList.toggle('hidden', seg === 'photo');
+  for (const k of ['new', 'stock', 'photo', 'req']) document.getElementById('pm-seg-' + k).classList.toggle('on', k === seg);
+  document.getElementById('pm-host').classList.toggle('hidden', seg === 'photo' || seg === 'req');
   document.getElementById('pm-photo').classList.toggle('hidden', seg !== 'photo');
-  if (seg === 'photo') promoRenderPhotos(); else if (_catMode !== seg || quiet) catSetMode(seg, quiet ? true : undefined);
+  document.getElementById('pm-req').classList.toggle('hidden', seg !== 'req');
+  if (seg === 'photo') promoRenderPhotos(); else if (seg === 'req') rqRender(); else if (_catMode !== seg || quiet) catSetMode(seg, quiet ? true : undefined);
   renderPromoSummary();
 }
 function renderPromoSummary() {
@@ -4394,7 +4456,7 @@ function renderPromoSummary() {
   const pend = items.length - known.length;
   if (pend) catPhotoLoad(items.map(normalizeNameForMatch)).then(ch => { if (ch || pend) { const e2 = document.getElementById('pm-sum'); if (e2 && currentTab === 'promo') renderPromoSummary(); } });
   el.innerHTML = `<div class="pm-card" onclick="promoSeg('new')"><small>신상</small><b>${items.length}<i>품번</i></b><span>${na.length}컬러</span></div>
-    <div class="pm-card${noPhoto ? ' warn' : ''}" onclick="_pmPhotoOnlyMissing=true; promoSeg('photo')"><small>신상 사진 없음</small><b>${pend ? '…' : noPhoto}<i>품번</i></b><span>${noPhoto ? '사진 등록 필요' : (items.length ? '모두 등록' : '-')}</span></div>
+    <div class="pm-card${noPhoto ? ' warn' : ''}" onclick="_pmPhotoOnlyMissing=true; _pmInfoOnlyMissing=false; promoSeg('photo')"><small>신상 사진 없음</small><b>${pend ? '…' : noPhoto}<i>품번</i></b><span>${noPhoto ? '사진 등록 필요' : (items.length ? '모두 등록' : '-')}</span></div>
     <div class="pm-card" onclick="promoSeg('stock')"><small>재고표 묶음</small><b>${catPresets().length}<i>개</i></b><span>${catPresets().length ? esc(catPresets().slice(-1)[0].name) : '저장한 묶음 없음'}</span></div>`;
 }
 function promoRenderPhotos() { // 품번별 소재 사진·컬러 사진 상태: 신상 품번 먼저, 검색하면 다른 품번도
@@ -4410,17 +4472,178 @@ function promoRenderPhotos() { // 품번별 소재 사진·컬러 사진 상태:
   const rows = list.map(u => {
     const k = catPhotoKey(u); const v = _catPhotos[k];
     const cTot = u.colors.length, cHave = u.colors.filter(c => _catPhotos[c.nk]).length;
-    return { u, k, v, cTot, cHave, miss: !v };
-  }).filter(r => !_pmPhotoOnlyMissing || r.miss || loading);
+    return { u, k, v, cTot, cHave, miss: !v, fi: fiFilled(u.item) };
+  }).filter(r => (!_pmPhotoOnlyMissing || r.miss || loading) && (!_pmInfoOnlyMissing || !r.fi));
   const idxOf = u => _catUniverse.indexOf(u);
   box.innerHTML = `<div class="pm-photo-top"><input class="rx-in" placeholder="품번 검색 (비우면 신상 품번)" value="${esc(_pmPhotoQ)}" oninput="_pmPhotoQ=this.value; promoRenderPhotos(); const i=document.querySelector('#pm-photo input'); i.focus(); i.setSelectionRange(i.value.length, i.value.length);">
-      <label class="pm-chk"><input type="checkbox" ${_pmPhotoOnlyMissing ? 'checked' : ''} onchange="_pmPhotoOnlyMissing=this.checked; promoRenderPhotos()"> 사진 없는 것만</label></div>
+      <label class="pm-chk"><input type="checkbox" ${_pmPhotoOnlyMissing ? 'checked' : ''} onchange="_pmPhotoOnlyMissing=this.checked; promoRenderPhotos()"> 사진 없는 것만</label><label class="pm-chk"><input type="checkbox" ${_pmInfoOnlyMissing ? 'checked' : ''} onchange="_pmInfoOnlyMissing=this.checked; promoRenderPhotos()"> 정보 없는 것만</label></div>
     ${!list.length ? `<div class="rx-empty">${q ? '검색 결과가 없습니다' : '신상 목록이 비어 있습니다. 품번을 검색해 주세요'}</div>` : ''}
     ${rows.map(r => `<div class="pm-ph-row">${r.v ? `<img src="${r.v}">` : `<div class="pm-ph-none">${r.v === undefined ? '…' : '없음'}</div>`}
-      <div class="pm-ph-txt"><b>${esc(r.u.item)}</b><small>소재 사진 ${r.v ? '<span class="ok">등록</span>' : r.v === undefined ? '확인 중' : '<span class="no">없음</span>'} · 컬러 사진 ${r.cHave}/${r.cTot}</small></div>
+      <div class="pm-ph-txt"><b>${esc(r.u.item)}</b><small>소재 ${r.v ? '<span class="ok">등록</span>' : r.v === undefined ? '확인 중' : '<span class="no">없음</span>'} · 컬러 ${r.cHave}/${r.cTot}</small><small>원단 정보 ${r.fi ? `<span class="fi-ok">${r.fi}/9</span>` : '<span class="fi-no">없음</span>'}</small></div>
       <button type="button" class="cat-mini" onclick="promoPhotoPick(${JSON.stringify(r.k).replace(/"/g, '&quot;')}, ${JSON.stringify(r.u.item).replace(/"/g, '&quot;')})">${r.v ? '소재 바꾸기' : '소재 등록'}</button>
-      <button type="button" class="cat-mini gray" onclick="openColorPhotoModal(); cpPickItem(${idxOf(r.u)})">컬러</button></div>`).join('')}
+      <button type="button" class="cat-mini gray" onclick="openColorPhotoModal(); cpPickItem(${idxOf(r.u)})">컬러</button><button type="button" class="cat-mini" onclick="openFabricInfo(${JSON.stringify(r.u.item).replace(/"/g, '&quot;')})">정보</button></div>`).join('')}
     ${loading ? '<div class="rx-empty">사진 확인 중…</div>' : ''}`;
+}
+// ===== 손님 요청함 (고객 페이지의 샘플감·스와치·문의) =====
+// 서버: shops/{가게}/requests - 손님은 "추가"만, 보기·처리 표시는 사장·매니저, 지우기는 사장 (보안 규칙)
+const RQ_KIND = { sample: '샘플감', swatch: '스와치', ask: '문의' };
+let _rqUnsub = null, _rqList = [], _rqSeen = null, _rqErr = false, _rqShowDone = false;
+function rqWatch() {
+  const want = !!(useFirebase && typeof db !== 'undefined' && db && SHOP_ID && canSeeSales() && isPremium());
+  if (!want) { if (_rqUnsub) { try { _rqUnsub(); } catch (e) { /* 이미 끊김 */ } } _rqUnsub = null; _rqList = []; _rqSeen = null; rqBadge(); return; }
+  if (_rqUnsub) return;
+  try {
+    _rqUnsub = shopCol('requests').orderBy('at', 'desc').limit(100).onSnapshot(snap => {
+      _rqErr = false;
+      const list = []; snap.forEach(d => { const x = d.data() || {}; list.push({ id: d.id, ...x, atMs: x.at && x.at.toMillis ? x.at.toMillis() : 0 }); });
+      if (_rqSeen) { const fresh = list.filter(r => !r.done && !_rqSeen.has(r.id)); if (fresh.length) showToast(`새 요청 · ${fresh[0].name || ''} · ${RQ_KIND[fresh[0].kind] || ''}${fresh.length > 1 ? ` 외 ${fresh.length - 1}건` : ''}`); }
+      _rqSeen = new Set(list.map(r => r.id)); _rqList = list; rqBadge();
+      if (currentTab === 'promo' && _promoSeg === 'req') rqRender();
+    }, err => { console.warn('requests', err); _rqErr = true; if (currentTab === 'promo' && _promoSeg === 'req') rqRender(); });
+  } catch (e) { _rqUnsub = null; }
+}
+function rqOpenCount() { return _rqList.filter(r => !r.done).length; }
+function rqBadge() {
+  const n = rqOpenCount(), b = document.getElementById('pm-req-n'), d = document.getElementById('tab-promo-dot');
+  if (b) { b.textContent = n; b.classList.toggle('hidden', !n); }
+  if (d) d.classList.toggle('hidden', !n);
+}
+function rqWhen(ms) {
+  if (!ms) return '방금';
+  const d = new Date(ms), now = new Date(), min = Math.floor((now - d) / 60000);
+  if (min < 1) return '방금'; if (min < 60) return `${min}분 전`;
+  const hm = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  if (d.toDateString() === now.toDateString()) return `오늘 ${hm}`;
+  return `${d.getMonth() + 1}/${d.getDate()} ${hm}`;
+}
+function rqLine(r) { return `[${RQ_KIND[r.kind] || '요청'}] ${r.item || ''}${r.cols ? ' · ' + r.cols : ''}${r.kind === 'sample' && r.qty ? ` · 각 ${r.qty}야드` : ''}${r.memo ? ' · ' + r.memo : ''} — ${r.name || ''}`; }
+function rqRender() {
+  const box = document.getElementById('pm-req'); if (!box) return;
+  const open = _rqList.filter(r => !r.done), done = _rqList.filter(r => r.done);
+  const row = r => `<div class="rq-row${r.done ? ' done' : ''}">
+      <div class="rq-h"><b>${esc(r.name || '-')}</b><span class="rq-k ${esc(r.kind || '')}">${esc(RQ_KIND[r.kind] || '요청')}</span><span class="rq-t">${esc(rqWhen(r.atMs))}</span></div>
+      <div class="rq-w"><b>${esc(r.item || '')}</b>${r.cols ? ' · ' + esc(r.cols) : ''}${r.kind === 'sample' && r.qty ? ` · 컬러당 ${esc(r.qty)}야드` : ''}</div>
+      ${r.memo ? `<div class="rq-m">${esc(r.memo)}</div>` : ''}
+      <div class="rq-a">${r.done ? `<span style="font-size:12px;color:var(--muted);align-self:center">처리 완료${r.doneBy ? ' · ' + esc(r.doneBy) : ''}</span><button type="button" class="cat-mini gray" onclick="rqDone('${esc(r.id)}', false)">되돌리기</button>` : `<button type="button" class="cat-mini" onclick="rqDone('${esc(r.id)}', true)">처리 완료</button>`}<button type="button" class="cat-mini gray" onclick="rqCopy('${esc(r.id)}')">문구 복사</button>${isOwner() ? `<button type="button" class="cat-mini gray" onclick="rqDelete('${esc(r.id)}')">삭제</button>` : ''}</div>
+    </div>`;
+  const off = !!(settings && settings.reqOff);
+  box.innerHTML = `<div class="rq-top"><span>고객 페이지 요청 버튼 <b style="color:${off ? '#b0601a' : '#1f7a3a'}">${off ? '꺼짐' : '켜짐'}</b></span>${isOwner() ? `<button type="button" class="cat-mini gray" onclick="rqToggleOn()">${off ? '켜기' : '끄기'}</button>` : ''}</div>
+    ${_rqErr ? '<div class="rx-empty">요청을 불러오지 못했습니다. 보안 규칙(firestore.rules) 최신본을 게시했는지 확인해 주세요</div>' : ''}
+    ${!_rqErr && !open.length ? `<div class="rx-empty">새 요청이 없습니다.<br><small>손님이 고객 페이지에서 컬러를 고르고 샘플감·스와치·문의를 보내면 여기에 쌓입니다.</small></div>` : ''}
+    ${open.map(row).join('')}
+    ${done.length ? `<button type="button" class="rx-link" style="margin-top:10px" onclick="_rqShowDone=!_rqShowDone; rqRender()">${_rqShowDone ? '처리한 요청 접기' : `처리한 요청 ${done.length}건 보기`}</button>${_rqShowDone ? done.map(row).join('') : ''}` : ''}`;
+}
+async function rqDone(id, v) {
+  if (!canSeeSales()) return;
+  try { await shopCol('requests').doc(id).update({ done: !!v, doneAt: new Date().toISOString(), doneBy: String((ME && ME.name) || '').slice(0, 30) }); showToast(v ? '처리 완료로 표시했습니다' : '처리 전으로 되돌렸습니다'); }
+  catch (e) { showToast('저장하지 못했습니다. 인터넷 연결을 확인해 주세요'); }
+}
+async function rqCopy(id) {
+  const r = _rqList.find(x => x.id === id); if (!r) return;
+  try { await navigator.clipboard.writeText(rqLine(r)); showToast('요청 문구를 복사했습니다'); } catch (e) { await uiCopyBox(rqLine(r)); }
+}
+async function rqDelete(id) {
+  if (!isOwner()) return;
+  if (!(await uiConfirm('이 요청을 지우시겠습니까?\n지우면 되돌릴 수 없습니다.'))) return;
+  try { await shopCol('requests').doc(id).delete(); showToast('요청을 지웠습니다'); } catch (e) { showToast('지우지 못했습니다'); }
+}
+async function rqToggleOn() {
+  if (!isOwner()) return;
+  const off = !(settings && settings.reqOff);
+  if (off && !(await uiConfirm('고객 페이지의 요청 버튼을 끄시겠습니까?\n손님은 전화·채널로만 연락하게 됩니다.'))) return;
+  const before = settings.reqOff; settings.reqOff = off;
+  if ((await persistSettings()) === false) { settings.reqOff = before; return; }
+  await publishBrand(); rqRender(); showToast(off ? '요청 버튼을 껐습니다' : '요청 버튼을 켰습니다');
+}
+
+// ===== 원단 정보 (품번별 소개 문구·스펙 → 고객 페이지에 보임) =====
+// 저장 위치: settings.fabricInfo[다듬은 품번] = { desc, use[], feel[], mix, w, g, weave, fin, org } - 비운 칸은 저장하지 않음
+// 혼용률은 원가표에도 있음: 여기서 따로 적으면 고객 페이지·홍보 이미지에 이 값이 쓰이고, 원가표 값은 그대로 둠 (돈 계산과 무관)
+const FI_USE = ['티셔츠', '맨투맨', '원피스', '블라우스', '셔츠', '팬츠', '스커트', '자켓', '코트', '트레이닝', '이너', '아동복'];
+const FI_FEEL = ['신축성 좋음', '부드러움', '탄탄함', '비침 적음', '구김 적음', '시원함', '따뜻함', '광택', '드레이프'];
+const FI_TXT = { desc: 100, mix: 40, w: 20, g: 20, weave: 20, fin: 20, org: 20 };
+let _fi = null;
+function fiAll() { const o = settings && settings.fabricInfo; return (o && typeof o === 'object' && !Array.isArray(o)) ? o : {}; }
+function fiClean(o) {
+  const out = {}; if (!o || typeof o !== 'object') return out;
+  for (const k of Object.keys(FI_TXT)) { const v = String(o[k] == null ? '' : o[k]).replace(/\s+/g, ' ').trim().slice(0, FI_TXT[k]); if (v) out[k] = v; }
+  for (const k of ['use', 'feel']) if (Array.isArray(o[k])) { const a = [...new Set(o[k].map(x => String(x == null ? '' : x).replace(/\s+/g, ' ').trim().slice(0, 12)).filter(Boolean))].slice(0, 8); if (a.length) out[k] = a; }
+  return out;
+}
+function fiGet(item) { return fiClean(fiAll()[normalizeNameForMatch(item || '')]); }
+function fiCostRow(item) { const nk = normalizeNameForMatch(item || ''); return costs.find(c => !c.color && normalizeNameForMatch(c.item) === nk) || null; }
+function fiMixOf(item) { const c = fiCostRow(item); return fiGet(item).mix || (c && c.mix ? String(c.mix) : ''); }
+function fiPublic(item) { const o = fiGet(item); delete o.mix; return o; } // 고객 페이지용 (혼용률은 원래 있던 mix 칸으로 따로 감)
+function fiFilled(item) { const o = fiGet(item); if (!o.mix && fiMixOf(item)) o.mix = 1; return Object.keys(o).length; }
+function fiChipHtml(kind) {
+  const base = kind === 'use' ? FI_USE : FI_FEEL, sel = _fi[kind];
+  const list = [...base, ...sel.filter(x => !base.includes(x))];
+  return list.map(x => `<button type="button" class="fi-chip${sel.includes(x) ? ' on' : ''}" onclick="fiToggle('${kind}', ${JSON.stringify(x).replace(/"/g, '&quot;')})">${esc(x)}</button>`).join('')
+    + `<button type="button" class="fi-chip add" onclick="fiAddChip('${kind}')">+ 직접</button>`;
+}
+function fiRenderChips() { document.getElementById('fi-use').innerHTML = fiChipHtml('use'); document.getElementById('fi-feel').innerHTML = fiChipHtml('feel'); }
+function fiToggle(kind, v) { const a = _fi[kind]; const i = a.indexOf(v); if (i >= 0) a.splice(i, 1); else { if (a.length >= 8) { showToast('8개까지 고를 수 있습니다'); return; } a.push(v); } fiRenderChips(); }
+async function fiAddChip(kind) {
+  const v = await uiPrompt(kind === 'use' ? '추천 용도를 입력해 주세요 (12자까지)' : '특징을 입력해 주세요 (12자까지)', '');
+  const t = String(v == null ? '' : v).replace(/\s+/g, ' ').trim().slice(0, 12); if (!t) return;
+  if (!_fi[kind].includes(t)) { if (_fi[kind].length >= 8) { showToast('8개까지 고를 수 있습니다'); return; } _fi[kind].push(t); }
+  fiRenderChips();
+}
+function fiCount() { const el = document.getElementById('fi-desc'); document.getElementById('fi-desc-cnt').textContent = `${el.value.length}/100`; }
+function fiLast() { try { const o = JSON.parse(localStorage.getItem('fiLast') || 'null'); return o && o.item ? o : null; } catch (e) { return null; } }
+function openFabricInfo(item) {
+  if (!canSeeSales()) return;
+  const o = fiGet(item), c = fiCostRow(item) || {};
+  _fi = { item, use: [...(o.use || [])], feel: [...(o.feel || [])] };
+  document.getElementById('fi-title').textContent = `원단 정보 · ${item}`;
+  const set = (id, v) => { document.getElementById(id).value = v || ''; };
+  set('fi-desc', o.desc); set('fi-mix', o.mix || (c.mix ? String(c.mix) : '')); set('fi-w', o.w); set('fi-g', o.g || (Number(c.weight) > 0 ? `${Number(c.weight)}g/y` : '')); set('fi-weave', o.weave); set('fi-fin', o.fin); set('fi-org', o.org);
+  fiRenderChips(); fiCount();
+  const last = fiLast(), cp = document.getElementById('fi-copy');
+  cp.textContent = last ? `직전 입력 가져오기 (${last.item})` : ''; cp.style.display = (last && normalizeNameForMatch(last.item) !== normalizeNameForMatch(item)) ? '' : 'none';
+  document.getElementById('fiModal').classList.add('open');
+}
+function closeFabricInfo() { document.getElementById('fiModal').classList.remove('open'); _fi = null; }
+function fiCopyLast() { // 소개 문구는 품번마다 달라서 빼고, 나머지(용도·특징·스펙)만 채움
+  const l = fiLast(); if (!l || !_fi) return; const o = fiClean(l.o);
+  for (const [k, id] of [['mix', 'fi-mix'], ['w', 'fi-w'], ['g', 'fi-g'], ['weave', 'fi-weave'], ['fin', 'fi-fin'], ['org', 'fi-org']]) if (o[k]) document.getElementById(id).value = o[k];
+  if (o.use) _fi.use = [...o.use]; if (o.feel) _fi.feel = [...o.feel];
+  fiRenderChips(); showToast('직전 입력을 가져왔습니다. 확인 후 저장해 주세요');
+}
+async function saveFabricInfo() {
+  if (!_fi) return;
+  const item = _fi.item, v = id => document.getElementById(id).value;
+  const o = fiClean({ desc: v('fi-desc'), mix: v('fi-mix'), w: v('fi-w'), g: v('fi-g'), weave: v('fi-weave'), fin: v('fi-fin'), org: v('fi-org'), use: _fi.use, feel: _fi.feel });
+  const c = fiCostRow(item);
+  if (o.mix && c && c.mix && o.mix === String(c.mix).replace(/\s+/g, ' ').trim()) delete o.mix; // 원가표와 같으면 따로 저장 안 함 (원가표를 고치면 같이 바뀌게)
+  const nk = normalizeNameForMatch(item), all = { ...fiAll() };
+  if (JSON.stringify(fiClean(all[nk])) === JSON.stringify(o)) { closeFabricInfo(); showToast('바뀐 내용이 없습니다'); return; }
+  if (Object.keys(o).length) all[nk] = o; else delete all[nk];
+  const before = settings.fabricInfo; settings.fabricInfo = all;
+  const btn = document.getElementById('fi-save'); btn.disabled = true;
+  let ok = false; try { ok = await persistSettings(); } catch (e) { ok = false; } finally { btn.disabled = false; }
+  if (ok === false) { if (before === undefined) delete settings.fabricInfo; else settings.fabricInfo = before; showToast('저장하지 못했습니다. 다시 시도해 주세요'); return; }
+  try { const keep = { ...o }; delete keep.desc; if (Object.keys(keep).length) localStorage.setItem('fiLast', JSON.stringify({ item, o: keep })); } catch (e) { /* 기억 못 해도 괜찮음 */ }
+  const u = _catUniverse.find(x => normalizeNameForMatch(x.item) === nk); if (u) u.mix = fiMixOf(item);
+  closeFabricInfo();
+  showToast(isPremium() ? '원단 정보를 저장했습니다. 고객 페이지에도 반영됩니다' : '원단 정보를 저장했습니다');
+  pubStockSchedule(); fiPatchPubIndex(item);
+  if (currentTab === 'promo' && _promoSeg === 'photo') promoRenderPhotos();
+}
+async function fiPatchPubIndex(item) { // 이미 올려둔 신상·Best 목록에도 소개·스펙만 바로 고쳐 넣음 (이미지는 그대로)
+  if (!isPremium() || typeof db === 'undefined' || !db || !useFirebase) return false;
+  try {
+    const idx = await pubLoadIndex(), nk = normalizeNameForMatch(item), info = fiPublic(item), mix = fiMixOf(item); let ch = false;
+    for (const e of idx.entries) {
+      if (normalizeNameForMatch(e.item) !== nk) continue;
+      const b = JSON.stringify([e.info || null, e.mix || '']);
+      if (Object.keys(info).length) e.info = info; else delete e.info;
+      e.mix = mix;
+      if (JSON.stringify([e.info || null, e.mix || '']) !== b) ch = true;
+    }
+    if (ch) await pubSaveIndex(idx);
+    return ch;
+  } catch (e) { console.warn('fiPatchPubIndex', e); return false; }
 }
 function promoPhotoPick(key, item) { _catPhotoRows = [{ key, item }]; _catPhotoPickIdx = 0; const f = document.getElementById('cat-photo-input'); f.value = ''; f.click(); }
 
@@ -4496,7 +4719,7 @@ function clDescribe(docId, added, removed, changed) {
   if (more > 0) lines.push(`${label} 외 ${more}건`);
   return lines;
 }
-const CL_SETTING = { rate: '환율(위안)', yard: '야드환산', ship: '예상 운임', fx: '외화 환율', fxFeePct: '송금 수수료', suppliers: '발주처', processes: '가공비', processingTypes: '가공비', colorProcess: '컬러별 가공', features: '기능 설정', freightBatches: '운임 정산', bizName: '가게 정보', bizOwner: '가게 정보', bizNumber: '가게 정보', bizAddress: '가게 정보' };
+const CL_SETTING = { fabricInfo: '원단 정보', reqOff: '고객 페이지 요청 버튼', rate: '환율(위안)', yard: '야드환산', ship: '예상 운임', fx: '외화 환율', fxFeePct: '송금 수수료', suppliers: '발주처', processes: '가공비', processingTypes: '가공비', colorProcess: '컬러별 가공', features: '기능 설정', freightBatches: '운임 정산', bizName: '가게 정보', bizOwner: '가게 정보', bizNumber: '가게 정보', bizAddress: '가게 정보' };
 function clDiffSettings(b, a) {
   const keys = new Set([...Object.keys(b || {}), ...Object.keys(a || {})]); const out = new Set(); const lines = [];
   for (const k of keys) {
@@ -4600,6 +4823,55 @@ function clRender() {
   </div>`;
   if (focus) { const el = document.getElementById('cl-q'); el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
 }
+
+// ===== BEST 컬러: 기본은 실제 판매 TOP N(기본 3), 품번마다 직접 넣기·빼기 (settings.bestN, settings.bestPick) =====
+function catBestN() { const n = parseInt(settings.bestN); return n >= 1 && n <= 20 ? n : 3; }
+function catBestPick(item) { const p = settings.bestPick && settings.bestPick[item]; return { on: (p && Array.isArray(p.on)) ? p.on : [], off: (p && Array.isArray(p.off)) ? p.off : [] }; }
+function catAutoBestMains(groups, yards) { // 실제 판매 TOP N
+  const n = catBestN();
+  const ranked = groups.map(g => ({ g, y: [g.main, ...g.variants.map(v => v.c)].reduce((s2, c) => s2 + (yards.get(c.nk) || 0), 0) })).filter(x => x.y > 0).sort((a, b) => b.y - a.y);
+  if (groups.length <= n) { // 컬러가 N개 이하인 품번: 전부 BEST가 되면 의미가 없으니, 확실히 제일 잘 나간 1개만 (컬러 1개뿐이거나 1·2등이 같으면 표시 안 함)
+    if (groups.length < 2 || !ranked.length) return new Set();
+    if (ranked.length > 1 && ranked[0].y === ranked[1].y) return new Set();
+    return new Set([ranked[0].g.main.color]);
+  }
+  return new Set(ranked.slice(0, n).map(x => x.g.main.color));
+}
+function catBestMains(it, groups, yards) {
+  const auto = catAutoBestMains(groups, yards); const pk = catBestPick(it.item);
+  const out = new Set(auto); pk.on.forEach(c => out.add(c)); pk.off.forEach(c => out.delete(c));
+  return out;
+}
+let _bestSaveT = null;
+function catBestSave() { clearTimeout(_bestSaveT); _bestSaveT = setTimeout(() => { persistSettings(); }, 700); }
+function catBestToggle(item, color) { // 자동 BEST → 빼기 → 자동으로 / 일반 → 넣기 → 일반으로
+  const pk = catBestPick(item); const on = new Set(pk.on), off = new Set(pk.off);
+  const it = _catUniverse.find(u => u.item === item); if (!it) return;
+  const auto = catAutoBestMains(catGroupsOf({ colors: it.colors }), catalogBest(readCatalogCfg().bestDays).colorYards);
+  if (auto.has(color)) { if (off.has(color)) off.delete(color); else off.add(color); }
+  else { if (on.has(color)) on.delete(color); else on.add(color); }
+  const bp = { ...(settings.bestPick || {}) };
+  if (!on.size && !off.size) delete bp[item]; else bp[item] = { on: [...on], off: [...off] };
+  settings = { ...settings, bestPick: bp }; catBestSave(); catRenderBestPick(); catUpdateCountQuiet();
+}
+function catBestSetN(v) { const n = parseInt(v); if (!(n >= 1 && n <= 20)) return; settings = { ...settings, bestN: n }; catBestSave(); catRenderBestPick(); }
+function catRenderBestPick() {
+  const box = document.getElementById('cat-bestpick'); if (!box) return;
+  const cfg = readCatalogCfg();
+  if (!cfg.bestColor) { box.innerHTML = ''; return; }
+  const items = catPicked(cfg);
+  if (!items.length || items.length > 15) { box.innerHTML = items.length > 15 ? '<div class="cat-best-note">품번을 15개 이하로 고르면 BEST 컬러를 직접 고를 수 있습니다</div>' : ''; return; }
+  const yards = catalogBest(cfg.bestDays).colorYards;
+  box.innerHTML = `<div class="cat-best-note">눌러서 BEST 넣기·빼기 · ★ 자동(판매 순위) · 고른 결과는 저장됩니다</div>` + items.map(it => {
+    const groups = catGroupsOf({ colors: it.allColors || it.colors });
+    const auto = catAutoBestMains(groups, yards); const pk = catBestPick(it.item); const on = new Set(pk.on), off = new Set(pk.off);
+    return `<div class="cat-best-item"><b>${esc(it.item)}</b><div>${groups.map(g => {
+      const c = g.main.color; const a = auto.has(c); const st = a ? (off.has(c) ? 'off' : 'auto') : (on.has(c) ? 'on' : '');
+      return `<span class="cat-best-chip ${st}" onclick='catBestToggle(${JSON.stringify(it.item).replace(/'/g, "&#39;")}, ${JSON.stringify(c).replace(/'/g, "&#39;")})'>${a && st !== 'off' ? '★ ' : st === 'on' ? '+ ' : ''}${esc(c)}</span>`;
+    }).join('')}</div></div>`;
+  }).join('');
+}
+function catUpdateCountQuiet() { try { catUpdateCount(); } catch (e) {} }
 
 // ===== 오늘 기준 환율 (참고용) =====
 // 무료 공개 환율(하루 한 번 갱신)을 받아서 "참고로만" 보여줌. 원가에는 사장님이 「넣기」→「저장」을 눌러야 들어감
@@ -9490,7 +9762,7 @@ function catalogUniverse() { // 품목(분류+품목) 단위 목록: [{cat,item,
       return { o: o != null ? o : Infinity, k: kb != null ? 1 : 0 };
     };
     colors.sort((a, b) => { const x = key(a), y = key(b); if (x.o !== y.o) return x.o - y.o; if (x.k !== y.k) return x.k - y.k; return a.color.localeCompare(b.color, 'ko'); });
-    items.push({ cat: colors[0].cat, item: colors[0].item, colors, mix: mixMap.get(normalizeNameForMatch(colors[0].item)) || '' });
+    items.push({ cat: colors[0].cat, item: colors[0].item, colors, mix: fiGet(colors[0].item).mix || mixMap.get(normalizeNameForMatch(colors[0].item)) || '' }); // 혼용률: 홍보에서 적은 값 > 원가표 값
   }
   items.sort((a, b) => (a.cat !== b.cat) ? String(a.cat).localeCompare(String(b.cat), 'ko') : a.item.localeCompare(b.item, 'ko'));
   return items;
@@ -9730,10 +10002,10 @@ async function buildCatalogPages(cfg, items) {
   const colorYardsMap = catalogBest(cfg.bestDays).colorYards;
   if (cfg.bestColor) {
     for (const it of items) {
-      // 순위는 그 품목의 전체 컬러로 매김 (신상처럼 일부 컬러만 골라 보내도 그 품목에서 잘 나간 컬러에는 BEST). 무지가 안 나가도 기모가 많이 나가면 그 타일이 BEST
+      // 자동(실제 판매 TOP N) + 사장님이 직접 넣은 컬러 − 직접 뺀 컬러. 무지/기모는 한 칸(순번)으로 봄
       const groups = groupsOf({ colors: it.allColors || it.colors });
-      if (groups.length <= 3) continue; // 컬러가 3개 이하인 품목은 전부 BEST가 돼버려서 의미가 없으니 표시 안 함
-      groups.map(g => ({ g, y: [g.main, ...g.variants.map(v => v.c)].reduce((s2, c) => s2 + (colorYardsMap.get(c.nk) || 0), 0) })).filter(x => x.y > 0).sort((a, b) => b.y - a.y).slice(0, 3).forEach(x => [x.g.main, ...x.g.variants.map(v => v.c)].forEach(c => bestColor.add(c.item + '|' + c.color)));
+      const mains = catBestMains(it, groups, colorYardsMap);
+      for (const g of groups) if (mains.has(g.main.color)) [g.main, ...g.variants.map(v => v.c)].forEach(c => bestColor.add(c.item + '|' + c.color));
     }
   }
   // ── 디자인 토큰: 잉크(남색) + 웜그레이 + 절제된 골드 포인트 ──
@@ -9986,6 +10258,7 @@ function catInit() { // 홍보 탭에 들어올 때 한 번: 재고·신상 목�
   document.getElementById('cat-low').value = pr.low != null ? pr.low : 50;
   document.getElementById('cat-bestcolor').checked = pr.bestColor !== false;
   document.getElementById('cat-bestdays').value = String(pr.bestDays || 90);
+  document.getElementById('cat-bestn').value = catBestN();
   _catItems = new Set();
   document.getElementById('cat-item-search').value = '';
   _catSel = new Set(naList().map(x => x.k)); // 신상: 저장해 둔 신상 목록 그대로
@@ -10142,7 +10415,7 @@ function catUpdateCount() {
   const colors = items.reduce((s, it) => s + it.colors.length, 0);
   const FM = CAT_FMT[cfg.format] || null, nImg = catImageCount(items, FM ? FM.per : false, FM && FM.insta ? FM.cols : 0);
   document.getElementById('cat-count').textContent = items.length === 0 ? (cfg.mode === 'new' ? '신상 목록이 비어 있습니다' : '품목을 검색해서 추가해 주세요') : `이미지 ${nImg}장${FM ? ` (${FM.label})` : ''} · ${items.length}품목 · ${colors}컬러${FM && !FM.insta && nImg > 6 ? ' · 채널 캐러셀은 6장까지' : ''}${FM && FM.insta && nImg > 20 ? ' · 인스타는 한 게시물에 20장까지' : ''}`;
-  catRenderPhotos();
+  catRenderPhotos(); catRenderBestPick();
 }
 async function generateCatalog(mode) {
   const cfg = readCatalogCfg();
@@ -10257,7 +10530,8 @@ async function publishCatalog() {
       for (let i = 0; i < pages.length; i++) await pubSavePage(id, i, pages[i]);
       const old = idx.entries.find(e => e.id === id);
       if (old && old.n > pages.length) for (let i = pages.length; i < old.n; i++) await pubDeletePage(id, i);
-      const ent = { id, sec, item: it.item, mix: it.mix || '', n: pages.length, colors: it.colors.length, date: today, thumb, tc: (catDotColor(it.colors[0].color) || '') };
+      const fiP = fiPublic(it.item);
+      const ent = { id, sec, item: it.item, mix: it.mix || '', ...(Object.keys(fiP).length ? { info: fiP } : {}), n: pages.length, colors: it.colors.length, date: today, thumb, tc: (catDotColor(it.colors[0].color) || '') };
       if (old) idx.entries[idx.entries.indexOf(old)] = ent; else newEntries.push(ent);
       done++;
     }
@@ -10657,11 +10931,11 @@ function pubStockBuild() {
     });
     if (!cols.some(c => c.s < 2)) continue; // 재고가 하나도 없는 품목은 고객 페이지에 안 보여줌
     const date = it.colors.reduce((m, c) => (c.stock > 0 && c.newestIn > m) ? c.newestIn : m, '');
-    out.push({ id: pubStockItemId(it), it, item: it.item, mix: it.mix || '', cols, date });
+    out.push({ id: pubStockItemId(it), it, item: it.item, mix: it.mix || '', info: fiPublic(it.item), cols, date });
   }
   return out;
 }
-function pubStockSig(e) { return pubStockHash(JSON.stringify(['p3', e.item, e.mix, e.date, e.cols.map(c => [c.c, c.s, c.v ? c.v.map(x => [x.n, x.s]) : 0])])); }
+function pubStockSig(e) { const k = ['p3', e.item, e.mix, e.date, e.cols.map(c => [c.c, c.s, c.v ? c.v.map(x => [x.n, x.s]) : 0])]; if (e.info && Object.keys(e.info).length) k.push(e.info); return pubStockHash(JSON.stringify(k)); } // 원단 정보가 없으면 예전과 같은 값 (전부 다시 올리지 않게)
 function pubStockSquare(src, size, q) {
   if (!src) return Promise.resolve('');
   return new Promise(resolve => {
@@ -10726,11 +11000,11 @@ async function pubStockSync(manual) {
       for (const sz of [240, 200, 160, 120]) { // 컬러 칸 사진: 폰에서 크게 보이니 240px로, 서버 문서 1MB 한도에 걸리면 자동으로 조금씩 작게
         cols = [];
         for (const c of e.cols) { const ph = c.nks.map(k => _catPhotos[k]).find(Boolean) || ''; cols.push({ c: c.c, s: c.s, ...(c.v ? { v: c.v } : {}), t: await pubStockSquare(ph, sz, 0.8) }); } // 사진은 무지 것, 없으면 기모 것
-        dataStr = JSON.stringify({ item: e.item, mix: e.mix, date: e.date, ...(pw ? { p: pw } : {}), cols });
+        dataStr = JSON.stringify({ item: e.item, mix: e.mix, date: e.date, ...(Object.keys(e.info || {}).length ? { info: e.info } : {}), ...(pw ? { p: pw } : {}), cols });
         if (dataStr.length < 900000) break;
       }
       await pubCol().doc('pubstock_' + e.id).set({ stamp: SCHEMA_STAMP, kind: 'pubStockItem', data: dataStr });
-      items.push({ id: e.id, item: e.item, mix: e.mix, n: cols.length, out: cols.filter(c => c.s > 0).length, th, date: e.date, h: sig });
+      items.push({ id: e.id, item: e.item, mix: e.mix, ...(e.info && e.info.desc ? { dsc: e.info.desc.slice(0, 40) } : {}), n: cols.length, out: cols.filter(c => c.s > 0).length, th, date: e.date, h: sig });
       wrote++;
     }
     const keep = new Set(items.map(x => x.id)); let removed = 0;
