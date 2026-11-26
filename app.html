@@ -107,6 +107,9 @@
   .rx-close { border: none; background: var(--b-sub); width: 34px; height: 34px; border-radius: 50%; font-size: 16px; color: #555; cursor: pointer; }
   .rx-tabs { display: flex; background: var(--b-sub); border-radius: 10px; padding: 3px; margin-top: 12px; }
   .rx-tabs button { flex: 1; border: none; background: none; padding: 9px 0; border-radius: 8px; font-size: 14px; font-weight: 700; color: #666; cursor: pointer; }
+  .rx-seg { display: flex; gap: 6px; margin-top: 12px; }
+  .rx-seg button { flex: 1; border: 1px solid var(--border); background: #fff; border-radius: 8px; padding: 8px 0; font-size: 13px; font-weight: 700; color: #666; cursor: pointer; }
+  .rx-seg button.on { border-color: var(--primary); color: var(--primary); background: #eef5fa; }
   .rx-tabs button.on { background: #fff; color: var(--primary-dark); box-shadow: 0 1px 4px rgba(0,0,0,.12); }
   .rx-help { font-size: 12.5px; color: var(--muted); margin: 8px 2px 0; line-height: 1.5; }
   .rx-l { display: block; font-size: 12px; color: var(--muted); margin: 12px 0 5px; font-weight: 600; }
@@ -455,7 +458,7 @@
   <div id="sales-dd-reports" class="hidden" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; padding:8px; background:#faf6ff; border-radius:10px;">
     <button onclick="addCustomerName()" style="border:none;background:var(--b-ok);color:#2f6b46;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;white-space:nowrap;">+ 거래처 추가</button>
     <button class="btn-key" onclick="openSaleAddModal('')" style="border:none;background:var(--b-warn);color:#a15c1e;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;white-space:nowrap;">+ 새 매출 등록</button>
-    <button onclick="openDefectReturnForCustomer('')" style="border:none;background:var(--b-danger-soft);color:var(--danger);border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;white-space:nowrap;">+ 반품/불량 등록</button>
+    <button onclick="openCustomerPicker('__retx__')" style="border:none;background:var(--b-danger-soft);color:var(--danger);border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;white-space:nowrap;">+ 반품·불량 등록</button>
     <button onclick="openExpenseModal()" style="border:none;background:var(--b-danger-soft);color:var(--danger);border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;white-space:nowrap;">지출·입금 내역</button>
     <button onclick="showPaymentLedger()" style="border:none;background:var(--b-info);color:#1a56db;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;white-space:nowrap;">입금 장부</button>
     <button onclick="showCustomerRanking()" style="border:none;background:var(--b-info);color:#6b3fa0;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;white-space:nowrap;">거래처 순위</button>
@@ -1122,7 +1125,7 @@
     <h3 id="customer-ship-list-title">출고 처리</h3>
     <p style="font-size:12px;color:var(--muted);margin-top:-6px;">발주별로 출고 처리 · 처리한 건은 목록에서 빠집니다</p>
     <div id="customer-ship-list-rows" style="max-height:420px; overflow-y:auto;"></div>
-    <button type="button" onclick="openRetX(pendingShipListCustomer, 'return')" style="width:100%;margin-top:10px;border:1px dashed var(--primary);background:#fff;color:var(--primary);border-radius:8px;padding:11px;font-size:14px;font-weight:700;">↩ 이 거래처 반품·불량도 받았어요</button>
+    <button type="button" onclick="openRetX(pendingShipListCustomer, 'return')" style="width:100%;margin-top:10px;border:1px dashed var(--primary);background:#fff;color:var(--primary);border-radius:8px;padding:11px;font-size:14px;font-weight:700;">↩ 반품·불량 등록</button>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeCustomerShipList()">닫기</button>
     </div>
@@ -1413,7 +1416,12 @@
 <div class="modal-overlay" id="paymentModal">
   <div class="modal">
     <h3>입금 처리</h3>
-    <p id="payment-desc" style="font-size:13px;color:var(--muted);margin-top:-6px;"></p>
+    <div id="pay-range" class="hidden" style="margin:-4px 0 10px;">
+      <div class="rx-seg" style="margin-top:0;"><button type="button" id="pay-rg-all" class="on" onclick="setPayRange('all')">전체 미수금</button><button type="button" id="pay-rg-cut" onclick="setPayRange('cut')">날짜까지만 정산</button></div>
+      <div id="pay-cut-wrap" class="hidden" style="margin-top:8px;"><label style="margin-top:0;">이 날짜 매출분까지</label><input id="pay-cut-date" type="date" onchange="setPayRange('cut')"></div>
+      <label>덜 받을 때 공제 사유 (원장·명세서에 같이 찍힘)</label><input id="pay-disc-reason" placeholder="예: 네고, 단수 정리">
+    </div>
+    <p id="payment-desc" style="font-size:13px;color:var(--muted);margin-top:-6px;white-space:pre-line;"></p>
     <label>입금액(원)</label>
     <input id="payment-amount" type="number" step="1">
     <label>입금일</label>
@@ -1425,9 +1433,9 @@
     </div>
     <div class="modal-actions" style="flex-wrap:wrap;">
       <button class="btn-cancel" onclick="closePaymentModal()" style="order:3;flex:1 1 calc(50% - 4px);">취소</button>
-      <button onclick="markSampleAndClose()" style="order:4;flex:1 1 calc(50% - 4px);background:var(--b-warn);color:#a15c1e;font-size:14px;font-weight:600;white-space:nowrap;">샘플 제공</button>
+      <button id="pay-sample-btn" onclick="markSampleAndClose()" style="order:4;flex:1 1 calc(50% - 4px);background:var(--b-warn);color:#a15c1e;font-size:14px;font-weight:600;white-space:nowrap;">샘플 제공</button>
       <button onclick="confirmPaymentModal('partial')" style="order:1;flex:1 1 calc(50% - 4px);background:var(--b-warn);color:#a15c1e;font-size:14px;white-space:nowrap;">부분 입금</button>
-      <button class="btn-save" onclick="confirmPaymentModal('full')" style="order:2;flex:1 1 calc(50% - 4px);font-size:14px;white-space:nowrap;">완불로 처리</button>
+      <button class="btn-save" id="pay-full-btn" onclick="confirmPaymentModal('full')" style="order:2;flex:1 1 calc(50% - 4px);font-size:14px;white-space:nowrap;">완불로 처리</button>
     </div>
   </div>
 </div>
@@ -3555,6 +3563,7 @@ function getTodaySummary() {
 }
 // 반품/불량의 '공급가액'(부가세 뺀 금액) - 매출/순이익 보고서는 공급가액 기준이라 이걸로 차감함.
 // deductAmount는 부가세까지 합친 총액(미수금·원장·명세서 차감용). 부가세 없는 기록/예전 기록은 둘이 같음.
+function rdQtyText(e) { return e.amountOnly ? (e.item === '금액 공제' ? '' : '금액 공제') : `${Math.abs(e.amount)}${e.unit || 'y'}`; } // 반품·불량 수량 표시 (금액으로 뺀 불량은 수량 없음)
 function returnSupplyOf(e) { return e.deductSupply != null ? e.deductSupply : (e.deductAmount || 0); }
 function returnTaxOf(e) { return e.deductTax || 0; }
 function getTodayMoney() {
@@ -3892,6 +3901,7 @@ async function deleteRegisteredCustomer(name) {
   showToast(`"${name}" 삭제했습니다`);
 }
 function selectCustomerFromPicker(name) {
+  if (_customerPickerTargetId === '__retx__') { closeCustomerPicker(); openRetX(name, 'return'); return; } // 반품·불량: 거래처 고르고 바로 새 창
   if (_customerPickerTargetId) {
     const el = document.getElementById(_customerPickerTargetId);
     if (el) {
@@ -3947,6 +3957,19 @@ function repositionSuggestBox() {
 }
 window.addEventListener('scroll', repositionSuggestBox, true);
 window.addEventListener('resize', repositionSuggestBox);
+// 창 위에 또 창이 뜰 때(예: 출고 처리 중 "원가 입력") 나중에 연 창이 항상 위에 보이게
+(function () {
+  const mo = new MutationObserver(ms => {
+    for (const m of ms) {
+      const el = m.target;
+      if (!el.classList.contains('open') || /\bopen\b/.test(m.oldValue || '')) continue;
+      const others = [...document.querySelectorAll('.modal-overlay.open')].filter(x => x !== el).map(x => parseInt(x.style.zIndex || getComputedStyle(x).zIndex) || 30);
+      const base = document.querySelector('.sm-ov') ? 2100 : 30;
+      el.style.zIndex = String(Math.min(2300, Math.max(base, ...others) + 1));
+    }
+  });
+  document.querySelectorAll('.modal-overlay').forEach(el => mo.observe(el, { attributes: true, attributeFilter: ['class'], attributeOldValue: true }));
+})();
 // 검색줄(.controls)이 머리글 바로 밑에 붙도록 머리글 높이를 계속 재서 반영
 (function () {
   const sync = () => { const h = document.querySelector('header'); if (h) document.documentElement.style.setProperty('--hdr-h', h.offsetHeight + 'px'); };
@@ -7163,11 +7186,52 @@ function recordPayment(logId) {
   if (remaining <= 0) { showToast('이미 전액 처리됐습니다'); return; }
   pendingPaymentEntryIds = [logId];
   pendingPaymentExtraDeduction = 0; // 이 건은 이미 개별로 정확한 금액이라, 별도 조정 없음
+  _payCtx = null; document.getElementById('pay-range').classList.add('hidden'); { const fb = document.getElementById('pay-full-btn'); if (fb) fb.textContent = '완불로 처리'; }
   document.getElementById('payment-desc').textContent = `${entry.customer || ''} · ${entry.item} ${entry.color || ''} (미수금 ${remaining.toLocaleString()}원)`;
   document.getElementById('payment-amount').value = remaining;
   document.getElementById('payment-date').value = toDateInputValue(todayStr());
   document.querySelector('input[name="payment-method"][value="cash"]').checked = true;
   document.getElementById('paymentModal').classList.add('open');
+}
+// "날짜까지만 정산": 큰 잔액을 몇 번에 나눠 퉁쳐서 받을 때 (예: 10/14 매출분까지 8,343,420원을 800만원에 완불, 그 뒤 매출은 그대로)
+// 그 날짜까지의 매출 건만 골라 예전 입금 계산(confirmPaymentModal)을 그대로 씀 → 입금은 오래된 것부터, 모자란 건 그 건들에만 공제, 남으면 그 뒤 매출로
+let _payCtx = null;
+function payCutoffCalc(customer, cutK) {
+  const t = String(customer).trim();
+  const ids = shipmentLog.filter(e => String(e.customer || '').trim() === t && !e.isReturn && !e.isDefect && e.saleAmount != null && String(e.date) <= cutK && getRemaining(e) > 0)
+    .sort((a, b) => String(a.date).localeCompare(String(b.date))).map(e => e.id);
+  const owed = withFullArchiveMerged(() => Math.round(shipmentLog.reduce((s, e) => s + (String(e.customer || '').trim() === t && String(e.date) <= cutK ? unpaidContributionOf(e) : 0), 0) * 100) / 100);
+  const all = withFullArchiveMerged(() => getCustomerNetBalance(t));
+  return { ids, owed, after: Math.round((all - owed) * 100) / 100 };
+}
+function payDiscReason(e) { // 완불하면서 생긴 공제에 사유를 남김 (원장·명세서에 "공제 · 10/14까지 정산" 처럼)
+  const el = document.getElementById('pay-disc-reason'); const r = (_payCtx && el) ? el.value.trim() : '';
+  if (r) e.discountReason = e.discountReason && !e.discountReason.includes(r) ? `${e.discountReason} / ${r}` : r;
+}
+function setPayRange(mode) {
+  if (!_payCtx) return;
+  document.getElementById('pay-rg-all').classList.toggle('on', mode === 'all');
+  document.getElementById('pay-rg-cut').classList.toggle('on', mode === 'cut');
+  document.getElementById('pay-cut-wrap').classList.toggle('hidden', mode !== 'cut');
+  const desc = document.getElementById('payment-desc'), amt = document.getElementById('payment-amount'), fullBtn = document.getElementById('pay-full-btn');
+  _payCtx.mode = mode;
+  { const sb = document.getElementById('pay-sample-btn'); if (sb) sb.style.display = mode === 'cut' ? 'none' : ''; } // 날짜까지 정산 중엔 "샘플 제공"(고른 건 전부 샘플 처리) 숨김
+  if (mode === 'all') {
+    pendingPaymentEntryIds = _payCtx.ids; pendingPaymentExtraDeduction = _payCtx.extra;
+    { const rs = document.getElementById('pay-disc-reason'); if (rs && /까지 정산$/.test(rs.value)) rs.value = ''; }
+    desc.textContent = _payCtx.desc; amt.value = _payCtx.total; if (fullBtn) fullBtn.textContent = '완불로 처리'; return;
+  }
+  const cutK = fromDateInputValue(document.getElementById('pay-cut-date').value);
+  if (!cutK) { desc.textContent = '날짜를 골라 주세요'; pendingPaymentEntryIds = []; return; }
+  const r = payCutoffCalc(_payCtx.customer, cutK);
+  if (!r.ids.length || r.owed <= 0) { desc.textContent = `${cutK}까지는 남은 미수금이 없습니다`; pendingPaymentEntryIds = []; amt.value = ''; return; }
+  const sumRem = r.ids.reduce((s, id) => { const e = shipmentLog.find(x => x.id === id); return s + (e ? getRemaining(e) : 0); }, 0);
+  pendingPaymentEntryIds = r.ids;
+  pendingPaymentExtraDeduction = Math.max(0, Math.round((sumRem - r.owed) * 100) / 100); // 그 날짜까지의 반품·불량 등으로 이미 깎인 금액
+  { const rs = document.getElementById('pay-disc-reason'); if (rs && (!rs.value || /까지 정산$/.test(rs.value))) rs.value = `${cutK}까지 정산`; }
+  desc.innerHTML = `<span style="color:var(--text);font-size:14px;">${cutK} 매출분까지 남은 금액 <b>${r.owed.toLocaleString()}원</b></span>${r.after > 0 ? `\n그 뒤 매출 ${r.after.toLocaleString()}원은 그대로 남습니다` : ''}\n덜 받고 끝내기로 했으면 받은 금액만 적고 "${cutK}까지 완불"을 누르세요. 차액은 공제로 정리됩니다`;
+  amt.value = r.owed;
+  if (fullBtn) fullBtn.textContent = `${cutK}까지 완불`;
 }
 function recordGroupPayment(entryIds, extraDeduction, overrideTotal) {
   const entries = entryIds.map(id => shipmentLog.find(e => e.id === id)).filter(Boolean);
@@ -7186,12 +7250,25 @@ function recordGroupPayment(entryIds, extraDeduction, overrideTotal) {
   pendingPaymentEntryIds = entryIds;
   document.getElementById('payment-desc').textContent = `미수금 합계 ${totalRemaining.toLocaleString()}원`;
   document.getElementById('payment-amount').value = totalRemaining;
+  { // 한 거래처 묶음이면 "날짜까지만 정산"을 고를 수 있게
+    const custs = new Set(entries.map(e => String(e.customer || '').trim()));
+    const one = custs.size === 1 ? [...custs][0] : null;
+    _payCtx = one ? { customer: one, ids: entryIds, extra: pendingPaymentExtraDeduction, total: totalRemaining, desc: `미수금 합계 ${totalRemaining.toLocaleString()}원`, mode: 'all' } : null;
+    document.getElementById('pay-range').classList.toggle('hidden', !one);
+    if (one) {
+      const d = new Date(); d.setDate(0); // 지난달 말일 (월말 정산이 많아서 기본값)
+      document.getElementById('pay-disc-reason').value = '';
+      document.getElementById('pay-cut-date').value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      setPayRange('all');
+    }
+  }
   document.getElementById('payment-date').value = toDateInputValue(todayStr());
   document.querySelector('input[name="payment-method"][value="cash"]').checked = true;
   document.getElementById('paymentModal').classList.add('open');
 }
 function closePaymentModal() {
   document.getElementById('paymentModal').classList.remove('open');
+  _payCtx = null; { const pr = document.getElementById('pay-range'); if (pr) pr.classList.add('hidden'); const sb = document.getElementById('pay-sample-btn'); if (sb) sb.style.display = ''; const fb = document.getElementById('pay-full-btn'); if (fb) fb.textContent = '완불로 처리'; }
   pendingPaymentExtraDeduction = 0; // 이전 입금 화면의 값이 남아서 이번 계산에 섞이지 않게
   pendingPaymentEntryIds = [];
   if (salesSpecialView === 'unpaidSummary') renderUnpaidSummaryList();
@@ -7252,7 +7329,7 @@ async function confirmPaymentModal(mode) {
         : `입력하신 금액이 ${shortfall.toLocaleString()}원 부족합니다.\n이 차액을 공제(불량/네고 등)로 처리하고 완불로 마감하시겠습니까?\n(부족분을 미수금으로 남기면 다음 입금 때 채우면 됩니다)`;
       if ((await uiConfirm(confirmMsg, amt === 0 ? { ok: '전액 공제로 마감', cancel: '그대로 두기', danger: false, noBackdrop: true } : { ok: '공제하고 완불 마감', cancel: '부족분은 미수금으로', danger: false, noBackdrop: true }))) {
         entry.discount = Math.round(((entry.discount || 0) + shortfall) * 100) / 100;
-        entry.discountDate = payDate; // 공제를 실제로 결정한 날짜(오늘) - 매출이 있었던 예전 날짜가 아니라 이 날짜로 원장에 찍히게 함
+        entry.discountDate = payDate; payDiscReason(entry); // 공제를 실제로 결정한 날짜(오늘) - 매출이 있었던 예전 날짜가 아니라 이 날짜로 원장에 찍히게 함
         discountApplied = shortfall;
       }
     }
@@ -7326,7 +7403,7 @@ async function confirmPaymentModal(mode) {
         if (remain <= 0) continue;
         const take = Math.min(remain, remainToDiscount);
         e.discount = Math.round(((e.discount || 0) + take) * 100) / 100;
-        e.discountDate = payDate; // 공제를 실제로 결정한 날짜(오늘) - 매출이 있었던 예전 날짜가 아니라 이 날짜로 원장에 찍히게 함
+        e.discountDate = payDate; payDiscReason(e); // 공제를 실제로 결정한 날짜(오늘) - 매출이 있었던 예전 날짜가 아니라 이 날짜로 원장에 찍히게 함
         remainToDiscount = Math.round((remainToDiscount - take) * 100) / 100;
       }
       discountApplied = Math.round((shortfall - remainToDiscount) * 100) / 100;
@@ -7670,7 +7747,7 @@ function buildStatementHTMLInner(customerName, startDate, endDate, entryIdFilter
       const rTax = amt != null ? (0 - returnTaxOf(e)) : 0; // -0이 '-0'으로 찍히지 않게 0에서 뺌
       if (amt != null) { totalReturnDefect += Math.abs(amt); listedUnpaid += amt; } // 이 명세서에 찍힌 반품/불량 차감도 "이 명세서 항목들의 미수금"에 정확히 반영
       if (e.unit === 'y' || !e.unit) totalQty -= Math.abs(e.yardsShipped || q);
-      saleRows.push({ date: e.date, desc: `${label} - ${e.item} ${e.color || ''}`, note: e.note || '', qty: `-${q}${e.unit}`, unitPrice: e.unitPrice ? e.unitPrice.toLocaleString() : '', supply: rSupply, tax: rTax, amount: amt, color: 'red' });
+      saleRows.push({ date: e.date, desc: `${label} - ${e.item} ${e.color || ''}`, note: e.note || '', qty: e.amountOnly ? '' : `-${q}${e.unit}`, unitPrice: e.unitPrice ? e.unitPrice.toLocaleString() : '', supply: rSupply, tax: rTax, amount: amt, color: 'red' });
       continue;
     }
     if (e.saleAmount == null) continue;
@@ -8814,7 +8891,7 @@ async function ledgerBuild(customer, token) {
   let opening = 0; const ev = [];
   for (const e of events) {
     if (String(e.date) < cut) { opening += e.amount; continue; }
-    ev.push({ d: e.date, t: e.type, n: String(e.desc || '').trim(), q: e.detail || '', a: Math.round(e.amount * 100) / 100, ...(e.isCarry ? { c: 1 } : {}) });
+    ev.push({ d: e.date, t: e.type, n: String(e.desc || '').trim(), q: [e.detail || '', /^(공제|불량|반품)$/.test(e.type) ? String(e.note || '').trim() : ''].filter(Boolean).join(' · '), a: Math.round(e.amount * 100) / 100, ...(e.isCarry ? { c: 1 } : {}) });
   }
   const evOut = ev.slice(-600);
   if (ev.length > evOut.length) for (const e of ev.slice(0, ev.length - evOut.length)) opening += e.a;
@@ -10172,6 +10249,7 @@ function confirmQuickCostModal() {
 }
 let _returnDefectEditId = null;
 function openReturnDefectEditModal(id) {
+  { const e0 = shipmentLog.find(x => x.id === id); if (e0 && e0.amountOnly) { showToast('금액으로 뺀 불량은 지우고 다시 등록해 주세요'); return; } }
   const e = shipmentLog.find(x => x.id === id);
   if (!e) { offerRestoreArchivedEntries([id], () => openReturnDefectEditModal(id)); return; }
   _returnDefectEditId = id;
@@ -10480,7 +10558,7 @@ function buildCustomerLedgerEvents(t_c) {
     if (e.isSample) continue; // 샘플로 준 건(매출 0원)은 명세서랑 똑같이 원장에도 안 보이게 함
     if (e.isReturn || e.isDefect) {
       if (e.deductAmount != null) {
-        events.push({ id: e.id, date: e.date, type: e.isDefect ? '불량' : '반품', desc: `${e.item} ${e.color || ''}`, detail: `${Math.abs(e.amount)}${e.unit || 'y'}${e.unitPrice ? ` × ${e.unitPrice.toLocaleString()}원` : ''}${e.deductTax > 0 ? ` (세액 ${e.deductTax.toLocaleString()}원 포함)` : ''}`, amount: -e.deductAmount, note: e.note || e.defectNote || '', qtyText: `${Math.abs(e.amount)}${e.unit || 'y'}`, unitPrice: e.unitPrice || null });
+        events.push({ id: e.id, date: e.date, type: e.isDefect ? '불량' : '반품', desc: `${e.item} ${e.color || ''}`, detail: `${rdQtyText(e)}${e.unitPrice ? ` × ${e.unitPrice.toLocaleString()}원` : ''}${e.deductTax > 0 ? ` (세액 ${e.deductTax.toLocaleString()}원 포함)` : ''}`, amount: -e.deductAmount, note: e.note || e.defectNote || '', qtyText: `${Math.abs(e.amount)}${e.unit || 'y'}`, unitPrice: e.unitPrice || null });
       }
       continue;
     }
@@ -13118,7 +13196,7 @@ function renderSales() {
             <div class="order-top">
               <div>
                 <div class="order-name" style="color:var(--danger);">${e.isDefect ? '불량' : '반품'} - ${esc(e.item)} ${esc(e.color || '')}</div>
-                <div class="order-sub">${e.date} · ${Math.abs(e.amount)}${e.unit}${e.note ? ` · ${esc(e.note)}` : ''}</div>
+                <div class="order-sub">${e.date} · ${rdQtyText(e)}${e.note ? ` · ${esc(e.note)}` : ''}</div>
               </div>
             </div>
             <div class="order-progress" style="color:var(--danger);font-weight:700;">${e.deductAmount != null ? `-${e.deductAmount.toLocaleString()}원${e.deductTax > 0 ? ` (공급가 ${returnSupplyOf(e).toLocaleString()} + 세액 ${e.deductTax.toLocaleString()})` : ''}` : '금액 미확인'}</div>
@@ -13785,7 +13863,7 @@ function renderShipmentLog() {
               </div>
               <div class="order-status ${(e.isReturn || e.isDefect) ? 'status-wait' : (e.isFullCompletion ? 'status-done' : 'status-partial')}">${e.isDefect ? '불량' : e.isReturn ? '반품' : (e.isFullCompletion ? '전량완료' : '부분출고')}</div>
             </div>
-            <div class="order-progress">${(e.isReturn || e.isDefect) ? `<span style="color:var(--danger);font-weight:700;">${e.isDefect ? '불량' : '반품'} ${Math.abs(e.amount)}${e.unit}${e.deductAmount != null ? ` (-${e.deductAmount.toLocaleString()}원)` : ''}</span>${e.note ? ` · ${esc(e.note)}` : ''}` : e.isFee ? `${(e.saleAmount || 0).toLocaleString()}원${e.note ? ` · ${esc(e.note)}` : ''}` : e.manualClose ? `수동 완료 처리${e.note ? ' · ' + esc(e.note) : ''}` : `출고 ${e.amount}${e.unit}${e.unit === '절' && e.yardsShipped ? ` (${e.yardsShipped}y${e.yardsEstimated ? ' 추정' : ''})` : ''}${e.deductBreakdown && e.deductBreakdown.length > 1 ? ` <span style="color:var(--muted);font-size:12px;">(${e.deductBreakdown.map(b => `탕${b.tang}:${b.qty}y`).join('+')})</span>` : ''}${e.remainAfter > 0 ? ` <span style="color:var(--muted);font-size:12px;">(잔여 ${e.remainAfter}${e.unit})</span>` : ''}${e.note ? ` · ${esc(e.note)}` : ''}`}</div>
+            <div class="order-progress">${(e.isReturn || e.isDefect) ? `<span style="color:var(--danger);font-weight:700;">${e.isDefect ? '불량' : '반품'} ${rdQtyText(e)}${e.deductAmount != null ? ` (-${e.deductAmount.toLocaleString()}원)` : ''}</span>${e.note ? ` · ${esc(e.note)}` : ''}` : e.isFee ? `${(e.saleAmount || 0).toLocaleString()}원${e.note ? ` · ${esc(e.note)}` : ''}` : e.manualClose ? `수동 완료 처리${e.note ? ' · ' + esc(e.note) : ''}` : `출고 ${e.amount}${e.unit}${e.unit === '절' && e.yardsShipped ? ` (${e.yardsShipped}y${e.yardsEstimated ? ' 추정' : ''})` : ''}${e.deductBreakdown && e.deductBreakdown.length > 1 ? ` <span style="color:var(--muted);font-size:12px;">(${e.deductBreakdown.map(b => `탕${b.tang}:${b.qty}y`).join('+')})</span>` : ''}${e.remainAfter > 0 ? ` <span style="color:var(--muted);font-size:12px;">(잔여 ${e.remainAfter}${e.unit})</span>` : ''}${e.note ? ` · ${esc(e.note)}` : ''}`}</div>
             <div class="order-btns">
               <button class="btn-out" onclick="openLogEditModal(${e.id})">수정</button>
               <button class="btn-del" onclick="cancelShipmentLogEntry(${e.id})">이 출고 취소</button>
@@ -15436,10 +15514,13 @@ function rxK(ymd) { const m = String(ymd || '').match(/^\d{2}(\d{2})-(\d{2})-(\d
 function rxTaxOf(e) { return !!(e && (e.taxIncluded || (e.taxAmount || 0) > 0)); }
 function rxShipments(customer) {
   const t = String(customer || '').trim();
-  return shipmentLog.filter(e => String(e.customer || '').trim() === t && !e.isReturn && !e.isDefect && !e.isFee && !e.manualClose
+  const seen = new Set(shipmentLog.map(e => e.id));
+  const pool = shipmentLog.concat((shipmentLogArchivedCache || []).filter(e => !seen.has(e.id))); // 정산 끝나 보관함으로 간 오래된 출고도 고를 수 있게
+  return pool.filter(e => String(e.customer || '').trim() === t && !e.isReturn && !e.isDefect && !e.isFee && !e.manualClose
     && String(e.item || '') !== '이월 미수금' && (e.yardsShipped || 0) > 0)
     .sort((a, b) => String(b.date).localeCompare(String(a.date)) || (b.id || 0) - (a.id || 0));
 }
+function rxFind(id) { return shipmentLog.find(x => x.id === id) || (shipmentLogArchivedCache || []).find(x => x.id === id) || null; }
 function rxReturnedOf(entryId) { // 이 출고 건에서 이미 반품·불량으로 뺀 양 (새 창으로 등록한 것만 정확히 앎)
   return shipmentLog.reduce((s, e) => s + ((e.isReturn || e.isDefect) && e.fromSaleId === entryId ? -(e.yardsShipped || 0) : 0), 0);
 }
@@ -15447,18 +15528,23 @@ function openRetX(customer, type, opts) {
   opts = opts || {};
   customer = String(customer || '').trim();
   if (!customer) { openDefectReturnForCustomer('', type); return; } // 거래처를 모를 때는 예전 창
-  _rx = { customer, type: ['return', 'defect', 'extra'].includes(type) ? type : 'return', date: rxYmd(todayStr()), picks: new Map(), manual: [],
+  _rx = { customer, type: ['return', 'defect', 'extra'].includes(type) ? type : 'return', date: rxYmd(todayStr()), picks: new Map(), manual: [], dmode: 'yard', amt: { pick: null, amount: '', taxTouched: false, tax: false },
     taxTouched: false, tax: false, note: '', showAll: false, extra: { amount: '', note: '', factory: '', tax: false, more: false } };
-  if (opts.preselect != null) { const e = shipmentLog.find(x => x.id === opts.preselect); if (e) _rx.picks.set(e.id, { qty: '' }); }
+  if (opts.preselect != null) { const e = rxFind(opts.preselect); if (e) _rx.picks.set(e.id, { qty: '' }); }
   let ov = document.getElementById('retxModal');
   if (!ov) { ov = document.createElement('div'); ov.id = 'retxModal'; ov.className = 'sm-ov'; document.body.appendChild(ov); }
   ov.innerHTML = '<div class="sm-box rx-box"></div>';
   rxRender();
 }
+async function rxShowAll() {
+  if (!_rx) return; _rx.showAll = true; rxRender();
+  try { await ensureShipmentLogArchivedCacheLoaded(); } catch (e) { /* 못 불러오면 지금 있는 것만 */ }
+  if (_rx) rxRender();
+}
 function rxClose() { const ov = document.getElementById('retxModal'); if (ov) ov.remove(); _rx = null; }
 function rxSetType(t) { if (!_rx) return; _rx.type = t; rxRender(); }
 function rxAutoTax() {
-  const ents = [..._rx.picks.keys()].map(id => shipmentLog.find(x => x.id === id)).filter(Boolean);
+  const ents = [..._rx.picks.keys()].map(id => rxFind(id)).filter(Boolean);
   if (ents.length) return ents.every(rxTaxOf);
   return false;
 }
@@ -15470,7 +15556,20 @@ function rxRender() {
   const tabs = [['return', '반품'], ['defect', '불량'], ['extra', '추가금']].map(([k, l]) => `<button type="button" class="${t === k ? 'on' : ''}" onclick="rxSetType('${k}')">${l}</button>`).join('');
   const help = { return: '돌려받은 원단은 재고로 다시 들어가고, 그만큼 미수금에서 빠집니다.', defect: '불량분만큼 미수금에서 빠집니다. 재고에는 넣지 않습니다.', extra: '퀵비·운임 등 따로 받을 돈을 미수금에 더합니다.' }[t];
   let body = '';
-  if (t === 'extra') {
+  const money0 = canSeeSales();
+  const dmodeBar = (t === 'defect' && money0) ? `<div class="rx-seg"><button type="button" class="${_rx.dmode === 'yard' ? 'on' : ''}" onclick="_rx.dmode='yard'; rxRender()">야드로 빼기</button><button type="button" class="${_rx.dmode === 'amount' ? 'on' : ''}" onclick="_rx.dmode='amount'; rxRender()">금액으로 빼기</button></div>` : '';
+  if (t === 'defect' && _rx.dmode === 'amount' && money0) {
+    const a = _rx.amt; const all = rxShipments(_rx.customer).slice(0, _rx.showAll ? 999 : 12);
+    const pe = a.pick != null ? rxFind(a.pick) : null;
+    if (!a.taxTouched) a.tax = pe ? rxTaxOf(pe) : false;
+    const rows = all.map(e => `<div class="rx-row ${a.pick === e.id ? 'on' : ''}" onclick="_rx.amt.pick = (_rx.amt.pick === ${e.id} ? null : ${e.id}); _rx.amt.taxTouched=false; rxRender()"><span class="rx-box-ck" style="border-radius:50%;">${a.pick === e.id ? '✓' : ''}</span><div class="rx-txt"><b>${esc(e.item)}${e.color ? ' ' + esc(e.color) : ''}</b><small>${esc(String(e.date).slice(3))} 출고 · ${Math.round((e.yardsShipped || 0) * 100) / 100}y · 매출 ${Math.round((e.saleAmount || 0) - (e.discount || 0)).toLocaleString()}원</small></div></div>`).join('');
+    body = dmodeBar + `<label class="rx-l">빼 줄 금액 (원)</label><input class="rx-in" type="number" inputmode="numeric" placeholder="예: 50000" value="${esc(a.amount)}" oninput="_rx.amt.amount=this.value; rxSummary()">
+      <label class="rx-chk"><input type="checkbox" ${a.tax ? 'checked' : ''} onchange="_rx.amt.taxTouched=true; _rx.amt.tax=this.checked; rxSummary()"> 이 금액에 부가세 포함</label>
+      <div class="rx-note">${pe ? '고른 출고 건과 같게 자동으로 맞췄습니다' : '부가세 붙은 거래면 체크 (공급가·세액으로 나눠서 기록)'}</div>
+      <label class="rx-l">사유</label><input class="rx-in" placeholder="예: 이염 불량 네고" value="${esc(_rx.note)}" oninput="_rx.note=this.value">
+      <div class="rx-l" style="margin-top:12px;">어느 원단 불량인지 (선택)</div>
+      <div class="rx-list">${rows || '<div class="rx-empty">최근 출고 기록이 없습니다</div>'}</div>`;
+  } else if (t === 'extra') {
     const x = _rx.extra;
     body = `<label class="rx-l">금액 (원)</label><input class="rx-in" id="rx-ex-amt" type="number" inputmode="numeric" placeholder="예: 30000" value="${esc(x.amount)}" oninput="_rx.extra.amount=this.value; rxSummary()">
       <label class="rx-l">사유</label><input class="rx-in" id="rx-ex-note" placeholder="예: 퀵비, 급송비" value="${esc(x.note)}" oninput="_rx.extra.note=this.value">
@@ -15500,11 +15599,11 @@ function rxRender() {
         <div style="display:flex;gap:6px;margin-top:6px;align-items:center;"><input class="rx-in" type="number" step="0.1" placeholder="수량" value="${esc(m.qty)}" oninput="_rx.manual[${i}].qty=this.value; rxSummary()"><span class="rx-u">y</span>${money ? `<input class="rx-in" id="rx-man-price-${i}" type="number" placeholder="단가" value="${esc(m.price)}" oninput="_rx.manual[${i}].price=this.value; _rx.manual[${i}].priceTouched=1; rxSummary()">` : ''}<button type="button" class="rx-x" onclick="_rx.manual.splice(${i},1); rxRender()">✕</button></div>
       </div>`).join('');
     const tax = _rx.taxTouched ? _rx.tax : rxAutoTax();
-    const ents = [..._rx.picks.keys()].map(id => shipmentLog.find(x => x.id === id)).filter(Boolean);
+    const ents = [..._rx.picks.keys()].map(id => rxFind(id)).filter(Boolean);
     const mixed = !_rx.taxTouched && ents.length > 1 && !ents.every(e => rxTaxOf(e) === rxTaxOf(ents[0]));
-    body = `<div class="rx-l" style="margin-top:12px;">이 거래처에 보낸 원단에서 고르기</div>
+    body = dmodeBar + `<div class="rx-l" style="margin-top:12px;">이 거래처에 보낸 원단에서 고르기</div>
       <div class="rx-list">${rows || '<div class="rx-empty">최근 출고 기록이 없습니다. 아래 "직접 입력"을 써 주세요.</div>'}</div>
-      ${!_rx.showAll && all.length > 12 ? `<button type="button" class="rx-link" onclick="_rx.showAll=true; rxRender()">더 지난 출고 보기 (${all.length - 12}건)</button>` : ''}
+      ${!_rx.showAll ? `<button type="button" class="rx-link" onclick="rxShowAll()">더 지난 출고 보기${all.length > 12 ? ` (${all.length - 12}건+)` : ''}</button>` : ''}
       ${manual}
       <button type="button" class="rx-link" onclick="_rx.manual.push({item:'',color:'',qty:'',price:''}); rxRender()">+ 목록에 없는 원단 직접 입력</button>
       <label class="rx-l">사유 (선택)</label><input class="rx-in" placeholder="${t === 'defect' ? '예: 이염, 얼룩, 폭 불량' : '예: 색상 안 맞음, 남은 원단'}" value="${esc(_rx.note)}" oninput="_rx.note=this.value">
@@ -15537,7 +15636,7 @@ function rxLines() {
   const money = canSeeSales(); const out = []; const errs = [];
   const autoTax = rxAutoTax();
   for (const [id, p] of _rx.picks) {
-    const e = shipmentLog.find(x => x.id === id); if (!e) continue;
+    const e = rxFind(id); if (!e) continue;
     const qty = parseFloat(p.qty); const can = Math.round(((e.yardsShipped || 0) - rxReturnedOf(id)) * 100) / 100;
     const label = `${e.item}${e.color ? ' ' + e.color : ''}`;
     if (!(qty > 0)) { errs.push(`${label}: 수량을 적어 주세요`); continue; }
@@ -15566,6 +15665,12 @@ function rxSummary() {
     sum.innerHTML = a > 0 ? `미수금 <b class="plus">+${(a + tax).toLocaleString()}원</b>${tax ? ` <small>(부가세 ${tax.toLocaleString()}원 포함)</small>` : ''}` : '<small>금액을 적어 주세요</small>';
     btn.textContent = '추가금 청구'; btn.disabled = !(a > 0) || !dateOk; return;
   }
+  if (t === 'defect' && _rx.dmode === 'amount' && money) {
+    const r = rxAmtCalc();
+    sum.innerHTML = r.err ? `<div class="rx-err">${esc(r.err)}</div>` : (r.total > 0 ? `미수금 <b class="minus">−${r.total.toLocaleString()}원</b>${r.tax ? ` <small>(공급가 ${r.sup.toLocaleString()} + 세액 ${r.tax.toLocaleString()})</small>` : ''}<div class="rx-inv">재고는 그대로</div>` : '<small>빼 줄 금액을 적어 주세요</small>');
+    if (!dateOk) sum.innerHTML += '<div class="rx-err">날짜를 확인해 주세요 (오늘 이후는 안 됩니다)</div>';
+    btn.textContent = '불량 차감'; btn.disabled = !(r.total > 0) || !!r.err || !dateOk; return;
+  }
   const { lines, errs } = rxLines();
   let deduct = 0, taxSum = 0, noPrice = 0; const inv = [];
   for (const l of lines) {
@@ -15587,6 +15692,27 @@ function rxSummary() {
   btn.textContent = `${t === 'defect' ? '불량 차감' : '반품 등록'}${lines.length ? ` (${lines.length}건)` : ''}`;
   btn.disabled = !lines.length || errs.length > 0 || !dateOk;
 }
+// 금액으로 빼는 불량: 적은 금액이 그대로 미수금에서 빠짐 (부가세 포함이면 공급가·세액으로 나눔)
+function rxAmtCalc() {
+  const a = _rx.amt; const total = Math.round(parseFloat(a.amount));
+  if (!(total > 0)) return { total: 0 };
+  const sup = a.tax ? Math.round(total / 1.1) : total; const tax = total - sup;
+  if (a.pick != null) { const e = rxFind(a.pick); const max = e ? Math.round((e.saleAmount || 0) - (e.discount || 0)) : null; if (max != null && total > max) return { total, sup, tax, err: `고른 출고 건 매출(${max.toLocaleString()}원)보다 많이 뺄 수 없습니다` }; }
+  return { total, sup, tax };
+}
+async function rxSaveDefectAmount(rx, date) {
+  const r = rxAmtCalc(); if (!(r.total > 0) || r.err) return false;
+  const pe = rx.amt.pick != null ? rxFind(rx.amt.pick) : null;
+  shipmentLog.push({
+    id: genUniqueId(), date, orderId: null, customer: rx.customer, factory: '', item: pe ? pe.item : '금액 공제', color: pe ? (pe.color || '') : '',
+    amount: 0, unit: 'y', yardsShipped: 0, remainAfter: 0, isFullCompletion: false, isReturn: false, isDefect: true, amountOnly: true, note: rx.note || '',
+    unitPrice: null, deductAmount: r.total, deductSupply: r.sup, deductTax: r.tax, taxIncluded: r.tax > 0, saleAmount: null, paidAmount: 0, returnRollId: null,
+    ...(pe ? { fromSaleId: pe.id } : {})
+  });
+  await persistShipmentLog();
+  render();
+  return r.total;
+}
 let _rxSaving = false;
 async function rxSave() {
   if (!_rx || _rxSaving) return;
@@ -15604,9 +15730,15 @@ async function rxSave() {
       document.getElementById('ret-extra-factory').value = rx.extra.factory || '';
       document.getElementById('ret-extra-tax').checked = !!rx.extra.tax;
       pendingReturnDate = date; _rxSkipPick = true;
+      document.getElementById('returnModal').style.visibility = 'hidden'; // 숨긴 채로 예전 저장 계산만 씀
       document.getElementById('returnModal').classList.add('open');
       await confirmReturn();
       if (!document.getElementById('returnModal').classList.contains('open')) { rxClose(); const a = parseFloat(rx.extra.amount); showToast(`추가금 ${(a + (rx.extra.tax ? Math.round(a * 0.1) : 0)).toLocaleString()}원 청구 완료`); }
+      return;
+    }
+    if (rx.type === 'defect' && rx.dmode === 'amount' && canSeeSales()) {
+      const total = await rxSaveDefectAmount(rx, date);
+      if (total) { rxClose(); showToast(`불량 차감 완료 · 미수금 −${total.toLocaleString()}원`); }
       return;
     }
     const { lines, errs } = rxLines();
@@ -15626,6 +15758,7 @@ async function rxSave() {
       });
       document.getElementById('ret-tax').checked = !!g[0].tax;
       pendingReturnDate = date; _rxSkipPick = true;
+      document.getElementById('returnModal').style.visibility = 'hidden'; // 숨긴 채로 예전 저장 계산만 씀
       document.getElementById('returnModal').classList.add('open'); // 저장이 끝나면 닫힘 → 성공 여부 확인용 (화면엔 새 창이 위에 있어 안 보임)
       await confirmReturn();
       if (document.getElementById('returnModal').classList.contains('open')) { document.getElementById('returnModal').classList.remove('open'); showToast('저장하지 못한 항목이 있습니다. 다시 확인해 주세요'); return; }
@@ -15635,7 +15768,7 @@ async function rxSave() {
     const total = lines.reduce((s, l) => s + (l.price ? Math.round(l.price * l.qty) + (l.tax ? Math.round(Math.round(l.price * l.qty) * 0.1) : 0) : 0), 0);
     showToast(`${rx.type === 'defect' ? '불량' : '반품'} ${n}건 등록 완료${canSeeSales() && total ? ` · 미수금 −${total.toLocaleString()}원` : ''}`);
   } finally {
-    _rxSaving = false; pendingReturnDate = null; _rxSkipPick = false; document.getElementById('returnModal').classList.remove('open');
+    _rxSaving = false; pendingReturnDate = null; _rxSkipPick = false; document.getElementById('returnModal').classList.remove('open'); document.getElementById('returnModal').style.visibility = '';
     if (_rx && document.getElementById('rx-save')) rxSummary();
   }
 }
