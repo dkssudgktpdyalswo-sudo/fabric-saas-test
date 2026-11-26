@@ -1769,7 +1769,7 @@ function applyRoleChrome() {
 function renderAcctBar() {
   const el = document.getElementById('acctBar'); if (!el) return;
   if (!ME) { el.innerHTML = ''; return; }
-  el.innerHTML = `<span>${esc(ME.name || '')} · ${ROLE_LABEL[ROLE] || ''}</span><span>${isOwner() ? '<button onclick="openImportModal()">엑셀 첫 세팅</button><button onclick="openStaffModal()">직원 관리</button>' : '<button onclick="changeMyPassword()">비밀번호 변경</button>'}<button onclick="logout()">로그아웃</button></span>`;
+  el.innerHTML = `<span><b>${esc(shopDisplayName() || SHOP_ID)}</b> (${esc(SHOP_ID)}) · ${esc(ME.name || '')} · ${ROLE_LABEL[ROLE] || ''}</span><span>${isOwner() ? '<button onclick="openImportModal()">엑셀 첫 세팅</button><button onclick="openStaffModal()">직원 관리</button>' : '<button onclick="changeMyPassword()">비밀번호 변경</button>'}<button onclick="logout()">로그아웃</button></span>`;
 }
 async function loginGoogle() {
   lockMsg('');
@@ -1970,8 +1970,14 @@ function impDate(v) { // -> 'yy.mm.dd' / 빈칸 -> '' / 이상한 값 -> null
   const fmt = (y, m, d) => { if (y < 100) y += 2000; const dt = new Date(y, m - 1, d); if (dt.getFullYear() !== y || dt.getMonth() !== m - 1 || dt.getDate() !== d || y < 2000 || y > 2099) return null; return `${String(y).slice(2)}.${String(m).padStart(2, '0')}.${String(d).padStart(2, '0')}`; };
   if (v instanceof Date && !isNaN(v)) return fmt(v.getFullYear(), v.getMonth() + 1, v.getDate());
   if (typeof v === 'number' && v > 30000 && v < 80000) { const dt = new Date(Math.round((v - 25569) * 86400000)); return fmt(dt.getUTCFullYear(), dt.getUTCMonth() + 1, dt.getUTCDate()); }
-  const m = String(v).trim().match(/^(\d{2}|\d{4})[.\-/년\s]+(\d{1,2})[.\-/월\s]+(\d{1,2})일?\.?$/);
-  return m ? fmt(parseInt(m[1]), parseInt(m[2]), parseInt(m[3])) : null;
+  const t = String(typeof v === 'number' ? Math.round(v) : v).trim();
+  let m = t.match(/^(\d{2}|\d{4})[.\-/년\s]+(\d{1,2})[.\-/월\s]+(\d{1,2})일?\.?$/);
+  if (m) return fmt(parseInt(m[1]), parseInt(m[2]), parseInt(m[3]));
+  m = t.match(/^(\d{2})(\d{2})(\d{2})$/) || t.match(/^(\d{4})(\d{2})(\d{2})$/); // 261126 / 20261126
+  if (m) return fmt(parseInt(m[1]), parseInt(m[2]), parseInt(m[3]));
+  m = t.match(/^(\d{1,2})[/.월\s]+(\d{1,2})일?\.?$/); // 11/26, 11월 26일 → 올해
+  if (m) return fmt(new Date().getFullYear(), parseInt(m[1]), parseInt(m[2]));
+  return null;
 }
 function parseImportWorkbook(X, wb) {
   const out = { items: [], rolls: [], custs: [], unpaid: [], orders: [], costs: [] };
