@@ -259,6 +259,13 @@
     <div id="login-pane">
       <p>사장님은 구글로, 직원은 받은 아이디로 들어오세요</p>
       <button class="lg-google" onclick="loginGoogle()"><b style="color:#4285f4;">G</b> 구글로 로그인 (사장)</button>
+      <div style="margin-top:8px;font-size:12px;"><a href="#" onclick="document.getElementById('owner-email-pane').style.display='';this.parentNode.style.display='none';return false;" style="color:var(--muted);">구글 계정이 없으면 이메일로 (사장)</a></div>
+      <div id="owner-email-pane" style="display:none;margin-top:8px;">
+        <input id="oe-email" type="email" placeholder="사장님 이메일 (네이버 메일 등)" autocapitalize="off" autocomplete="email">
+        <input id="oe-pw" type="password" placeholder="비밀번호 (6자 이상)" autocomplete="current-password">
+        <div style="display:flex;gap:6px;"><button onclick="ownerEmailLogin()" style="flex:1;">로그인</button><button onclick="ownerEmailSignup()" style="flex:1;background:#fff;color:var(--primary);border:1px solid var(--primary);">처음이면 가입</button></div>
+        <div style="margin-top:6px;font-size:12px;"><a href="#" onclick="ownerPwReset();return false;" style="color:var(--muted);">비밀번호를 잊었어요</a></div>
+      </div>
       <div class="lg-or">직원 로그인</div>
       <input id="lg-shop" placeholder="가게 코드" autocapitalize="off" autocorrect="off" spellcheck="false">
       <input id="lg-id" placeholder="아이디" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="username">
@@ -1792,6 +1799,32 @@ async function loginStaff() {
     lockMsg(c === 'auth/too-many-requests' ? '여러 번 틀려서 잠시 막혔어요. 몇 분 뒤 다시 해주세요' : (c === 'auth/network-request-failed' ? '인터넷 연결을 확인해주세요' : '가게 코드, 아이디 또는 비밀번호가 맞지 않아요'));
   }
 }
+// 구글 계정이 없는 사장: 이메일+비밀번호로 가입·로그인 (가입하면 바로 "새 가게 만들기"로 감)
+function ownerEmailInputs() {
+  const email = document.getElementById('oe-email').value.trim().toLowerCase();
+  const pw = document.getElementById('oe-pw').value;
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { lockMsg('이메일 주소를 확인해주세요'); return null; }
+  if (email.endsWith('.' + STAFF_EMAIL_DOMAIN)) { lockMsg('이 주소는 쓸 수 없어요'); return null; }
+  return { email, pw };
+}
+async function ownerEmailLogin() {
+  lockMsg(''); const v = ownerEmailInputs(); if (!v) return;
+  if (!v.pw) { lockMsg('비밀번호를 입력해주세요'); return; }
+  try { await firebase.auth().signInWithEmailAndPassword(v.email, v.pw); }
+  catch (e) { const c = e && e.code; lockMsg(c === 'auth/too-many-requests' ? '여러 번 틀려서 잠시 막혔어요. 몇 분 뒤 다시 해주세요' : (c === 'auth/network-request-failed' ? '인터넷 연결을 확인해주세요' : '이메일 또는 비밀번호가 맞지 않아요. 처음이면 "처음이면 가입"을 눌러주세요')); }
+}
+async function ownerEmailSignup() {
+  lockMsg(''); const v = ownerEmailInputs(); if (!v) return;
+  if (v.pw.length < 6) { lockMsg('비밀번호는 6자 이상으로 해주세요'); return; }
+  try { await firebase.auth().createUserWithEmailAndPassword(v.email, v.pw); }
+  catch (e) { const c = e && e.code; lockMsg(c === 'auth/email-already-in-use' ? '이미 가입된 이메일이에요. "로그인"을 눌러주세요' : (c === 'auth/weak-password' ? '비밀번호를 더 길게 해주세요' : '가입하지 못했어요 (' + (c || e) + ')')); }
+}
+async function ownerPwReset() {
+  const email = document.getElementById('oe-email').value.trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { lockMsg('이메일 칸에 가입한 이메일을 먼저 적어주세요'); return; }
+  try { await firebase.auth().sendPasswordResetEmail(email); lockMsg('비밀번호 재설정 메일을 보냈어요. 메일함(스팸함 포함)을 확인해주세요'); }
+  catch (e) { lockMsg('메일을 보내지 못했어요. 주소를 확인해주세요'); }
+}
 function tryUnlock() { return loginStaff(); } // 예전 입장 버튼/엔터키 연결용
 async function logout() { try { await firebase.auth().signOut(); } catch (e) { /* 그래도 새로고침 */ } location.reload(); }
 let _booted = false;
@@ -1804,7 +1837,8 @@ async function onAuthChanged(user) {
     const u = await db.collection('users').doc(user.uid).get();
     if (!u.exists) {
       const isGoogle = (user.providerData || []).some(p => p.providerId === 'google.com');
-      if (isGoogle) { lockMsg(''); showLockPane('newshop'); return; }
+      const isOwnerEmail = !!user.email && !String(user.email).toLowerCase().endsWith('.' + STAFF_EMAIL_DOMAIN); // 이메일로 가입한 사장 (직원 아이디 주소는 제외)
+      if (isGoogle || isOwnerEmail) { lockMsg(''); showLockPane('newshop'); return; }
       lockMsg('이 계정은 가게에 연결돼 있지 않아요. 사장님께 문의하세요');
       await firebase.auth().signOut(); return;
     }
