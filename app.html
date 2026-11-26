@@ -3544,11 +3544,12 @@ function arrivalRuleText(sp) {
 function fabricBaseCost(c, rateOverride) {
   if (c.type === 'domestic') return c.price;
   const sp = c.supplierId ? supplierById(c.supplierId) : null;
-  const yard = rateOverride ? rateOverride.yard : settings.yard;
-  const ship = rateOverride ? rateOverride.ship : settings.ship;
-  if (!sp) return c.price * (rateOverride ? rateOverride.rate : settings.rate) * yard + ship;
+  const yard = rateOverride && rateOverride.yard != null ? rateOverride.yard : settings.yard;
+  const actual = rateOverride && rateOverride.shipActual != null ? Number(rateOverride.shipActual) : null; // 운임 정산으로 확정된 실제 운임 (예상 운임 자리에 교체)
+  const ship = actual != null ? actual : (rateOverride && rateOverride.ship != null ? rateOverride.ship : settings.ship);
+  if (!sp) return c.price * (rateOverride && rateOverride.rate != null ? rateOverride.rate : settings.rate) * yard + ship;
   const factor = sp.priceUnit === 'y' ? 1 : yard;
-  const shp = (sp.ship != null && sp.ship !== '') ? Number(sp.ship) : (sp.currency === 'CNY' ? ship : 0);
+  const shp = actual != null ? actual : ((sp.ship != null && sp.ship !== '') ? Number(sp.ship) : (sp.currency === 'CNY' ? ship : 0));
   return c.price * fxRate(sp.currency || 'CNY', rateOverride) * factor + shp;
 }
 function costPriceText(c) { // 원가표에 "중국단가 12.5위안/m" 처럼 보여줄 글자
@@ -3818,6 +3819,215 @@ async function pcDelete(id) {
   settings = { ...settings, processes: getProcesses().filter(x => x.id !== id) };
   if (await persistSettings() === false) { settings = { ...settings, processes: before }; return; }
   pcRender(); render(); showToast('삭제 완료');
+}
+
+// ===== 운임 정산 (해외 발주처) =====
+// 평소엔 "예상 운임"(원/y)으로 원가를 잡고, 운임 청구서가 오면 그 배로 들어온 원단(입고일)에 실제 운임을 "바꿔 끼움"
+// - 더하지 않고 교체: 원가 계산의 운임 자리에 실제 값이 들어감 (예상 350 + 실제 383 처럼 합쳐지지 않음)
+// - 정산한 롤에는 freightPerY·freightBatchId 표시 → 다음 정산에서 빠짐 (같은 원단 두 번 정산 안 됨)
+// - 탕 원가를 직접 넣은 롤은 건너뜀 (이미 운임까지 넣었을 수 있어서)
+// - 이미 판매된 매출은 "예전 원가 + 차액"이 아니라 처음부터 다시 계산 → 몇 번 눌러도 결과 같음
+// - 반품으로 돌아온 롤은 원래 롤의 실제 운임을 그대로 이어받음
+function freightBatches() { return Array.isArray(settings.freightBatches) ? settings.freightBatches : []; }
+function defaultCnySupplierId() { const l = getSuppliers(); const cn = l.find(s => s.id === 'cn'); return cn ? cn.id : ((l.find(s => s.currency === 'CNY') || {}).id || null); }
+function itemBelongsToSupplier(item, sp) {
+  const c = findCostFor(item); if (!c || c.type === 'domestic') return false;
+  if (c.supplierId) return c.supplierId === sp.id;
+  return sp.currency === 'CNY' && sp.id === defaultCnySupplierId();
+}
+function supplierEstShip(sp) { return (sp.ship != null && sp.ship !== '') ? Number(sp.ship) : (sp.currency === 'CNY' ? Number(settings.ship) || 0 : 0); }
+// 이 발주처 원단의 입고일 목록 (최근 120일)
+function freightDateGroups(sp) {
+  const cut = (() => { const d = new Date(); d.setDate(d.getDate() - 120); return `${String(d.getFullYear()).slice(2)}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`; })();
+  const returnRollIds = new Set(shipmentLog.filter(e => e.returnRollId != null).map(e => e.returnRollId));
+  const by = new Map();
+  for (const r of rolls) {
+    if (!r.inDate || String(r.inDate) < cut || r.defective || returnRollIds.has(r.id)) continue;
+    if (!itemBelongsToSupplier(r.item, sp)) continue;
+    if (!by.has(r.inDate)) by.set(r.inDate, []);
+    by.get(r.inDate).push(r);
+  }
+  // 다 팔려서 재고에서 지워진 롤도 출고 기록에 남은 입고일로 찾아서 길이에 넣음
+  const liveIds = new Set(rolls.map(r => r.id));
+  const soldGone = new Map(); // inDate -> 야드
+  for (const e of shipmentLog) {
+    if (e.isReturn || e.isDefect || !e.deductBreakdown) continue;
+    for (const b of e.deductBreakdown) {
+      if (!b || b.rollId == null || liveIds.has(b.rollId) || !b.inDate || String(b.inDate) < cut) continue;
+      if (!itemBelongsToSupplier(e.item, sp)) continue;
+      soldGone.set(b.inDate, (soldGone.get(b.inDate) || 0) + (Number(b.qty) || 0));
+      if (!by.has(b.inDate)) by.set(b.inDate, []);
+    }
+  }
+  const soldOf = new Map(); // rollId -> 팔린 야드
+  for (const e of shipmentLog) { if (e.isReturn || e.isDefect || !e.deductBreakdown) continue; for (const b of e.deductBreakdown) if (b && b.rollId != null) soldOf.set(b.rollId, (soldOf.get(b.rollId) || 0) + (Number(b.qty) || 0)); }
+  return [...by.entries()].map(([d, rs]) => {
+    const manual = rs.filter(r => r.costPerY != null);
+    const usable = rs.filter(r => r.costPerY == null);
+    const settled = usable.filter(r => r.freightBatchId);
+    const lengthY = Math.round((rs.reduce((s, r) => s + (r.inQty != null ? Number(r.inQty) : (Number(r.qty) || 0) + (soldOf.get(r.id) || 0)), 0) + (soldGone.get(d) || 0)) * 100) / 100;
+    const batch = settled.length ? freightBatches().find(b => b.id === settled[0].freightBatchId) : (freightBatches().find(b => b.supplierId === sp.id && (b.dates || []).includes(d)) || null);
+    return { date: d, rolls: rs, usable, manual, settled, lengthY, batch, tangs: rs.length, goneY: soldGone.get(d) || 0 };
+  }).sort((a, b) => String(b.date).localeCompare(String(a.date)));
+}
+let _fr = null;
+let _frIgnore = false;
+function frRecalcEntry(e) {
+  if (e.manualCostPerY != null) return;
+  if (!Object.prototype.hasOwnProperty.call(e, 'fcostEst')) e.fcostEst = e.fcost != null ? e.fcost : null; // 예상 운임으로 잡혔던 원래 원가 보관
+  delete e.fcost;
+  const withFr = getCostPerYardForEntry(e);
+  _frIgnore = true; let noFr; try { noFr = getCostPerYardForEntry(e); } finally { _frIgnore = false; }
+  const base = e.fcostEst != null ? e.fcostEst : noFr;
+  const hasFr = (e.deductBreakdown || []).some(b => b && b.freightPerY != null);
+  if (!hasFr) { if (e.fcostEst != null) e.fcost = e.fcostEst; delete e.fcostEst; return; }
+  if (base != null && withFr != null && noFr != null && isFinite(withFr) && isFinite(noFr)) e.fcost = Math.round((base + (withFr - noFr)) * 100) / 100;
+  else if (base != null) e.fcost = base;
+}
+function openFreightModal(batchId) {
+  if (!isOwner()) { showToast('운임 정산은 사장님만 할 수 있습니다'); return; }
+  const sps = getSuppliers().filter(s => s.kind === 'overseas' || (s.currency && s.currency !== 'KRW'));
+  if (!sps.length) { uiAlert('운임 정산은 해외 발주처 원단에만 씁니다.\n발주처 관리에서 해외 발주처를 먼저 등록해 주세요.'); return; }
+  const b = batchId ? freightBatches().find(x => x.id === batchId) : null;
+  _fr = { spId: b ? b.supplierId : sps[0].id, dates: new Set(b ? b.dates : []), amount: b ? String(b.amount) : '', extra: b ? String(b.extra || '') : '', showExtra: !!(b && b.extra), lengthOverride: b && b.lengthOverride ? String(b.lengthOverride) : '', unit: 'y', editId: b ? b.id : null, note: b ? (b.note || '') : '' };
+  let ov = document.getElementById('freightModal');
+  if (!ov) { ov = document.createElement('div'); ov.id = 'freightModal'; ov.className = 'sm-ov'; document.body.appendChild(ov); ov.addEventListener('mousedown', e => { if (e.target === ov) ov.remove(); }); }
+  frRender();
+}
+function frCalc() {
+  const sp = supplierById(_fr.spId); if (!sp) return null;
+  const groups = freightDateGroups(sp).filter(g => _fr.dates.has(g.date));
+  const editB = _fr.editId ? freightBatches().find(x => x.id === _fr.editId) : null;
+  // 이번에 적용할 롤: 정산 전 롤 + (수정 중이면 그 정산의 롤)
+  const rollsIn = []; const skipManual = []; const already = [];
+  for (const g of groups) {
+    for (const r of g.usable) { if (!r.freightBatchId || (editB && r.freightBatchId === editB.id)) rollsIn.push(r); else already.push(r); }
+    skipManual.push(...g.manual);
+  }
+  const autoLen = Math.round(groups.reduce((s, g) => s + g.lengthY, 0) * 100) / 100;
+  const ov = parseFloat(_fr.lengthOverride);
+  const lengthY = ov > 0 ? (_fr.unit === 'm' ? Math.round(ov / (Number(settings.yard) || 0.9144) * 100) / 100 : ov) : autoLen;
+  const total = (parseFloat(_fr.amount) || 0) + (parseFloat(_fr.extra) || 0);
+  const perY = lengthY > 0 && total > 0 ? Math.round(total / lengthY * 100) / 100 : null;
+  const goneY = groups.reduce((s, g) => s + ((g.batch && !(editB && g.batch.id === editB.id)) ? 0 : g.goneY), 0); // 이미 다른 정산에 들어간 입고일의 다 팔린 원단은 빼기
+  const canApply = perY != null && (rollsIn.length > 0 || goneY > 0);
+  return { sp, groups, rollsIn, skipManual, already, autoLen, lengthY, total, perY, est: supplierEstShip(sp), goneY, canApply };
+}
+function frRender() {
+  const ov = document.getElementById('freightModal'); if (!ov || !_fr) return;
+  const sps = getSuppliers().filter(s => s.kind === 'overseas' || (s.currency && s.currency !== 'KRW'));
+  const sp = supplierById(_fr.spId) || sps[0]; _fr.spId = sp.id;
+  const groups = freightDateGroups(sp).slice(0, 40);
+  const editB = _fr.editId ? freightBatches().find(x => x.id === _fr.editId) : null;
+  const rows = groups.map(g => {
+    const fully = ((g.usable.length > 0 && g.settled.length === g.usable.length) || (g.usable.length === 0 && g.batch)) && !(editB && g.batch && g.batch.id === editB.id);
+    const on = _fr.dates.has(g.date);
+    const tag = fully ? `<span style="color:#1e6b3d;font-weight:700;">정산됨 ${Math.round(g.batch ? g.batch.perY : 0).toLocaleString()}원/y</span>` : (g.settled.length ? `<span style="color:#9a5b00;">일부 정산됨</span>` : '<span style="color:#9a5b00;">정산 전</span>');
+    return `<div class="rx-row ${on ? 'on' : ''}" ${fully ? 'style="opacity:.55;cursor:default;"' : `onclick="frToggle('${g.date}')"`}><span class="rx-box-ck">${on ? '✓' : ''}</span><div class="rx-txt"><b>${esc(String(g.date).slice(3))} 입고</b><small>${g.tangs ? `${g.tangs}탕` : '다 팔림'} · ${g.lengthY.toLocaleString()}y · ${tag}${g.manual.length ? ` · 탕 원가 직접 ${g.manual.length}개` : ''}</small></div></div>`;
+  }).join('');
+  const r = frCalc();
+  const sum = frSumHtml(r);
+
+  const hist = freightBatches().filter(b => b.supplierId === sp.id).slice(0, 6);
+  const avg = hist.length ? Math.round(hist.reduce((s, b) => s + b.perY, 0) / hist.length) : null;
+  ov.innerHTML = `<div class="sm-box rx-box">
+    <div class="rx-top"><h3>${editB ? '운임 정산 수정' : '운임 정산'}</h3><button type="button" class="rx-close" onclick="document.getElementById('freightModal').remove()">✕</button></div>
+    <div class="rx-help">운임 청구서가 오면, 그 배로 들어온 원단의 예상 운임(${Math.round(supplierEstShip(sp)).toLocaleString()}원/y)을 실제 운임으로 바꿉니다. 거래처 미수금에는 영향이 없고 원가·순이익만 정확해집니다.</div>
+    ${sps.length > 1 && !editB ? `<label class="rx-l">발주처</label><select class="rx-in" onchange="_fr.spId=this.value; _fr.dates=new Set(); frRender()">${sps.map(s => `<option value="${esc(s.id)}" ${s.id === sp.id ? 'selected' : ''}>${esc(s.name)}</option>`).join('')}</select>` : ''}
+    <div class="rx-l" style="margin-top:12px;">이 운임에 해당하는 입고일 (나눠 들어왔으면 여러 개)</div>
+    <div class="rx-list">${rows || '<div class="rx-empty">최근 120일 안에 이 발주처 원단 입고 기록이 없습니다</div>'}</div>
+    <label class="rx-l">해상운임 (원)</label><input class="rx-in" type="number" inputmode="numeric" placeholder="예: 1750000" value="${esc(_fr.amount)}" oninput="_fr.amount=this.value; frSummary()">
+    ${_fr.showExtra ? `<label class="rx-l">통관비·기타 비용 (원)</label><input class="rx-in" type="number" inputmode="numeric" placeholder="예: 120000" value="${esc(_fr.extra)}" oninput="_fr.extra=this.value; frSummary()">` : `<button type="button" class="rx-link" onclick="_fr.showExtra=true; frRender()">+ 통관비·기타 비용</button>`}
+    <label class="rx-l">길이 (비우면 입고 기록으로 자동 · 청구서 길이를 알면 적기)</label>
+    <div style="display:flex;gap:6px;"><input class="rx-in" type="number" placeholder="${r && r.autoLen ? r.autoLen.toLocaleString() + ' (자동)' : '자동'}" value="${esc(_fr.lengthOverride)}" oninput="_fr.lengthOverride=this.value; frSummary()"><select class="rx-in" style="width:90px;flex:none;" onchange="_fr.unit=this.value; frSummary()"><option value="y" ${_fr.unit === 'y' ? 'selected' : ''}>야드</option><option value="m" ${_fr.unit === 'm' ? 'selected' : ''}>미터</option></select></div>
+    <label class="rx-l">메모 (선택)</label><input class="rx-in" placeholder="예: 11월 2차 컨테이너, B/L 번호" value="${esc(_fr.note)}" oninput="_fr.note=this.value">
+    <div class="rx-sum" id="fr-sum">${sum}</div>
+    <div class="rx-acts">${editB ? `<button type="button" class="ui-btn ui-btn-sub" onclick="frUndo('${editB.id}')">정산 취소</button>` : '<button type="button" class="ui-btn ui-btn-sub" onclick="document.getElementById(\'freightModal\').remove()">닫기</button>'}<button type="button" class="ui-btn ui-btn-main" id="fr-save" onclick="frApply()" ${r && r.canApply ? '' : 'disabled'}>${editB ? '수정 적용' : '운임 정산 적용'}</button></div>
+    ${hist.length ? `<div class="rx-l" style="margin-top:16px;">최근 정산</div>${hist.map(b => `<div class="sm-row"><div class="nm">${esc(b.dates.map(d => String(d).slice(3)).join(', '))} 입고 <small>${esc(String(b.at).slice(3))} 정산 · ${Number(b.amount + (b.extra || 0)).toLocaleString()}원 · ${Math.round(b.lengthY).toLocaleString()}y → <b>${Math.round(b.perY).toLocaleString()}원/y</b>${b.note ? ` · ${esc(b.note)}` : ''}</small></div><button class="sm-btn gray" onclick="openFreightModal('${b.id}')">수정</button></div>`).join('')}
+      <div class="rx-note" style="margin-left:0;margin-top:6px;">최근 ${hist.length}번 평균 <b>${avg.toLocaleString()}원/y</b> · 지금 예상 운임 ${Math.round(supplierEstShip(sp)).toLocaleString()}원 <a href="#" onclick="event.preventDefault(); frSetEstimate('${sp.id}', ${avg})" style="color:var(--primary);font-weight:700;">예상 운임을 ${avg.toLocaleString()}원으로</a></div>` : ''}
+  </div>`;
+}
+function frSumHtml(r) {
+  let sum = '';
+  if (r && r.groups.length) {
+    sum += `<div>고른 원단 <b>${r.rollsIn.length}탕</b>${r.goneY ? ` + 다 팔린 ${Math.round(r.goneY).toLocaleString()}y` : ''} · 길이 <b>${r.lengthY.toLocaleString()}y</b> (${Math.round(r.lengthY * (Number(settings.yard) || 0.9144)).toLocaleString()}m)</div>`;
+    if (r.perY != null) { const diff = Math.round(r.perY - r.est); sum += `<div style="margin-top:4px;">야드당 <b class="minus" style="color:var(--primary-dark);">${Math.round(r.perY).toLocaleString()}원</b> <small>(예상 ${Math.round(r.est).toLocaleString()}원 ${diff >= 0 ? '+' : ''}${diff.toLocaleString()}원)</small></div>`; }
+    if (r.perY != null && r.est > 0 && (r.perY > r.est * 2 || r.perY < r.est * 0.5)) sum += `<div class="rx-err">예상 운임과 차이가 큽니다. 고른 입고일과 길이(청구서의 미터·야드)가 맞는지 확인해 주세요</div>`;
+    if (r.skipManual.length) sum += `<div class="rx-inv">탕 원가를 직접 넣은 ${r.skipManual.length}탕은 건너뜁니다 (이미 운임까지 넣었을 수 있어서)</div>`;
+    if (r.already.length) sum += `<div class="rx-inv">이미 다른 정산에 들어간 ${r.already.length}탕은 빠집니다</div>`;
+  } else sum = '<small>운임이 해당하는 입고일을 고르세요</small>';
+  return sum;
+}
+function frSummary() {
+  const r = frCalc(); const el = document.getElementById('fr-sum'); if (el) el.innerHTML = frSumHtml(r);
+  const btn = document.getElementById('fr-save'); if (btn) btn.disabled = !(r && r.canApply);
+}
+function frToggle(d) { if (_fr.dates.has(d)) _fr.dates.delete(d); else _fr.dates.add(d); frRender(); }
+// 그 정산에 해당하는 판매 기록(출고 때 나간 롤 조각)을 찾기: 롤 번호가 맞거나, 다 팔려 지워진 롤이면 입고일·발주처로
+function frMatchBreakdown(e, b, rollIdSet, dateSet, sp, liveIds) {
+  if (!b) return false;
+  if (b.rollId != null && rollIdSet.has(b.rollId)) return true;
+  return b.rollId != null && !liveIds.has(b.rollId) && b.inDate && dateSet.has(b.inDate) && b.costPerY == null && itemBelongsToSupplier(e.item, sp);
+}
+async function frApply() {
+  const r = frCalc(); if (!r || !r.canApply) return;
+  const editB = _fr.editId ? freightBatches().find(x => x.id === _fr.editId) : null;
+  const id = editB ? editB.id : 'fr' + Date.now().toString(36);
+  const rollIdSet = new Set(r.rollsIn.map(x => x.id)); const dateSet = new Set(r.groups.map(g => g.date)); const liveIds = new Set(rolls.map(x => x.id));
+  // 이미 판매된 건 찾기
+  const hits = [];
+  for (const e of shipmentLog) {
+    if (e.isReturn || e.isDefect || !e.deductBreakdown || e.saleAmount == null) continue;
+    const bs = e.deductBreakdown.filter(b => (!b.freightBatchId || b.freightBatchId === id) && frMatchBreakdown(e, b, rollIdSet, dateSet, r.sp, liveIds));
+    if (bs.length) hits.push({ e, bs });
+  }
+  let recalc = false;
+  const recalcable = hits.filter(h => h.e.manualCostPerY == null);
+  if (recalcable.length) recalc = await uiConfirm(`이 원단 중 이미 판매된 매출이 ${recalcable.length}건 있습니다.\n그 매출의 원가·순이익도 실제 운임(${Math.round(r.perY).toLocaleString()}원/y)으로 다시 계산하시겠습니까?\n\n(거래처 미수금은 바뀌지 않습니다)`, { ok: '같이 다시 계산', cancel: '앞으로 팔 것만', danger: false, noBackdrop: true });
+  // 되돌리기용 기록
+  const undoRolls = r.rollsIn.map(x => [x, x.freightPerY, x.freightBatchId]);
+  const undoB = []; const undoF = [];
+  for (const h of hits) { for (const b of h.bs) undoB.push([b, b.freightPerY, b.freightBatchId]); if (recalc && h.e.manualCostPerY == null) undoF.push([h.e, h.e.fcost, Object.prototype.hasOwnProperty.call(h.e, 'fcostEst'), h.e.fcostEst]); }
+  const beforeBatches = settings.freightBatches;
+  for (const x of r.rollsIn) { x.freightPerY = r.perY; x.freightBatchId = id; }
+  if (recalc) {
+    for (const h of hits) { for (const b of h.bs) { b.freightPerY = r.perY; b.freightBatchId = id; } }
+    for (const h of recalcable) frRecalcEntry(h.e);
+  }
+  const batch = { id, at: editB ? editB.at : todayStr(), editedAt: editB ? todayStr() : undefined, supplierId: r.sp.id, dates: [...dateSet].sort(), amount: parseFloat(_fr.amount) || 0, extra: parseFloat(_fr.extra) || 0, lengthY: r.lengthY, lengthOverride: parseFloat(_fr.lengthOverride) > 0 ? parseFloat(_fr.lengthOverride) : null, unit: _fr.unit, perY: r.perY, rollIds: [...rollIdSet], estAtTime: r.est, note: _fr.note || '' };
+  settings = { ...settings, freightBatches: [batch].concat(freightBatches().filter(b => b.id !== id)).slice(0, 200) };
+  let ok = await persistRolls() !== false;
+  if (ok && recalc && hits.length) ok = await persistShipmentLog() !== false;
+  if (ok) ok = await persistSettings() !== false;
+  if (!ok) { // 실패하면 화면 값도 전부 원래대로
+    for (const [x, f, bi] of undoRolls) { if (f == null) delete x.freightPerY; else x.freightPerY = f; if (bi == null) delete x.freightBatchId; else x.freightBatchId = bi; }
+    for (const [b, f, bi] of undoB) { if (f == null) delete b.freightPerY; else b.freightPerY = f; if (bi == null) delete b.freightBatchId; else b.freightBatchId = bi; }
+    for (const [e, f, had, fe] of undoF) { if (f == null) delete e.fcost; else e.fcost = f; if (had) e.fcostEst = fe; else delete e.fcostEst; }
+    settings = { ...settings, freightBatches: beforeBatches };
+    showToast('저장하지 못했습니다. 아무것도 바뀌지 않았습니다'); render(); return;
+  }
+  const ovEl = document.getElementById('freightModal'); if (ovEl) ovEl.remove();
+  render();
+  showToast(`운임 정산 완료 · ${r.rollsIn.length ? r.rollsIn.length + '탕 ' : ''}야드당 ${Math.round(r.perY).toLocaleString()}원${recalc ? ` · 판매 ${recalcable.length}건 다시 계산` : ''}`);
+}
+async function frUndo(id) {
+  const b = freightBatches().find(x => x.id === id); if (!b) return;
+  if (!(await uiConfirm(`이 운임 정산(${b.dates.map(d => String(d).slice(3)).join(', ')} 입고 · ${Math.round(b.perY).toLocaleString()}원/y)을 취소하시겠습니까?\n그 원단은 다시 예상 운임으로 계산되고, 같이 다시 계산했던 판매도 예상 운임으로 돌아갑니다.`))) return;
+  const touchedE = [];
+  for (const r of rolls) if (r.freightBatchId === id) { delete r.freightPerY; delete r.freightBatchId; }
+  for (const e of shipmentLog) { let t = false; for (const x of (e.deductBreakdown || [])) if (x && x.freightBatchId === id) { delete x.freightPerY; delete x.freightBatchId; t = true; } if (t) touchedE.push(e); }
+  for (const e of touchedE) frRecalcEntry(e);
+  settings = { ...settings, freightBatches: freightBatches().filter(x => x.id !== id) };
+  await persistRolls(); if (touchedE.length) await persistShipmentLog(); await persistSettings();
+  const ovEl = document.getElementById('freightModal'); if (ovEl) ovEl.remove();
+  render(); showToast('운임 정산을 취소했습니다');
+}
+async function frSetEstimate(spId, val) {
+  const sp = supplierById(spId); if (!sp || !(val > 0)) return;
+  const own = sp.ship != null && sp.ship !== '';
+  if (!own && sp.currency === 'CNY') settings = { ...settings, ship: val }; // 운임 칸을 비워둔 위안 발주처 = 환율 화면의 운임을 씀
+  else settings = { ...settings, suppliers: getSuppliers().map(s => s.id === spId ? { ...s, ship: val } : s) };
+  await persistSettings(); updateRateBar(); frRender(); render(); showToast(`예상 운임을 ${val.toLocaleString()}원으로 바꿨습니다`);
 }
 
 // ---------- 원가 계산 ----------
@@ -5419,7 +5629,7 @@ async function saveAdd() {
     rolls = rolls.filter(r => !(String(r.item).trim() === item && String(r.color).trim() === color && r.qty === 0 && !r.defective));
     for (const en of entries) {
       // 같은 탕 번호로 여러 번 입고돼도 합치지 않고 각각 개별 항목으로 둠 (이미 재단되어 오는 원단이라 실제로는 서로 다른 물건이라서)
-      rolls.push({ id: nextId++, cat, item, color, tang: en.tang, qty: en.qty, defective: en.defective, defectReason: en.defective ? en.reason : '', inDate, costPerY: en.costPerY, note: en.note || '', rollNote: en.rollNote || '' });
+      rolls.push({ id: nextId++, cat, item, color, tang: en.tang, qty: en.qty, inQty: en.qty, defective: en.defective, defectReason: en.defective ? en.reason : '', inDate, costPerY: en.costPerY, note: en.note || '', rollNote: en.rollNote || '' });
     }
     totalEntries += entries.length;
     totalColors++;
@@ -6083,6 +6293,13 @@ function renderCost() {
   spBtn.style.cssText = 'border:none;background:var(--b-info);color:var(--primary-dark);border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;margin-bottom:10px;';
   spBtn.onclick = openSupplierModal;
   list.appendChild(spBtn);
+  if (getSuppliers().some(s => s.kind === 'overseas' || (s.currency && s.currency !== 'KRW'))) {
+    const frBtn = document.createElement('button');
+    frBtn.textContent = '운임 정산';
+    frBtn.style.cssText = 'border:none;background:var(--b-warn);color:#a15c1e;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;margin-bottom:10px;margin-left:6px;';
+    frBtn.onclick = () => openFreightModal();
+    list.appendChild(frBtn);
+  }
   if (list2.length === 0) { list.innerHTML += '<div class="empty">해당 조건의 원가 데이터가 없습니다</div>'; return; }
 
   for (const c of list2) {
@@ -10187,7 +10404,11 @@ function freezeEntryCosts() {
     if (e.fcost != null || e.manualCostPerY != null || e.isReturn || e.isDefect || e.isFee || e.manualClose || e.isSample) continue;
     if (e.saleAmount == null || e.item === '이월 미수금' || !e.yardsShipped) continue;
     const c = getCostPerYardForEntry(e);
-    if (c != null && isFinite(c)) { e.fcost = Math.round(c * 100) / 100; n++; }
+    if (c != null && isFinite(c)) {
+      e.fcost = Math.round(c * 100) / 100; n++;
+      // 운임 정산된 원단을 판 경우: 예상 운임 기준 원가도 같이 보관 (나중에 그 정산을 고치거나 취소할 때 기준)
+      if ((e.deductBreakdown || []).some(b => b && b.freightPerY != null)) { const fz = e.fcost; delete e.fcost; _frIgnore = true; try { const c0 = getCostPerYardForEntry(e); if (c0 != null && isFinite(c0)) e.fcostEst = Math.round(c0 * 100) / 100; } finally { _frIgnore = false; e.fcost = fz; } }
+    }
   }
   return n;
 }
@@ -10211,12 +10432,14 @@ function getCostPerYardForEntry(e) {
     let totalCost = 0, totalQty = 0, anySpecific = false;
     for (const b of e.deductBreakdown) {
       let costPerY = null;
-      if (b.rollId != null) {
-        const roll = rolls.find(r => r.id === b.rollId);
-        if (roll && roll.costPerY != null) { costPerY = roll.costPerY; anySpecific = true; }
-      }
+      const roll = b.rollId != null ? rolls.find(r => r.id === b.rollId) : null;
+      if (roll && roll.costPerY != null) { costPerY = roll.costPerY; anySpecific = true; }
       if (b.manualCostPerY != null) { costPerY = b.manualCostPerY; anySpecific = true; } // 새 탕에 직접 입력한 원가
-      if (costPerY == null) costPerY = getCostPerYard(e.item, e.color, rateOverride);
+      if (costPerY == null) {
+        const fr = _frIgnore ? null : (b.freightPerY != null ? b.freightPerY : (roll && roll.freightPerY != null ? roll.freightPerY : null)); // 운임 정산된 롤이면 실제 운임으로
+        if (fr != null) { costPerY = getCostPerYard(e.item, e.color, { ...(rateOverride || { rate: settings.rate, yard: settings.yard, ship: settings.ship, fx: settings.fx }), shipActual: fr }); anySpecific = true; }
+        else costPerY = getCostPerYard(e.item, e.color, rateOverride);
+      }
       if (costPerY != null) { totalCost += costPerY * b.qty; totalQty += b.qty; }
     }
     if (anySpecific && totalQty > 0) return Math.round((totalCost / totalQty) * 100) / 100;
@@ -13708,6 +13931,13 @@ function renderChinaOrders() {
     spBtn.style.cssText = 'flex:none; border:none; background:var(--b-info); color:var(--primary-dark); border-radius:20px; padding:6px 14px; font-size:12px; font-weight:600;';
     spBtn.onclick = openSupplierModal;
     chipRow.appendChild(spBtn);
+    if (getSuppliers().some(s => s.kind === 'overseas' || (s.currency && s.currency !== 'KRW'))) {
+      const frBtn = document.createElement('button');
+      frBtn.textContent = '운임 정산';
+      frBtn.style.cssText = 'flex:none; border:none; background:var(--b-warn); color:#a15c1e; border-radius:20px; padding:6px 14px; font-size:12px; font-weight:600;';
+      frBtn.onclick = () => openFreightModal();
+      chipRow.appendChild(frBtn);
+    }
   }
   list.appendChild(chipRow);
 
@@ -15268,6 +15498,7 @@ function rollSnapshot(r) { // 출고 기록에 같이 남겨둘 롤 정보 (나�
   if (r && r.inDate) o.inDate = r.inDate;
   if (r && r.costPerY != null) o.costPerY = r.costPerY;
   if (r && r.note) o.note = r.note;
+  if (r && r.freightPerY != null) { o.freightPerY = r.freightPerY; if (r.freightBatchId) o.freightBatchId = r.freightBatchId; } // 운임 정산된 실제 운임 (반품돼 돌아와도 그대로)
   return o;
 }
 function enrichBreakdown(newArr, oldArr) { // 출고 수정으로 탕별 내역을 다시 만들 때도 날짜 등 정보가 사라지지 않게 (예전 기록 → 없으면 지금 롤에서)
@@ -15646,7 +15877,9 @@ function resolveReturnPiece(customer, item, color, saleEntryId, qty, forceTang) 
       else if (!pool.some(r => r.tang === b.tang && r.qty > 0)) tang = b.tang; // 3) 그 탕 번호가 비어있으면 원래 번호로
       else tang = pool.reduce((m, r) => Math.max(m, r.tang), 0) + 1; // 4) 다른 탕이 차지하고 있으면 새 탕 번호
     }
-    return { tang, inDate, costPerY, note, qty: b.qty };
+    const freightPerY = b.freightPerY != null ? b.freightPerY : (live && live.freightPerY != null ? live.freightPerY : undefined);
+    const freightBatchId = b.freightBatchId || (live && live.freightBatchId) || undefined;
+    return { tang, inDate, costPerY, note, qty: b.qty, ...(freightPerY != null ? { freightPerY, freightBatchId } : {}) };
   });
   if (pieces.length === 0) return null;
   if (forceTang != null) return pieces.find(pc => pc.tang === forceTang) || null;
