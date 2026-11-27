@@ -36,7 +36,7 @@
 <body>
 <header><div><h1>가게 관리 (운영자)</h1><small id="who">로그인 필요</small></div><button class="btn sub" id="outBtn" style="display:none;" onclick="firebase.auth().signOut().then(() => location.reload())">로그아웃</button></header>
 <div class="wrap" id="app">
-  <div class="card"><p style="margin-top:0;">서비스 운영자(사장님) 구글 계정으로 들어오세요. 새로 가입한 가게를 승인하거나 사용을 중지할 수 있습니다.</p>
+  <div class="card"><p style="margin-top:0;">서비스 운영자(대표님) 구글 계정으로 들어오세요. 새로 가입한 가게를 승인하거나 사용을 중지할 수 있습니다.</p>
   <button class="btn main big" onclick="login()">구글로 로그인</button></div>
 </div>
 <div id="toast"></div>
@@ -70,14 +70,14 @@ firebase.auth().onAuthStateChanged(async (user) => {
 function showSetup(user) {
   $('app').innerHTML = `<div class="card">
     <div class="nm">운영자 등록이 필요합니다 (처음 한 번만)</div>
-    <p class="meta">보안을 위해 운영자는 프로그램 안에서 스스로 될 수 없고, 파이어베이스 화면에서 사장님이 직접 등록해야 합니다.</p>
+    <p class="meta">보안을 위해 운영자는 프로그램 안에서 스스로 될 수 없고, 파이어베이스 화면에서 대표님이 직접 등록해야 합니다.</p>
     <p style="margin-bottom:4px;">내 계정 번호</p>
     <div style="display:flex;gap:6px;align-items:center;"><code id="uid">${esc(user.uid)}</code><button class="btn sub" onclick="navigator.clipboard.writeText('${esc(user.uid)}').then(() => toast('복사 완료'))">복사</button></div>
     <ol>
       <li>console.firebase.google.com → <b>fabric-saas-test</b> → 왼쪽 <b>Firestore Database</b></li>
       <li><b>+ 컬렉션 시작</b> → 컬렉션 ID: <code>admins</code></li>
       <li>문서 ID: 위 <b>내 계정 번호</b> 붙여넣기</li>
-      <li>필드: <code>name</code> / 값: 아무 글자 (예: 사장님) → <b>저장</b></li>
+      <li>필드: <code>name</code> / 값: 아무 글자 (예: 대표님) → <b>저장</b></li>
       <li>이 화면을 새로고침</li>
     </ol></div>`;
 }
@@ -86,7 +86,7 @@ async function load() {
   try {
     const snap = await db.collection('shops').get();
     SHOPS = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    // 예전 가게는 사장 이메일이 가게 문서에 없어서 사장 계정에서 찾아옴
+    // 예전 가게는 대표 이메일이 가게 문서에 없어서 대표 계정에서 찾아옴
     await Promise.all(SHOPS.filter(s => !s.ownerEmail && s.ownerUid).map(async s => {
       try { const m = await db.collection('shops').doc(s.id).collection('members').doc(s.ownerUid).get(); if (m.exists) s.ownerEmail = m.data().email || ''; } catch (e) { /* 없음 */ }
     }));
@@ -107,16 +107,27 @@ function render() {
       : k === 'active' ? `<button class="btn danger" onclick="setStatus('${esc(s.id)}', 'suspended', this)">사용 중지</button>`
       : `<button class="btn main" onclick="setStatus('${esc(s.id)}', 'active', this)">다시 사용</button>`;
     const prem = s.plan === 'premium';
-    const planBtn = k === 'active' ? `<button class="btn ${prem ? '' : 'main'}" onclick="setPlan('${esc(s.id)}', '${prem ? 'basic' : 'premium'}', this)">${prem ? '프리미엄 끄기' : '프리미엄 켜기'}</button>` : '';
+    const planBtn = k === 'active' ? `<button class="btn ${prem ? '' : 'main'}" onclick="setPlan('${esc(s.id)}', '${prem ? 'basic' : 'premium'}', this)">${prem ? '프리미엄 해제' : '프리미엄 적용'}</button>` : '';
+    const sigBtn = k === 'active' ? `<button class="btn" onclick="setSig('${esc(s.id)}', ${s.sigDesign ? 'false' : 'true'}, this)">${s.sigDesign ? '시그니처 끄기' : '시그니처 켜기'}</button>` : '';
     return `<div class="card"><div class="row"><div style="min-width:0;">
-      <div class="nm">${esc(s.name || '(이름 없음)')}<span class="chip ${k}">${LABEL[k]}</span>${prem ? '<span class="chip prem">프리미엄</span>' : ''}</div>
-      <div class="meta">가게 코드 ${esc(s.id)} · 사장 ${esc(s.ownerName || '')} ${esc(s.ownerEmail || '')}<br>신청 ${esc(String(s.createdAt || '').slice(0, 10))}${s.statusAt ? ` · 상태 변경 ${esc(String(s.statusAt).slice(0, 10))}` : ''}</div>
-    </div><div class="acts">${acts}${planBtn}</div></div></div>`;
+      <div class="nm">${esc(s.name || '(이름 없음)')}<span class="chip ${k}">${LABEL[k]}</span>${prem ? '<span class="chip prem">프리미엄</span>' : ''}${s.sigDesign ? '<span class="chip prem">시그니처</span>' : ''}${!prem && s.premiumUntil && s.premiumUntil.toMillis && s.premiumUntil.toMillis() > Date.now() ? `<span class="chip">유예 ~${new Date(s.premiumUntil.toMillis()).getMonth() + 1}/${new Date(s.premiumUntil.toMillis()).getDate()}</span>` : ''}</div>
+      <div class="meta">가게 코드 ${esc(s.id)} · 대표 ${esc(s.ownerName || '')} ${esc(s.ownerEmail || '')}<br>신청 ${esc(String(s.createdAt || '').slice(0, 10))}${s.statusAt ? ` · 상태 변경 ${esc(String(s.statusAt).slice(0, 10))}` : ''}</div>
+    </div><div class="acts">${acts}${planBtn}${sigBtn}</div></div></div>`;
   }).join('');
   $('app').innerHTML = `<div class="tabs">${tabs}</div>${cards || '<div class="empty">해당하는 가게가 없습니다</div>'}
     <p class="meta" style="text-align:center;">승인하면 그 가게 화면이 저절로 열립니다. 사용 중지해도 장부 내용은 지워지지 않습니다.</p>`;
 }
 // 프리미엄(홍보 탭) 켜기·끄기 - 끄는 건 한 번 더 누르게
+async function setSig(id, on, btn) { // 시그니처 디자인(홍보 이미지): 운영자가 켜 준 가게만 고를 수 있음
+  if (!on && btn.dataset.sure !== '1') { btn.dataset.sure = '1'; const old = btn.textContent; btn.textContent = '한 번 더 누르면 끄기'; setTimeout(() => { if (btn.isConnected) { btn.dataset.sure = ''; btn.textContent = old; } }, 3000); return; }
+  btn.disabled = true;
+  try {
+    const at = new Date().toISOString();
+    await db.collection('shops').doc(id).update({ sigDesign: !!on, sigAt: at });
+    const s = SHOPS.find(x => x.id === id); if (s) { s.sigDesign = !!on; s.sigAt = at; }
+    toast(on ? '시그니처 켜기 완료' : '시그니처 끄기 완료'); render();
+  } catch (e) { btn.disabled = false; toast('바꾸지 못했습니다 (' + (e.code || e.message) + ')'); }
+}
 async function setPlan(id, plan, btn) {
   if (plan !== 'premium' && btn.dataset.sure !== '1') {
     btn.dataset.sure = '1'; const old = btn.textContent; btn.textContent = '한 번 더 누르면 끄기';
@@ -125,9 +136,11 @@ async function setPlan(id, plan, btn) {
   btn.disabled = true;
   try {
     const at = new Date().toISOString();
-    await db.collection('shops').doc(id).update({ plan, planAt: at });
-    const s = SHOPS.find(x => x.id === id); if (s) { s.plan = plan; s.planAt = at; }
-    toast(plan === 'premium' ? '프리미엄 켜기 완료' : '프리미엄 끄기 완료'); render();
+    // 끌 때는 14일 유예: 그동안 거래처가 갖고 있는 고객 페이지 링크·요청이 그대로 됨. 켤 때는 유예 지움
+    const until = plan === 'premium' ? null : firebase.firestore.Timestamp.fromMillis(Date.now() + 14 * 864e5);
+    await db.collection('shops').doc(id).update({ plan, planAt: at, premiumUntil: plan === 'premium' ? firebase.firestore.FieldValue.delete() : until });
+    const s = SHOPS.find(x => x.id === id); if (s) { s.plan = plan; s.planAt = at; s.premiumUntil = until; }
+    toast(plan === 'premium' ? '프리미엄 적용 완료' : '프리미엄 해제 완료 · 고객 페이지 14일 유지'); render();
   } catch (e) { btn.disabled = false; toast('바꾸지 못했습니다 (' + (e.code || e.message) + ')'); }
 }
 // 중지·거절은 실수 방지로 한 번 더 누르게

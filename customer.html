@@ -105,7 +105,12 @@ a { color:inherit; text-decoration:none; }
 .rq-done .big { font-size:40px; }
 .rq-done b { display:block; font-size:18px; margin-top:6px; }
 .rq-done p { font-size:14px; color:var(--muted); margin:8px 0 0; line-height:1.6; }
-.rq-more { display:block; margin-top:14px; border:none; background:none; padding:4px 0; color:var(--muted); font-size:14.5px; font-family:inherit; text-decoration:underline; text-underline-offset:3px; }
+.rq-cols { display:flex; flex-wrap:wrap; gap:6px; max-height:220px; overflow-y:auto; }
+.rq-cols button { border:1px solid var(--hair); background:#fff; color:var(--ink); border-radius:10px; padding:9px 12px; font-size:14.5px; font-family:inherit; }
+.rq-cols button.on { background:var(--brand); border-color:var(--brand); color:#fff; font-weight:700; }
+.note .at { color:var(--ink); font-weight:700; }
+.rq-quick { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+.rq-quick button { border:1px solid var(--hair); background:#fff; color:var(--ink); border-radius:999px; padding:7px 12px; font-size:13.5px; font-family:inherit; }
 .rq-cap { text-align:center; font-size:13px; color:var(--muted); margin-top:8px; line-height:1.5; }
 .rq-who { display:flex; align-items:center; gap:8px; margin-top:16px; padding:12px; border:1px solid var(--hair); border-radius:10px; background:#fff; font-size:15px; }
 .rq-who span { font-size:12.5px; color:var(--muted); font-weight:700; }
@@ -229,7 +234,8 @@ function swGrid(o) {
     if (c.v) { // 무지/기모 묶인 칸: 아래를 반반으로 나눠 각각의 상태를 바로 옆에 보여줌
       foot = `<div class="vh">${c.v.map(x => `<div class="h${x.s === 2 ? ' out' : x.s === 1 ? ' low' : ''}"><div class="l">${esc(x.n)}</div>${x.s > 0 ? `<span class="chip">${x.s === 2 ? '품절' : '샘플가능'}</span>` : ''}</div>`).join('')}</div>`;
     } else foot = c.s > 0 ? `<div class="st"><span class="chip">${lbl(c.s)}</span></div>` : '';
-    return `<div class="sw${c.s === 2 ? ' out' : c.s === 1 ? ' low' : ''}${rqOn() && rqSel.has(c.c) ? ' pick' : ''}" data-c="${esc(c.c)}"><div class="ph"${c.t ? ` style="background-image:url(${c.t})"` : ''}>${c.s === 2 ? '<div class="x">품절</div>' : ''}${rqOn() ? '<span class="ck">✓</span>' : ''}</div><div class="no">${esc(c.c)}</div>${foot}</div>`;
+    const nm = typeof c.d === 'string' && c.d ? c.d : c.c; // 가게가 보낸 손님용 이름 (스왓치 순번 + 컬러)
+    return `<div class="sw${c.s === 2 ? ' out' : c.s === 1 ? ' low' : ''}${rqOn() && rqSel.has(nm) ? ' pick' : ''}" data-c="${esc(nm)}"><div class="ph"${c.t ? ` style="background-image:url(${c.t})"` : ''}>${c.s === 2 ? '<div class="x">품절</div>' : ''}${rqOn() ? '<span class="ck">✓</span>' : ''}</div><div class="no">${esc(nm)}</div>${foot}</div>`;
   }).join('') || '<div class="empty" style="grid-column:1/-1;padding:30px 0">보여줄 컬러가 없어요</div>';
 }
 function stockDetailBody(o) {
@@ -238,8 +244,15 @@ function stockDetailBody(o) {
   const sub = [fi ? '' : o.mix, `컬러 ${o.cols.length}`, o.date ? `${o.date} 입고` : ''].filter(Boolean).join(' · ');
   return (o.p ? `<img class="mat" src="${o.p}" alt="${esc(o.item)}">` : '') + fi + `<div style="padding:10px 16px 0;font-size:13.5px;color:var(--muted)">${esc(sub)}</div>`
     + (nOut > 0 ? `<div class="tog"><button type="button" id="hideBtn"><span>품절 컬러 숨기기</span><span class="sv${hideOut ? ' on' : ''}"></span></button><span style="font-size:12px;color:var(--muted)">품절 ${nOut}</span></div>` : '')
-    + (rqOn() ? '<div class="rqhint">컬러를 눌러 고르면 샘플감·스와치를 요청할 수 있어요.</div>' : '')
-    + `<div class="sgrid${rqOn() ? ' rq' : ''}" id="sgrid">${swGrid(o)}</div><div class="note">· 재고는 수시로 바뀌어요.<br>· <b>정확한 수량은 채널을 통해 담당자분과 확인해주시길 바랍니다.</b></div>`;
+    + (rqOn() ? '<div class="rqhint">컬러를 눌러 고르면 샘플감·스와치를 요청할 수 있어요. 품절 컬러는 재입고 알림을 받을 수 있어요.</div>' : '')
+    + `<div class="sgrid${rqOn() ? ' rq' : ''}" id="sgrid">${swGrid(o)}</div><div class="note">· ${stockAtTxt() ? esc(stockAtTxt()) + '이에요. ' : ''}재고는 수시로 바뀌어요.<br>· <b>정확한 수량은 채널을 통해 담당자분과 확인해주시길 바랍니다.</b></div>`;
+}
+function stockAtTxt() { // 가게 앱이 마지막으로 재고를 확인한 때 (예: "오늘 14:02 기준")
+  const t = sIdx && sIdx.at ? new Date(sIdx.at) : null; if (!t || isNaN(t)) return '';
+  const now = new Date(), hm = String(t.getHours()).padStart(2, '0') + ':' + String(t.getMinutes()).padStart(2, '0');
+  const y = new Date(now); y.setDate(now.getDate() - 1);
+  const day = t.toDateString() === now.toDateString() ? '오늘' : t.toDateString() === y.toDateString() ? '어제' : (t.getMonth() + 1) + '/' + t.getDate();
+  return `재고 ${day} ${hm} 기준`;
 }
 function listView(P) {
   if (!idx) return head(P.p) + (loadErr ? `<div class="msg">불러오지 못했어요.<br>잠시 후 다시 시도해주세요.<br><button onclick="boot()">다시 불러오기</button></div>` : '<div class="skel"></div><div class="skel"></div><div class="skel"></div>');
@@ -254,7 +267,7 @@ function listView(P) {
   if (P.p === 'stock') {
     if (sErr) return head('stock') + `<div class="msg">재고를 불러오지 못했어요.<br>잠시 후 다시 시도해주세요.<br><button onclick="boot()">다시 불러오기</button></div>`;
     if (!sIdx) return head('stock') + '<div class="skel"></div><div class="skel"></div><div class="skel"></div>';
-    return head('stock') + `<div class="sub"><input class="search" id="q" type="search" placeholder="품번 검색" autocomplete="off"></div><div class="note" style="padding:10px 16px 0;">정확한 수량은 채널을 통해 담당자분과 확인해주시길 바랍니다.</div><div class="list" id="stocklist">${stockCards(sIdx.items)}</div>`;
+    return head('stock') + `<div class="sub"><input class="search" id="q" type="search" placeholder="품번 검색" autocomplete="off"></div><div class="note" style="padding:10px 16px 0;">정확한 수량은 채널을 통해 담당자분과 확인해주시길 바랍니다.${stockAtTxt() ? `<br><span class="at">${esc(stockAtTxt())}</span>` : ''}</div><div class="list" id="stocklist">${stockCards(sIdx.items)}</div>`;
   }
   const list = all.filter(e => e.sec === 'new');
   return head('new') + `<div class="list">${list.length ? list.map(e => cardHtml(e, 'new')).join('') : '<div class="empty">곧 신상이 올라와요</div>'}</div>`;
@@ -303,7 +316,7 @@ async function render() {
     window.scrollTo(0, 0);
     const e = idx && idx.entries.find(x => x.id === P.i);
     if (e) {
-      const rb = document.getElementById('rqItemBtn'); if (rb) rb.addEventListener('click', () => rqOpen(e.item, true));
+      const rb = document.getElementById('rqItemBtn'); if (rb) rb.addEventListener('click', () => rqOpen(e.item, true, e.cl));
       document.title = e.item + ' · ' + BRAND.name; logView(P.p, e.item);
       const pages = await getPages(e);
       if (params().i !== P.i) return; // 그 사이 다른 화면으로 옮겼으면 그리지 않음
@@ -323,7 +336,7 @@ async function render() {
 }
 // ── 손님 요청 (샘플감·스와치·문의): 가게 요청함(requests)에 "추가"만. 실패하면 채널 채팅·전화로 ──
 const rqOn = () => BRAND.req !== false;
-const RQ_KIND = { sample: '샘플감', swatch: '스와치', ask: '문의' };
+const RQ_KIND = { sample: '샘플감', swatch: '스와치', ask: '문의', restock: '재입고 알림' };
 let rqSel = new Set(), rqItemId = '', rqItemName = '', rq = null, rqBusy = false, rqLastAt = 0;
 function rqBar() {
   const b = document.getElementById('rqbar'); if (!b) return; const P = params();
@@ -341,14 +354,20 @@ function rqWire() { // 재고 상세: 컬러 칸을 눌러 고르기
   });
 }
 function rqSaved() { // 한 번 적은 상호·연락처는 이 휴대폰에 기억 (다음엔 다시 안 적음)
-  try { const o = JSON.parse(localStorage.getItem('rqWho_' + SHOP_ID) || 'null'); if (o && o.name) return { name: String(o.name), tel: String(o.tel || '') }; } catch (e) { /* 없음 */ }
+  try { const o = JSON.parse(localStorage.getItem('rqWho_' + SHOP_ID) || 'null'); if (o && (o.name || o.tel)) return { name: String(o.name || ''), tel: String(o.tel || '') }; } catch (e) { /* 없음 */ }
   try { return { name: localStorage.getItem('rqName_' + SHOP_ID) || '', tel: '' }; } catch (e) { return { name: '', tel: '' }; }
 }
+function rqTelOk(t) { return String(t || '').replace(/[^0-9]/g, '').length >= 8; } // 연락받을 번호 (휴대폰·가게 번호)
 function rqTelClean(t) { return String(t || '').replace(/[^0-9+\- ]/g, '').replace(/\s+/g, ' ').trim().slice(0, 20); }
 function rqChatUrl() { const u = BRAND.kakaoUrl; return /^https:\/\/pf\.kakao\.com\/_[A-Za-z0-9]+\/?$/.test(u) ? u.replace(/\/?$/, '/chat') : u; } // 채널 홈 대신 바로 1:1 채팅
-function rqOpen(item, free) {
+function rqOpen(item, free, cl) {
   if (!item) return;
-  rq = { item: String(item), free: !!free, kind: 'sample', qty: 1, cols: free ? '' : [...rqSel].join(', '), name: rqSaved().name, tel: rqSaved().tel, editWho: !rqSaved().name && !TO, memo: '', step: 'form', err: '', failed: false };
+  rq = { cl: Array.isArray(cl) ? cl.filter(x => typeof x === 'string' && x).slice(0, 80) : [], pick: new Set(), item: String(item), free: !!free, kind: 'sample', qty: 1, cols: free ? '' : [...rqSel].join(', '), name: rqSaved().name, tel: rqSaved().tel, editWho: !rqTelOk(rqSaved().tel) || (!rqSaved().name && !TO), memo: '', step: 'form', err: '', failed: false };
+  if (!rq.free) { // 재고 화면: 고른 컬러 중 품절(또는 샘플만 가능)이 있으면 「재입고 알림」도 고를 수 있게, 전부 품절이면 처음부터 재입고 알림
+    const o = sCache[rqItemId], st = new Map(((o && o.cols) || []).map(c => [typeof c.d === 'string' && c.d ? c.d : c.c, c.s]));
+    const ss = [...rqSel].map(c => st.get(c) || 0);
+    rq.hasOut = ss.some(x => x > 0); if (ss.length && ss.every(x => x === 2)) rq.kind = 'restock';
+  }
   rqPaint(); rqBar();
 }
 function rqClose() { rq = null; document.getElementById('rqsheet').innerHTML = ''; document.body.style.overflow = ''; rqBar(); }
@@ -357,6 +376,9 @@ function rqSync() {
   const v = id => { const e = document.getElementById(id); return e ? e.value : null; };
   if (v('rq-name') != null) rq.name = v('rq-name'); if (v('rq-tel') != null) rq.tel = v('rq-tel'); if (v('rq-memo') != null) rq.memo = v('rq-memo'); if (v('rq-cols') != null) rq.cols = v('rq-cols');
 }
+const RQ_QUICK = ['매장으로 올려주세요', '퀵으로 보내주세요', '택배로 보내주세요']; // 누르면 메모에 바로 들어감 (손님이 안 쳐도 되게)
+function rqQuick(i) { rqSync(); const t = RQ_QUICK[i]; if (!rq.memo.includes(t)) rq.memo = (rq.memo.trim() ? rq.memo.trim() + ', ' : '') + t; rqPaint(); }
+function rqPickCol(i) { rqSync(); if (rq.pick.has(i)) rq.pick.delete(i); else if (rq.pick.size < 20) rq.pick.add(i); rq.cols = rq.cl.filter((c, j) => rq.pick.has(j)).join(', '); rq.err = ''; rqPaint(); } // 신상·Best: 가게 컬러 목록에서 눌러서 고르기
 function rqSet(k, val) { rqSync(); rq[k] = val; rq.err = ''; rqPaint(); }
 function rqText() {
   return `[${RQ_KIND[rq.kind]} 요청] ${rq.item}${rq.cols.trim() ? ' · ' + rq.cols.trim() : ''}${rq.kind === 'sample' ? ` · 각 ${rq.qty}야드` : ''}${rq.memo.trim() ? ' · ' + rq.memo.trim() : ''}${rq.name.trim() ? ' — ' + rq.name.trim() : ''}${rqTelClean(rq.tel) ? ' ' + rqTelClean(rq.tel) : ''}`;
@@ -367,21 +389,24 @@ function rqPaint() {
   const tel = BRAND.tel.replace(/[^0-9]/g, '');
   const alt = BRAND.kakaoUrl ? `<button type="button" class="rq-go" onclick="rqKakao()">카톡으로 보내기</button>` : (tel ? `<a class="rq-go" style="text-align:center;text-decoration:none" href="tel:${tel}">전화로 문의하기</a>` : '');
   if (rq.step === 'done') {
-    el.innerHTML = `<div class="rq-ov" onclick="if(event.target===this)rqClose()"><div class="rq-sh"><div class="rq-done"><div class="big">✓</div><b>요청이 전달됐어요</b><p>${esc(BRAND.name || '가게')}에서 확인 후 연락드릴게요.</p></div>${BRAND.kakaoUrl ? `<button type="button" class="rq-go" onclick="rqKakao()">카톡으로도 알리기</button><div class="rq-cap">누르면 요청 내용이 복사돼요. 채팅창에 붙여넣기만 하면 돼요.</div><button type="button" class="rq-sub" onclick="rqClose()">닫기</button>` : `<button type="button" class="rq-go" onclick="rqClose()">확인</button>`}</div></div>`;
+    el.innerHTML = `<div class="rq-ov" onclick="if(event.target===this)rqClose()"><div class="rq-sh"><div class="rq-done"><div class="big">✓</div><b>요청이 전달됐어요</b><p>${rq.kind === 'restock' ? `입고되면 ${esc(BRAND.name || '가게')}에서 연락드릴게요.` : `${esc(BRAND.name || '가게')}에서 확인 후 연락드릴게요.`}</p></div>${BRAND.kakaoUrl ? `<button type="button" class="rq-go" onclick="rqKakao()">카톡으로도 알리기</button><div class="rq-cap">누르면 요청 내용이 복사돼요. 채팅창에 붙여넣기만 하면 돼요.</div><button type="button" class="rq-sub" onclick="rqClose()">닫기</button>` : `<button type="button" class="rq-go" onclick="rqClose()">확인</button>`}</div></div>`;
     return;
   }
-  const memoPh = rq.kind === 'ask' ? '예: 재입고 언제 되나요? 300야드 가능할까요?' : (rq.kind === 'swatch' ? '예: 받으실 주소나 시간' : '예: 내일 오전에 받고 싶어요');
+  const memoPh = rq.kind === 'ask' ? '예: 재입고 언제 되나요? 300야드 가능할까요?' : rq.kind === 'restock' ? '예: 300야드 필요해요' : '예: 매장으로 올려주세요';
   el.innerHTML = `<div class="rq-ov" onclick="if(event.target===this)rqClose()"><div class="rq-sh">
     <h3>요청하기</h3>
     <div class="what"><b style="color:var(--ink)">${esc(rq.item)}</b>${!rq.free && rq.cols ? ' · ' + esc(rq.cols) : ''}</div>
     <label>무엇이 필요하세요?</label>
-    <div class="rq-seg">${Object.keys(RQ_KIND).map(k => `<button type="button" class="${rq.kind === k ? 'on' : ''}" onclick="rqSet('kind','${k}')">${RQ_KIND[k]}</button>`).join('')}</div>
+    <div class="rq-seg">${Object.keys(RQ_KIND).filter(k => k !== 'restock' || rq.hasOut).map(k => `<button type="button" class="${rq.kind === k ? 'on' : ''}" onclick="rqSet('kind','${k}')">${RQ_KIND[k]}</button>`).join('')}</div>
     ${rq.kind === 'sample' ? `<label>컬러당 수량</label><div class="rq-seg">${[1, 2, 3, 5].map(n => `<button type="button" class="${rq.qty === n ? 'on' : ''}" onclick="rqSet('qty',${n})">${n}야드</button>`).join('')}</div>` : ''}
-    ${rq.free ? `<label>컬러 (번호나 이름)</label><input id="rq-cols" maxlength="100" placeholder="예: 3번, 5번 블랙" value="${esc(rq.cols)}">` : ''}
-    ${rq.editWho ? `<label>상호 (필수)</label><input id="rq-name" maxlength="30" placeholder="예: 한빛봉제" autocomplete="organization" value="${esc(rq.name)}">
-    <label>연락처 (선택)</label><input id="rq-tel" type="tel" inputmode="tel" maxlength="20" placeholder="예: 010-1234-5678" autocomplete="tel" value="${esc(rq.tel)}">`
-    : rq.name ? `<div class="rq-who"><span>보내는 분</span><b>${esc(rq.name)}</b>${rq.tel ? `<em>${esc(rq.tel)}</em>` : ''}<button type="button" onclick="rqSet('editWho', true)">바꾸기</button></div>` : ''}
-    ${rq.kind === 'ask' || rq.memoOpen || rq.memo ? `<label>${rq.kind === 'ask' ? '문의 내용' : '메모 (선택)'}</label><textarea id="rq-memo" maxlength="200" placeholder="${memoPh}">${esc(rq.memo)}</textarea>` : `<button type="button" class="rq-more" onclick="rqSet('memoOpen', true)">+ 메모 남기기</button>`}
+    ${rq.free && rq.cl.length ? `<label>컬러 고르기 (여러 개 가능)</label><div class="rq-cols">${rq.cl.map((c, i) => `<button type="button" class="${rq.pick.has(i) ? 'on' : ''}" onclick="rqPickCol(${i})">${esc(c)}</button>`).join('')}</div>`
+      : rq.free ? `<label>컬러 (번호나 이름)</label><input id="rq-cols" maxlength="100" placeholder="예: 3번, 5번 블랙" value="${esc(rq.cols)}">` : ''}
+    ${rq.editWho ? `<label>${TO ? '이름 (선택)' : '상호 (필수)'}</label><input id="rq-name" maxlength="30" placeholder="${TO ? '예: 디자이너 김지은' : '예: 한빛봉제, 디자이너 김지은'}" autocomplete="${TO ? 'name' : 'organization'}" value="${esc(rq.name)}">
+    <label>연락받을 번호 (필수)</label><input id="rq-tel" type="tel" inputmode="tel" maxlength="20" placeholder="예: 010-1234-5678" autocomplete="tel" value="${esc(rq.tel)}">
+    <div class="rq-cap" style="text-align:left">한 번 적으면 이 휴대폰에 기억돼요.</div>`
+    : `<div class="rq-who"><span>보내는 분</span><b>${esc(rq.name || '')}</b><em>${esc(rq.tel)}</em><button type="button" onclick="rqSet('editWho', true)">바꾸기</button></div>`}
+    <label>${rq.kind === 'ask' ? '문의 내용' : '메모 (선택)'}</label><textarea id="rq-memo" maxlength="200" placeholder="${memoPh}">${esc(rq.memo)}</textarea>
+    ${rq.kind === 'ask' || rq.kind === 'restock' ? '' : `<div class="rq-quick">${RQ_QUICK.map((t, i) => `<button type="button" onclick="rqQuick(${i})">${esc(t)}</button>`).join('')}</div>`}
     ${rq.err ? `<div class="rq-err">${esc(rq.err)}</div>` : ''}
     ${rq.failed ? alt : `<button type="button" class="rq-go" id="rq-go" onclick="rqSend()"${rqBusy ? ' disabled' : ''}>${rqBusy ? '보내는 중…' : '요청 보내기'}</button>`}
     <button type="button" class="rq-sub" onclick="rqClose()">닫기</button>
@@ -391,7 +416,8 @@ async function rqSend() {
   rqSync(); if (!rq || rqBusy) return;
   const name = rq.name.replace(/\s+/g, ' ').trim().slice(0, 30);
   if (!name && !TO) { rq.err = '상호를 적어주세요.'; rq.editWho = true; return rqPaint(); }
-  if (rq.free && rq.kind !== 'ask' && !rq.cols.trim()) { rq.err = '컬러 번호나 이름을 적어주세요.'; return rqPaint(); }
+  if (!rqTelOk(rq.tel)) { rq.err = '연락받을 번호를 적어주세요.'; rq.editWho = true; return rqPaint(); }
+  if (rq.free && rq.kind !== 'ask' && !rq.cols.trim()) { rq.err = rq.cl.length ? '컬러를 하나 이상 골라주세요.' : '컬러 번호나 이름을 적어주세요.'; return rqPaint(); }
   if (Date.now() - rqLastAt < 15000) { rq.err = '방금 요청을 보냈어요. 잠시 후 다시 보내주세요.'; return rqPaint(); }
   rqBusy = true; rq.err = ''; rqPaint();
   const tel = rqTelClean(rq.tel);
@@ -399,7 +425,7 @@ async function rqSend() {
   try {
     if (!db) throw new Error('nodb');
     await db.collection('shops').doc(SHOP_ID).collection('requests').add(doc);
-    if (name) try { localStorage.setItem('rqWho_' + SHOP_ID, JSON.stringify({ name, tel })); } catch (e) { /* 기억 못 해도 괜찮음 */ }
+    try { localStorage.setItem('rqWho_' + SHOP_ID, JSON.stringify({ name, tel })); } catch (e) { /* 기억 못 해도 괜찮음 */ }
     rqLastAt = Date.now(); rq.step = 'done'; rq.name = name; rq.tel = tel; rq.editWho = false;
     if (!rq.free) { rqSel.clear(); document.querySelectorAll('.sw.pick').forEach(x => x.classList.remove('pick')); }
   } catch (e) {
@@ -431,8 +457,9 @@ async function boot() {
     try { // 재고 탭: 서버의 최신 재고 상태 (실패해도 신상/Best는 그대로 보임)
       const sd = await pubDocs().doc('pubstock_idx').get();
       let items = [];
-      if (sd.exists) { const o = JSON.parse(sd.data().data || '{}'); items = Array.isArray(o.items) ? o.items : []; }
-      sIdx = { items: (o_open_ok(sd) ? items : []), open: o_open_ok(sd) };
+      let at = '';
+      if (sd.exists) { const o = JSON.parse(sd.data().data || '{}'); items = Array.isArray(o.items) ? o.items : []; at = [o.checkedAt, o.updatedAt].filter(x => typeof x === 'string' && !isNaN(Date.parse(x))).sort().pop() || ''; }
+      sIdx = { items: (o_open_ok(sd) ? items : []), open: o_open_ok(sd), at };
     } catch (e) { sErr = true; }
   } catch (e) { loadErr = true; idx = null; }
   render();
