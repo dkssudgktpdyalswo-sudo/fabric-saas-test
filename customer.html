@@ -105,6 +105,12 @@ a { color:inherit; text-decoration:none; }
 .rq-done .big { font-size:40px; }
 .rq-done b { display:block; font-size:18px; margin-top:6px; }
 .rq-done p { font-size:14px; color:var(--muted); margin:8px 0 0; line-height:1.6; }
+.rq-more { display:block; margin-top:14px; border:none; background:none; padding:4px 0; color:var(--muted); font-size:14.5px; font-family:inherit; text-decoration:underline; text-underline-offset:3px; }
+.rq-cap { text-align:center; font-size:13px; color:var(--muted); margin-top:8px; line-height:1.5; }
+.rq-who { display:flex; align-items:center; gap:8px; margin-top:16px; padding:12px; border:1px solid var(--hair); border-radius:10px; background:#fff; font-size:15px; }
+.rq-who span { font-size:12.5px; color:var(--muted); font-weight:700; }
+.rq-who em { font-style:normal; color:var(--muted); font-size:14px; }
+.rq-who button { margin-left:auto; border:none; background:var(--tint); color:var(--ink); border-radius:8px; padding:6px 10px; font-size:13px; font-family:inherit; }
 .rq-err { color:#b3261e; font-size:13.5px; margin-top:10px; line-height:1.5; }
 .bar { position:fixed; left:0; right:0; bottom:0; z-index:20; background:var(--paper); border-top:1px solid var(--hair); padding:10px 14px calc(10px + env(safe-area-inset-bottom)); }
 .bar { display:flex; gap:8px; justify-content:center; }
@@ -138,6 +144,27 @@ async function loadBrand() { // 실패해도 페이지는 그대로 보이게
 function logoHtml() { const k = LOGO_AR > 0 && LOGO_AR < 4 ? (LOGO_AR < 1.6 ? 1.9 : (LOGO_AR < 2.6 ? 1.6 : 1.3)) : 1; return LOGO ? `<img src="${LOGO}" alt="${esc(BRAND.name)}"${k !== 1 ? ` class="sq" style="--k:${k}"` : ''}>` : `<b style="font-size:20px;letter-spacing:1px;">${esc(BRAND.name)}</b>`; }
 const cfg = { apiKey: "AIzaSyCeWjdi2yBaBsiVSydDYHDAmQAT4hsGs6I", authDomain: "fabric-saas-test.firebaseapp.com", projectId: "fabric-saas-test", appId: "1:93481473112:web:5f88067e0e01dfba24e62d" }; // [새 시스템] 새 Firebase 프로젝트 설정값
 const SHOP_ID = (() => { try { const v = new URLSearchParams(location.search).get('shop'); if (v && /^[a-z0-9-]{2,30}$/.test(v)) return v; } catch (e) { /* 기본 가게 */ } return 'baekya'; })(); // [새 시스템] 어느 가게 페이지인지
+// [거래처 링크] 링크 끝 to=무작위글자 → 어느 거래처에게 보낸 링크로 열렸는지 (거래처 이름은 이 페이지에 없음). 90일 동안 이 휴대폰에 기억
+let TO = '';
+(() => {
+  try {
+    const q = new URLSearchParams(location.search), t = q.get('to') || '', ok = v => /^[A-Za-z0-9]{8,16}$/.test(v);
+    if (ok(t)) { TO = t; localStorage.setItem('to_' + SHOP_ID, JSON.stringify({ t, at: Date.now() })); q.delete('to'); history.replaceState({}, '', '?' + q.toString()); }
+    else { const o = JSON.parse(localStorage.getItem('to_' + SHOP_ID) || 'null'); if (o && ok(o.t) && Date.now() - o.at < 90 * 864e5) TO = o.t; }
+  } catch (e) { /* 기억 못 해도 화면은 그대로 */ }
+})();
+function isOwnerDevice() { try { return localStorage.getItem('cpMe_' + SHOP_ID) === '1'; } catch (e) { return false; } } // 가게 앱으로 로그인한 휴대폰이면 본 기록에 안 남김
+function logView(p, i) { // 화면 열림 기록 (같은 화면은 30분에 한 번만). 실패해도 화면엔 아무 영향 없음
+  if (!db || isOwnerDevice() || !['new', 'best', 'stock'].includes(p)) return;
+  const key = p + '|' + (i || '');
+  try {
+    const m = JSON.parse(localStorage.getItem('vw_' + SHOP_ID) || '{}');
+    if (m[key] && Date.now() - m[key] < 30 * 60000) return;
+    m[key] = Date.now(); const ks = Object.keys(m); if (ks.length > 200) ks.sort((a, b) => m[a] - m[b]).slice(0, ks.length - 200).forEach(k => delete m[k]);
+    localStorage.setItem('vw_' + SHOP_ID, JSON.stringify(m));
+  } catch (e) { /* 기억 못 해도 기록은 남김 */ }
+  try { db.collection('shops').doc(SHOP_ID).collection('views').add({ at: firebase.firestore.FieldValue.serverTimestamp(), p, ...(i ? { i: String(i).slice(0, 60) } : {}), ...(TO ? { to: TO } : {}), v: 1 }).catch(() => {}); } catch (e) { /* 무시 */ }
+}
 try { const t0 = localStorage.getItem('theme_' + SHOP_ID); if (t0) applyTheme(t0); } catch (e) { /* 기억된 색 없음 */ } // 지난번에 본 이 가게 색을 먼저 칠해서 깜빡임 줄임
 function pubDocs() { return db.collection('shops').doc(SHOP_ID).collection('public'); } // [새 시스템] 가게별 공개 공간만 읽음
 const app = document.getElementById('app');
@@ -268,7 +295,7 @@ async function render() {
     if (!o || !Array.isArray(o.cols)) { body.innerHTML = '<div class="empty">불러오지 못했어요</div>'; return; }
     if (rqItemId !== e0.id) { rqSel.clear(); rqItemId = e0.id; } rqItemName = o.item || e0.item;
     const paint = () => { body.innerHTML = stockDetailBody(o); const hb = document.getElementById('hideBtn'); if (hb) hb.addEventListener('click', () => { hideOut = !hideOut; paint(); }); rqWire(); };
-    paint(); rqBar();
+    paint(); rqBar(); logView('stock', o.item || e0.item);
     return;
   }
   if (P.i) {
@@ -277,7 +304,7 @@ async function render() {
     const e = idx && idx.entries.find(x => x.id === P.i);
     if (e) {
       const rb = document.getElementById('rqItemBtn'); if (rb) rb.addEventListener('click', () => rqOpen(e.item, true));
-      document.title = e.item + ' · ' + BRAND.name;
+      document.title = e.item + ' · ' + BRAND.name; logView(P.p, e.item);
       const pages = await getPages(e);
       if (params().i !== P.i) return; // 그 사이 다른 화면으로 옮겼으면 그리지 않음
       pages.forEach((d, i) => { const ph = document.getElementById('ph' + i); if (ph) ph.outerHTML = d ? `<img src="${d}" alt="${esc(e.item)} ${i + 1}">` : `<div class="empty" style="padding:30px 0">이미지를 불러오지 못했어요</div>`; });
@@ -286,6 +313,7 @@ async function render() {
   }
   document.title = BRAND.name || '신상 · Best';
   app.innerHTML = listView(P);
+  if (P.p === 'stock' ? (sIdx && stockOpen()) : idx) logView(P.p, '');
   const y = scrollMap[location.search]; window.scrollTo(0, y || 0);
   const q = document.getElementById('q');
   if (q) q.addEventListener('input', () => {
@@ -312,29 +340,34 @@ function rqWire() { // 재고 상세: 컬러 칸을 눌러 고르기
     el.classList.toggle('pick', rqSel.has(c)); rqBar();
   });
 }
-function rqSaved() { try { return localStorage.getItem('rqName_' + SHOP_ID) || ''; } catch (e) { return ''; } }
+function rqSaved() { // 한 번 적은 상호·연락처는 이 휴대폰에 기억 (다음엔 다시 안 적음)
+  try { const o = JSON.parse(localStorage.getItem('rqWho_' + SHOP_ID) || 'null'); if (o && o.name) return { name: String(o.name), tel: String(o.tel || '') }; } catch (e) { /* 없음 */ }
+  try { return { name: localStorage.getItem('rqName_' + SHOP_ID) || '', tel: '' }; } catch (e) { return { name: '', tel: '' }; }
+}
+function rqTelClean(t) { return String(t || '').replace(/[^0-9+\- ]/g, '').replace(/\s+/g, ' ').trim().slice(0, 20); }
+function rqChatUrl() { const u = BRAND.kakaoUrl; return /^https:\/\/pf\.kakao\.com\/_[A-Za-z0-9]+\/?$/.test(u) ? u.replace(/\/?$/, '/chat') : u; } // 채널 홈 대신 바로 1:1 채팅
 function rqOpen(item, free) {
   if (!item) return;
-  rq = { item: String(item), free: !!free, kind: 'sample', qty: 1, cols: free ? '' : [...rqSel].join(', '), name: rqSaved(), memo: '', step: 'form', err: '', failed: false };
+  rq = { item: String(item), free: !!free, kind: 'sample', qty: 1, cols: free ? '' : [...rqSel].join(', '), name: rqSaved().name, tel: rqSaved().tel, editWho: !rqSaved().name && !TO, memo: '', step: 'form', err: '', failed: false };
   rqPaint(); rqBar();
 }
 function rqClose() { rq = null; document.getElementById('rqsheet').innerHTML = ''; document.body.style.overflow = ''; rqBar(); }
 function rqSync() {
   if (!rq || rq.step !== 'form') return;
   const v = id => { const e = document.getElementById(id); return e ? e.value : null; };
-  if (v('rq-name') != null) rq.name = v('rq-name'); if (v('rq-memo') != null) rq.memo = v('rq-memo'); if (v('rq-cols') != null) rq.cols = v('rq-cols');
+  if (v('rq-name') != null) rq.name = v('rq-name'); if (v('rq-tel') != null) rq.tel = v('rq-tel'); if (v('rq-memo') != null) rq.memo = v('rq-memo'); if (v('rq-cols') != null) rq.cols = v('rq-cols');
 }
 function rqSet(k, val) { rqSync(); rq[k] = val; rq.err = ''; rqPaint(); }
 function rqText() {
-  return `[${RQ_KIND[rq.kind]} 요청] ${rq.item}${rq.cols.trim() ? ' · ' + rq.cols.trim() : ''}${rq.kind === 'sample' ? ` · 각 ${rq.qty}야드` : ''}${rq.memo.trim() ? ' · ' + rq.memo.trim() : ''}${rq.name.trim() ? ' — ' + rq.name.trim() : ''}`;
+  return `[${RQ_KIND[rq.kind]} 요청] ${rq.item}${rq.cols.trim() ? ' · ' + rq.cols.trim() : ''}${rq.kind === 'sample' ? ` · 각 ${rq.qty}야드` : ''}${rq.memo.trim() ? ' · ' + rq.memo.trim() : ''}${rq.name.trim() ? ' — ' + rq.name.trim() : ''}${rqTelClean(rq.tel) ? ' ' + rqTelClean(rq.tel) : ''}`;
 }
 function rqPaint() {
   const el = document.getElementById('rqsheet'); if (!rq) { el.innerHTML = ''; return; }
   document.body.style.overflow = 'hidden';
   const tel = BRAND.tel.replace(/[^0-9]/g, '');
-  const alt = BRAND.kakaoUrl ? `<button type="button" class="rq-go" onclick="rqKakao()">채널 채팅으로 보내기</button>` : (tel ? `<a class="rq-go" style="text-align:center;text-decoration:none" href="tel:${tel}">전화로 문의하기</a>` : '');
+  const alt = BRAND.kakaoUrl ? `<button type="button" class="rq-go" onclick="rqKakao()">카톡으로 보내기</button>` : (tel ? `<a class="rq-go" style="text-align:center;text-decoration:none" href="tel:${tel}">전화로 문의하기</a>` : '');
   if (rq.step === 'done') {
-    el.innerHTML = `<div class="rq-ov" onclick="if(event.target===this)rqClose()"><div class="rq-sh"><div class="rq-done"><div class="big">✓</div><b>요청이 전달됐어요</b><p>${esc(BRAND.name || '가게')}에서 확인 후 연락드릴게요.<br>급하시면 채널 채팅이나 전화로도 알려주세요.</p></div>${BRAND.kakaoUrl ? `<button type="button" class="rq-sub" style="color:var(--brand);font-weight:700" onclick="rqKakao()">채널 채팅으로도 보내기</button>` : ''}<button type="button" class="rq-go" onclick="rqClose()">확인</button></div></div>`;
+    el.innerHTML = `<div class="rq-ov" onclick="if(event.target===this)rqClose()"><div class="rq-sh"><div class="rq-done"><div class="big">✓</div><b>요청이 전달됐어요</b><p>${esc(BRAND.name || '가게')}에서 확인 후 연락드릴게요.</p></div>${BRAND.kakaoUrl ? `<button type="button" class="rq-go" onclick="rqKakao()">카톡으로도 알리기</button><div class="rq-cap">누르면 요청 내용이 복사돼요. 채팅창에 붙여넣기만 하면 돼요.</div><button type="button" class="rq-sub" onclick="rqClose()">닫기</button>` : `<button type="button" class="rq-go" onclick="rqClose()">확인</button>`}</div></div>`;
     return;
   }
   const memoPh = rq.kind === 'ask' ? '예: 재입고 언제 되나요? 300야드 가능할까요?' : (rq.kind === 'swatch' ? '예: 받으실 주소나 시간' : '예: 내일 오전에 받고 싶어요');
@@ -345,8 +378,10 @@ function rqPaint() {
     <div class="rq-seg">${Object.keys(RQ_KIND).map(k => `<button type="button" class="${rq.kind === k ? 'on' : ''}" onclick="rqSet('kind','${k}')">${RQ_KIND[k]}</button>`).join('')}</div>
     ${rq.kind === 'sample' ? `<label>컬러당 수량</label><div class="rq-seg">${[1, 2, 3, 5].map(n => `<button type="button" class="${rq.qty === n ? 'on' : ''}" onclick="rqSet('qty',${n})">${n}야드</button>`).join('')}</div>` : ''}
     ${rq.free ? `<label>컬러 (번호나 이름)</label><input id="rq-cols" maxlength="100" placeholder="예: 3번, 5번 블랙" value="${esc(rq.cols)}">` : ''}
-    <label>상호 (필수)</label><input id="rq-name" maxlength="30" placeholder="예: 한빛봉제" autocomplete="organization" value="${esc(rq.name)}">
-    <label>메모 (선택)</label><textarea id="rq-memo" maxlength="200" placeholder="${memoPh}">${esc(rq.memo)}</textarea>
+    ${rq.editWho ? `<label>상호 (필수)</label><input id="rq-name" maxlength="30" placeholder="예: 한빛봉제" autocomplete="organization" value="${esc(rq.name)}">
+    <label>연락처 (선택)</label><input id="rq-tel" type="tel" inputmode="tel" maxlength="20" placeholder="예: 010-1234-5678" autocomplete="tel" value="${esc(rq.tel)}">`
+    : rq.name ? `<div class="rq-who"><span>보내는 분</span><b>${esc(rq.name)}</b>${rq.tel ? `<em>${esc(rq.tel)}</em>` : ''}<button type="button" onclick="rqSet('editWho', true)">바꾸기</button></div>` : ''}
+    ${rq.kind === 'ask' || rq.memoOpen || rq.memo ? `<label>${rq.kind === 'ask' ? '문의 내용' : '메모 (선택)'}</label><textarea id="rq-memo" maxlength="200" placeholder="${memoPh}">${esc(rq.memo)}</textarea>` : `<button type="button" class="rq-more" onclick="rqSet('memoOpen', true)">+ 메모 남기기</button>`}
     ${rq.err ? `<div class="rq-err">${esc(rq.err)}</div>` : ''}
     ${rq.failed ? alt : `<button type="button" class="rq-go" id="rq-go" onclick="rqSend()"${rqBusy ? ' disabled' : ''}>${rqBusy ? '보내는 중…' : '요청 보내기'}</button>`}
     <button type="button" class="rq-sub" onclick="rqClose()">닫기</button>
@@ -355,19 +390,20 @@ function rqPaint() {
 async function rqSend() {
   rqSync(); if (!rq || rqBusy) return;
   const name = rq.name.replace(/\s+/g, ' ').trim().slice(0, 30);
-  if (!name) { rq.err = '상호를 적어주세요.'; return rqPaint(); }
+  if (!name && !TO) { rq.err = '상호를 적어주세요.'; rq.editWho = true; return rqPaint(); }
   if (rq.free && rq.kind !== 'ask' && !rq.cols.trim()) { rq.err = '컬러 번호나 이름을 적어주세요.'; return rqPaint(); }
   if (Date.now() - rqLastAt < 15000) { rq.err = '방금 요청을 보냈어요. 잠시 후 다시 보내주세요.'; return rqPaint(); }
   rqBusy = true; rq.err = ''; rqPaint();
-  const doc = { at: firebase.firestore.FieldValue.serverTimestamp(), kind: rq.kind, item: rq.item.slice(0, 60), cols: rq.cols.replace(/\s+/g, ' ').trim().slice(0, 300), qty: rq.kind === 'sample' ? rq.qty : 0, name, memo: rq.memo.trim().slice(0, 200), done: false, v: 1 };
+  const tel = rqTelClean(rq.tel);
+  const doc = { at: firebase.firestore.FieldValue.serverTimestamp(), kind: rq.kind, item: rq.item.slice(0, 60), cols: rq.cols.replace(/\s+/g, ' ').trim().slice(0, 300), qty: rq.kind === 'sample' ? rq.qty : 0, name, memo: rq.memo.trim().slice(0, 200), ...(tel ? { tel } : {}), ...(TO ? { to: TO } : {}), done: false, v: 1 };
   try {
     if (!db) throw new Error('nodb');
     await db.collection('shops').doc(SHOP_ID).collection('requests').add(doc);
-    try { localStorage.setItem('rqName_' + SHOP_ID, name); } catch (e) { /* 기억 못 해도 괜찮음 */ }
-    rqLastAt = Date.now(); rq.step = 'done'; rq.name = name;
+    if (name) try { localStorage.setItem('rqWho_' + SHOP_ID, JSON.stringify({ name, tel })); } catch (e) { /* 기억 못 해도 괜찮음 */ }
+    rqLastAt = Date.now(); rq.step = 'done'; rq.name = name; rq.tel = tel; rq.editWho = false;
     if (!rq.free) { rqSel.clear(); document.querySelectorAll('.sw.pick').forEach(x => x.classList.remove('pick')); }
   } catch (e) {
-    rq.failed = true; rq.err = BRAND.kakaoUrl ? '요청을 보내지 못했어요. 아래 버튼을 누르면 요청 문구가 복사되고 채널 채팅이 열려요.' : '요청을 보내지 못했어요. 전화로 문의해주세요.';
+    rq.failed = true; rq.err = BRAND.kakaoUrl ? '요청을 보내지 못했어요. 아래 버튼을 누르면 내용이 복사되고 카톡 채팅이 열려요. 붙여넣기만 하면 돼요.' : '요청을 보내지 못했어요. 전화로 문의해주세요.';
   }
   rqBusy = false; rqPaint();
 }
@@ -378,7 +414,7 @@ async function rqKakao() { // 채널 채팅은 글을 미리 채울 수 없어�
   }
   const sh = document.querySelector('.rq-sh');
   if (sh) sh.insertAdjacentHTML('beforeend', `<div class="rq-err" style="color:var(--ink)">${ok ? '요청 문구를 복사했어요. 채팅창에 붙여넣어 주세요.' : '채팅창에 아래 문구를 보내주세요.<br>' + esc(t)}</div>`);
-  if (BRAND.kakaoUrl) setTimeout(() => { location.href = BRAND.kakaoUrl; }, ok ? 900 : 2500);
+  if (BRAND.kakaoUrl) setTimeout(() => { location.href = rqChatUrl(); }, ok ? 900 : 2500);
 }
 window.addEventListener('popstate', () => { if (rq) rqClose(); });
 function o_open_ok(sd) { try { return sd.exists && JSON.parse(sd.data().data || '{}').open === true; } catch (e) { return false; } }

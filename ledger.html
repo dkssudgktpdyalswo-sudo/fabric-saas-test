@@ -28,6 +28,7 @@ button{font-family:inherit}
 .dcard{margin:0 14px;background:#fff;border:1px solid var(--hair);border-top:1px solid var(--strip);border-radius:0 0 12px 12px;overflow:hidden}
 .expall{margin-left:auto;align-self:center;border:none;background:none;font-size:13px;font-weight:700;color:var(--muted);padding:6px 2px}
 .sh{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.5}
+.dd{display:inline-block;font-size:12.5px;color:#1f5f8b;background:#eaf2f8;font-weight:700;margin-top:4px;padding:2px 8px;border-radius:6px}
 .mm{font-size:12.5px;color:#2f7a52;font-weight:700;margin-top:3px;line-height:1.5}
 .sec{font-size:13px;font-weight:800;color:var(--muted);padding:16px 16px 4px;letter-spacing:.3px}
 .row{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#fff;border:1px solid var(--hair);border-radius:12px;padding:12px 14px;margin:8px 14px 0}
@@ -218,15 +219,22 @@ function memoDate(txt, now) {
   }
   return '';
 }
+function dueOf(o, now) { // 가게가 정한 출고 예정일 (지난 날짜는 손님 화면에서 숨김) → 없으면 메모에서 읽은 날짜
+  const t = now || todayD(), tk = dkey(t.getFullYear(), t.getMonth() + 1, t.getDate());
+  if (o && /^\d{4}-\d{2}-\d{2}$/.test(o.dd || '') && o.dd >= tk) return o.dd;
+  return memoDate(o && o.m, t);
+}
+function ddLabel(k) { const [y, m, d] = k.split('-').map(Number); return m + '/' + d + '(' + ['일', '월', '화', '수', '목', '금', '토'][new Date(y, m - 1, d).getDay()] + ')'; }
 function calMini(os) { // 오른쪽 위 작은 달력: 예정 있는 날에 점, 누르면 그날 품목만 목록에 보임
   const t = todayD(), tk = dkey(t.getFullYear(), t.getMonth() + 1, t.getDate()), has = new Set();
-  for (const o of os) { const k = memoDate(o.m, t); if (k) has.add(k); }
+  for (const o of os) { const k = dueOf(o, t); if (k) has.add(k); }
   if (!calY) { calY = t.getFullYear(); calM = t.getMonth() + 1; }
   const lead = new Date(calY, calM - 1, 1).getDay(), last = new Date(calY, calM, 0).getDate();
   let cells = '<div class="w su">일</div>' + ['월', '화', '수', '목', '금', '토'].map(n => `<div class="w">${n}</div>`).join('') + '<div></div>'.repeat(lead);
   for (let d = 1; d <= last; d++) { const k = dkey(calY, calM, d); cells += `<div class="d${has.has(k) ? ' has' : ''}${k === tk ? ' today' : ''}${k === calSel ? ' sel' : ''}" data-cd="${k}"><span>${d}</span></div>`; }
   return `<div class="mc"><div class="hd"><span data-cal="-1">‹</span>${calY}년 ${calM}월<span data-cal="1">›</span></div><div class="g">${cells}</div></div>`;
 }
+function ddShow(o) { const t = todayD(); return /^\d{4}-\d{2}-\d{2}$/.test(o.dd || '') && o.dd >= dkey(t.getFullYear(), t.getMonth() + 1, t.getDate()); }
 function viewC() {
   const r = ranges.c;
   const act = (snap.active || []).filter(o => inRange(o.d || '', r));
@@ -238,9 +246,9 @@ function viewC() {
   };
   const line = o => {
     const remain = o.q > o.r ? o.q - o.r : 0, [lb, cl] = st(o);
-    return `<div class="li"><div><div class="a">${esc(o.i)} ${esc(o.c)}</div>${o.q > 0 ? `<div class="b">발주 ${qty(o.q, o.u)}</div>` : ''}${shipTxt(o)}${o.m ? `<div class="mm">${esc(o.m)}</div>` : ''}</div><div class="r">${remain > 0 ? qty(remain, o.u) : (o.q > 0 ? '전량 처리' : '-')}<span class="chip ${cl}" style="display:block;margin:4px 0 0 auto;width:fit-content">${lb}</span></div></div>`;
+    return `<div class="li"><div><div class="a">${esc(o.i)} ${esc(o.c)}</div>${o.q > 0 ? `<div class="b">발주 ${qty(o.q, o.u)}</div>` : ''}${shipTxt(o)}${ddShow(o) ? `<div class="dd">${esc(ddLabel(o.dd))} 출고 예정</div>` : ''}${o.m ? `<div class="mm">${esc(o.m)}</div>` : ''}</div><div class="r">${remain > 0 ? qty(remain, o.u) : (o.q > 0 ? '전량 처리' : '-')}<span class="chip ${cl}" style="display:block;margin:4px 0 0 auto;width:fit-content">${lb}</span></div></div>`;
   };
-  const t0 = todayD(), shown = calSel ? act.filter(o => memoDate(o.m, t0) === calSel) : act;
+  const t0 = todayD(), shown = calSel ? act.filter(o => dueOf(o, t0) === calSel) : act;
   const byDay = new Map();
   for (const o of shown) { const k = o.d || ''; if (!byDay.has(k)) byDay.set(k, []); byDay.get(k).push(o); }
   const days = Array.from(byDay.entries()).sort((x, y) => String(y[0]).localeCompare(String(x[0])));
