@@ -122,7 +122,7 @@
   body.no-sales #tab-sales, body.no-sales #tab-promo, body.no-sales .promo-only, body.no-premium .promo-only { display: none !important; }
   body.not-owner .owner-ui { display: none !important; }
   body.no-stock #tab-inv, body.no-order #tab-china, body.no-carry #tab-order, body.no-promo #tab-promo, body.no-promo .promo-only { display: none !important; }
-  body.no-pay [onclick*="recordPayment"], body.no-pay [onclick*="payCustomerUnpaid"], body.no-pay [onclick*="prepayOpen"], body.no-pay [onclick*="resetPayment"], body.no-pay [onclick*="resetGroupPayment"], body.no-pay [onclick*="quickEditPayment"], body.no-pay [onclick*="editMergedPaymentGroup"] { display: none !important; }
+  body.no-pay [onclick*="recordPayment"], body.no-pay [onclick*="payCustomerUnpaid"], body.no-pay [onclick*="prepayOpen"], body.no-pay [onclick*="resetPayment"], body.no-pay [onclick*="resetGroupPayment"], body.no-pay [onclick*="quickEditPayment"], body.no-pay [onclick*="editMergedPaymentGroup"], body.no-pay [onclick*="editCarryoverBalance"], body.no-pay [onclick*="addNewCustomerUnpaid"] { display: none !important; }
   body.no-del [onclick*="deleteRoll("], body.no-del [onclick*="bulkDeleteSelectedRolls"], body.no-del [onclick*="deleteAllRollsFor"], body.no-del [onclick*="deleteSaleEntry"], body.no-del [onclick*="deleteReturnDefect"], body.no-del [onclick*="deleteChinaOrder"], body.no-del [onclick*="deleteOrder("], body.no-del [onclick*="deleteRegisteredCustomer"] { display: none !important; }
   body.no-link [onclick*="openLedgerLinkModal"] { display: none !important; }
   .pm-pre { margin-top: 8px; } .pm-desc { font-size: 12.5px; color: var(--muted); margin: 6px 0 8px; }
@@ -157,6 +157,95 @@
   .sel-bar button { border: none; border-radius: 9px; padding: 9px 14px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
   .sel-bar .go { background: #fff; color: var(--primary-dark); }
   .sel-bar .x { background: rgba(255,255,255,.15); color: #fff; }
+  /* 매출·수금 조회 화면 (수금·리포트·거래처 원장) */
+  .sv-tb { display: flex; gap: 5px; flex-wrap: wrap; }
+  .sv-tb button { border: none; background: var(--b-sub); color: #333; border-radius: 7px; padding: 8px 12px; font-size: 12.5px; font-weight: 700; white-space: nowrap; cursor: pointer; }
+  .sv-tb button.more { background: var(--b-info); color: var(--primary-dark); }
+  .more-pop .mh { font-size: 11px; color: var(--muted); padding: 8px 12px 2px; }
+  .more-pop .mh.sep { border-top: 1px solid var(--border); margin-top: 4px; padding-top: 9px; }
+  body.sv-on #list { max-width: 980px; margin-left: auto; margin-right: auto; }
+  .sv-head { display: flex; align-items: center; gap: 10px; margin: 2px 0 10px; }
+  .sv-head h2 { margin: 0; font-size: 18px; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sv-back { border: none; background: var(--b-sub); color: #555; border-radius: 8px; padding: 7px 12px; font-size: 12px; font-weight: 600; flex: none; cursor: pointer; }
+  .sv-seg { display: flex; gap: 3px; background: var(--b-sub); border-radius: 10px; padding: 3px; margin-bottom: 10px; }
+  .sv-seg button { flex: 1; border: none; background: none; padding: 8px 0; border-radius: 8px; font-size: 13.5px; color: #555; cursor: pointer; }
+  .sv-seg button.on { background: #fff; font-weight: 700; color: var(--primary-dark); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .sv-chips { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 10px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .sv-chips::-webkit-scrollbar { display: none; }
+  .sv-chips button { flex: none; border: 1px solid var(--border); background: #fff; border-radius: 16px; padding: 6px 12px; font-size: 12.5px; color: #444; cursor: pointer; white-space: nowrap; }
+  .sv-chips button.on { background: var(--primary-dark); border-color: var(--primary-dark); color: #fff; font-weight: 700; }
+  .sv-tabs button { padding: 7px 14px; font-size: 13px; }
+  .sv-per { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .sv-per .arr { border: none; background: var(--b-sub); color: #555; border-radius: 8px; width: 38px; height: 34px; font-size: 13px; flex: none; cursor: pointer; }
+  .sv-per .arr:disabled { opacity: .35; cursor: default; }
+  .sv-per .lbl { flex: 1; text-align: center; font-size: 16px; font-weight: 800; }
+  .sv-tw { display: flex; background: var(--b-sub); border-radius: 8px; padding: 2px; flex: none; }
+  .sv-tw button { border: none; background: none; padding: 6px 12px; font-size: 12.5px; border-radius: 6px; color: #555; cursor: pointer; }
+  .sv-tw button.on { background: #fff; font-weight: 700; color: var(--primary-dark); }
+  .sv-custom { display: flex; gap: 6px; align-items: center; margin: -2px 0 10px; }
+  .sv-custom input { flex: 1 1 0; min-width: 0; padding: 7px 6px; font-size: 13px; border: 1px solid var(--border); border-radius: 8px; }
+  .sv-custom span { color: var(--muted); }
+  .sv-search { width: 100%; box-sizing: border-box; padding: 9px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 14px; margin-bottom: 8px; background: #fff; }
+  .sv-kpi { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+  .sv-kpi.k3 { grid-template-columns: 1fr 1fr; } .sv-kpi.k3 > div:first-child { grid-column: 1 / -1; }
+  #list .sv-row, #list .sv-acts, #list .sv-chips, #list .sv-per, #list .sv-head, #list .sv-seg, #list .sv-tw { flex-wrap: nowrap !important; }
+  .sv-day { display: flex; justify-content: space-between; align-items: flex-end; margin: 14px 2px 6px; }
+  .sv-day b { font-size: 14px; } .sv-day b small { font-weight: 400; color: var(--muted); }
+  .sv-day > span { text-align: right; font-weight: 800; font-size: 14px; } .sv-day > span small { display: block; font-size: 11px; font-weight: 400; color: var(--muted); }
+  @media (min-width: 900px) { .sv-kpi { grid-template-columns: repeat(4, 1fr); } .sv-kpi.k2 { grid-template-columns: 1fr 1fr; } .sv-kpi.k3 { grid-template-columns: repeat(3, 1fr); } .sv-kpi.k3 > div:first-child { grid-column: auto; } }
+  .sv-kpi > div { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; min-width: 0; }
+  .sv-kpi small { display: block; font-size: 11.5px; color: var(--muted); }
+  .sv-kpi b { display: block; font-size: 17px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sv-kpi.k3 b { font-size: 15px; }
+  .sv-kpi .sub { font-size: 11px; color: var(--muted); margin-top: 2px; min-height: 13px; }
+  .sv-card { background: #fff; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 10px; }
+  .sv-row { display: flex; align-items: center; gap: 8px; padding: 11px 12px; border-top: 1px solid #f0ece5; }
+  .sv-card > .sv-row:first-child, .sv-card > .rp-ct + .sv-row { border-top: none; }
+  .sv-row .n { flex: 1; min-width: 0; cursor: pointer; }
+  .sv-row .n b { font-size: 15px; font-weight: 600; }
+  .sv-row .n small { display: block; font-size: 11.5px; color: var(--muted); margin-top: 2px; line-height: 1.45; }
+  .sv-row .v { font-weight: 800; white-space: nowrap; font-size: 14.5px; }
+  .sv-row .rk { width: 22px; text-align: center; font-weight: 800; color: var(--muted); flex: none; font-size: 13px; }
+  .sv-row .rk.top { color: var(--primary-dark); }
+  .sv-row .more-btn { flex: none; }
+  .sv-pill { font-size: 10.5px; border-radius: 5px; padding: 1px 6px; margin-left: 5px; font-weight: 700; vertical-align: 2px; white-space: nowrap; }
+  .sv-pill.o { background: #fdf1e6; color: #a15c1e; } .sv-pill.r { background: #fdecea; color: var(--danger); }
+  .sv-btn { border: none; background: var(--b-info); color: var(--primary-dark); border-radius: 7px; padding: 7px 11px; font-size: 12.5px; font-weight: 700; flex: none; cursor: pointer; }
+  .sv-age { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; margin-bottom: 10px; }
+  .sv-age .h { font-size: 12px; color: #444; font-weight: 700; margin-bottom: 7px; } .sv-age .h span { font-weight: 400; color: var(--muted); }
+  .sv-age .bar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: var(--b-sub); gap: 2px; }
+  .sv-age .lg { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; font-size: 11px; margin-top: 8px; color: #666; }
+  .sv-age .lg i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 3px; }
+  .sv-age .lg b { display: block; font-size: 12.5px; color: var(--text); margin-top: 1px; }
+  .sv-acts { display: flex; gap: 6px; margin-bottom: 6px; }
+  .sv-act { border: none; background: var(--b-sub); color: #333; border-radius: 8px; padding: 9px 12px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  .sv-acts .sv-act { flex: 1; }
+  .sv-act.main { background: var(--primary); color: #fff; }
+  .sv-small { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; font-size: 11.5px; color: var(--muted); margin: 2px 0 10px; }
+  .sv-small span { text-decoration: underline; cursor: pointer; }
+  .sv-small label { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+  .sv-small input { width: auto; }
+  .sv-subbar { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+  .rp-note { font-size: 12px; color: var(--muted); margin: 0 2px 8px; }
+  .rp-ct { font-size: 13px; font-weight: 700; padding: 11px 12px 4px; display: flex; justify-content: space-between; }
+  .rp-ct a, .rp-wf a { font-weight: 600; font-size: 12px; color: var(--primary); text-decoration: underline; cursor: pointer; margin-left: 4px; }
+  .rp-wf { padding: 6px 12px; }
+  .rp-wf .ln { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 6px 0; font-size: 14px; }
+  .rp-wf .ln small { display: block; font-size: 11px; color: var(--muted); }
+  .rp-wf .tot { border-top: 1px solid var(--border); margin-top: 4px; padding-top: 9px; font-weight: 800; }
+  .rp-mrow { display: grid; grid-template-columns: 36px 1fr 64px 64px; align-items: center; gap: 8px; padding: 6px 12px; font-size: 12.5px; cursor: pointer; }
+  .rp-mrow .bar { height: 8px; background: var(--b-sub); border-radius: 4px; overflow: hidden; } .rp-mrow .bar i { display: block; height: 100%; background: var(--primary); }
+  .rp-mrow .s { text-align: right; font-weight: 700; } .rp-mrow .p { text-align: right; color: #1a7a4a; }
+  .rp-share { display: block; height: 5px; background: var(--b-sub); border-radius: 3px; overflow: hidden; margin: 5px 0 1px; max-width: 220px; } .rp-share i { display: block; height: 100%; background: var(--primary); opacity: .7; }
+  .rp-colors { padding: 0 12px 8px 42px; } .rp-colors div { display: flex; justify-content: space-between; font-size: 12.5px; color: #555; padding: 3px 0; border-bottom: 1px dashed #eee; }
+  .rp-tbl-wrap { display: none; }
+  @media (min-width: 900px) { .rp-list { display: none !important; } .rp-tbl-wrap { display: block; background: #fff; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 10px; } }
+  .rp-tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .rp-tbl th { background: #f6f4ef; color: #666; font-weight: 600; font-size: 12px; text-align: right; padding: 9px 10px; border-bottom: 1px solid var(--border); cursor: pointer; white-space: nowrap; user-select: none; }
+  .rp-tbl th.on { color: var(--primary-dark); }
+  .rp-tbl th:nth-child(-n+2), .rp-tbl td:nth-child(-n+2) { text-align: left; cursor: default; }
+  .rp-tbl td { padding: 9px 10px; border-bottom: 1px solid #f0ece5; text-align: right; white-space: nowrap; }
+  .rp-tbl tbody tr { cursor: pointer; } .rp-tbl tbody tr:hover { background: #faf8f4; }
   .more-pop { position: fixed; z-index: 2200; background: #fff; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,.18); padding: 5px; min-width: 170px; }
   .more-pop button { display: block; width: 100%; text-align: left; border: none; background: none; padding: 10px 12px; border-radius: 7px; font-size: 14px; color: var(--text); cursor: pointer; }
   .more-pop button:hover { background: var(--bg); }
@@ -275,6 +364,45 @@
   .group-head .total .cnt { font-size: 11px; color: var(--muted); }
   .rolls { border-top: 1px solid var(--border); display: none; }
   .rolls.open { display: block; }
+  .ex-wrap { max-width: 1200px; }
+  .ex-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; } .ex-top h2 { margin: 0; font-size: 18px; }
+  .ex-back { border: none; background: var(--b-sub); color: #555; border-radius: 8px; padding: 7px 12px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .ex-mon { display: flex; justify-content: space-between; align-items: center; margin: 6px 0 10px; } .ex-mon b { font-size: 16px; }
+  .ex-mon button { border: none; background: var(--b-sub); color: #555; border-radius: 8px; padding: 6px 12px; font-size: 12px; cursor: pointer; }
+  .ex-sum { display: flex; gap: 6px; } .ex-sum > div { flex: 1; min-width: 0; background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; }
+  .ex-sum span { display: block; font-size: 11px; color: var(--muted); } .ex-sum b { display: block; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ex-sum .r b { color: var(--danger); } .ex-sum .g b { color: #2f6b46; }
+  .ex-add { display: block; width: 100%; border: none; background: var(--primary); color: #fff; border-radius: 10px; padding: 12px; font-size: 14px; font-weight: 700; margin: 10px 0; cursor: pointer; }
+  .ex-tools { display: flex; gap: 8px; align-items: center; } .ex-tools input { flex: 1; min-width: 0; border: 1px solid var(--border); border-radius: 9px; padding: 8px 10px; font-size: 13px; }
+  .ex-seg { display: flex; background: var(--b-sub); border-radius: 9px; padding: 3px; gap: 3px; } .ex-seg button { flex: 1; border: none; background: none; padding: 7px 12px; font-size: 12.5px; border-radius: 7px; color: #555; cursor: pointer; font-family: inherit; white-space: nowrap; }
+  .ex-seg button.on { background: #fff; font-weight: 700; color: var(--primary-dark); box-shadow: 0 1px 3px rgba(0,0,0,.1); } .ex-seg button.on.red { color: var(--danger); }
+  .ex-chips { display: flex; gap: 5px; margin: 10px 0 4px; flex-wrap: wrap; }
+  .ex-chip { border: none; border-radius: 14px; padding: 5px 12px; font-size: 12px; background: var(--b-sub); color: #555; cursor: pointer; } .ex-chip.on { background: var(--primary); color: #fff; }
+  .ex-dh { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); font-weight: 700; margin: 14px 0 0; padding-bottom: 4px; border-bottom: 1px solid var(--border); }
+  .ex-row { display: flex; align-items: center; gap: 10px; padding: 10px 4px; border-bottom: 1px solid #efebe4; background: #fff; cursor: pointer; }
+  .ex-row:hover { background: #faf8f5; } .ex-row .t { flex: 1; min-width: 0; font-size: 14px; } .ex-row .t small { display: block; font-size: 11.5px; color: var(--muted); }
+  .ex-row .a { font-weight: 700; white-space: nowrap; font-size: 14px; } .ex-row .a.r { color: var(--danger); } .ex-row .a.g { color: #2f6b46; }
+  .ex-tag { font-size: 10.5px; border-radius: 5px; padding: 1px 6px; background: var(--b-sub); color: #666; margin-right: 6px; vertical-align: 1px; } .ex-tag.on { background: var(--b-info); color: var(--primary-dark); }
+  .ex-smp { display: flex; justify-content: space-between; background: #f7f6f3; border-radius: 8px; padding: 8px 10px; margin: 6px 0; font-size: 13px; color: #555; cursor: pointer; } .ex-smp b { color: var(--danger); }
+  .ex-card { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-top: 12px; } .ex-h { font-size: 12.5px; font-weight: 700; color: var(--primary-dark); margin-bottom: 6px; }
+  .ex-bar { display: flex; align-items: center; gap: 8px; font-size: 12.5px; margin: 5px 0; } .ex-bar .k { width: 92px; flex: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ex-bar .b { flex: 1; height: 8px; background: var(--b-sub); border-radius: 4px; overflow: hidden; } .ex-bar .b i { display: block; height: 100%; background: #d98a7f; border-radius: 4px; } .ex-bar .v { width: 52px; text-align: right; color: #555; flex: none; }
+  .ex-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; } .ex-cal div { text-align: center; border-radius: 6px; padding: 4px 0; font-size: 12px; min-height: 40px; cursor: pointer; }
+  .ex-cal .w { min-height: auto; color: var(--muted); font-size: 11px; cursor: default; } .ex-cal .has { background: #f1f5f8; font-weight: 700; } .ex-cal .sel { background: var(--primary); color: #fff; }
+  .ex-cal small { display: block; font-size: 9.5px; line-height: 1.3; font-weight: 500; } .ex-cal small.x { color: var(--danger); } .ex-cal small.i { color: #2f6b46; } .ex-cal .sel small { color: #fff !important; }
+  .ex-selnote { text-align: center; font-size: 12px; color: var(--muted); margin-top: 6px; } .ex-selnote span { text-decoration: underline; cursor: pointer; }
+  .ex-calbox { display: none; margin-top: 8px; background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 10px; } .ex-calbox.show { display: block; }
+  .ex-pc-cal { display: none; }
+  .ex-topk { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 6px 0 2px; } .ex-topk span { flex: none; background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 4px 10px; font-size: 12px; color: #555; white-space: nowrap; } .ex-topk b { color: var(--danger); }
+  @media (max-width: 899px) { .ex-side { display: none; } }
+  .ex-form label { display: block; font-size: 12px; color: var(--muted); margin: 10px 0 4px; } .ex-form input { width: 100%; box-sizing: border-box; border: 1px solid var(--border); border-radius: 9px; padding: 10px; font-size: 14px; }
+  .ex-form .ex-big { font-size: 22px; font-weight: 800; text-align: right; }
+  .ex-qc { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; } .ex-qc button { border: 1px solid var(--border); background: #fff; border-radius: 14px; padding: 4px 10px; font-size: 12px; color: #555; cursor: pointer; }
+  @media (min-width: 900px) {
+    .ex-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; align-items: start; }
+    .ex-side { position: sticky; top: calc(var(--hdr-h, 92px) + 12px); } .ex-side .ex-card:first-child { margin-top: 0; }
+    .ex-mob, .ex-mob-cal { display: none !important; } .ex-pc-cal { display: block; }
+  }
   .np-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
   .np-go.np-free { background: var(--b-sub); color: #555; }
   .np-go { flex: none; border: none; background: var(--b-info); color: var(--primary-dark); border-radius: 7px; padding: 6px 10px; font-size: 12px; font-weight: 700; }
@@ -361,6 +489,7 @@
   .order-btns { margin-top: 8px; display: flex; gap: 6px; }
   .order-btns button { border: none; border-radius: 6px; padding: 6px 10px; font-size: 12px; cursor: pointer; }
   .btn-receive { background: #dbe9f0; color: var(--primary-dark); }
+  #customerShipListModal .btn-receive { border: none; border-radius: 8px; padding: 7px 14px; font-size: 13px; font-weight: 700; background: var(--primary); color: #fff; cursor: pointer; flex: none; } /* 출고 처리 목록: 다른 버튼과 같은 모양 */
   .btn-complete { background: #eaf3ec; color: #2f6b46; }
   @media print {
     @page { margin: 6mm; }
@@ -826,30 +955,21 @@
   <div id="salesTools" class="hidden" style="margin-top:6px;">
     <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;">
       <button onclick="shiftSalesDayFilter(-1)" style="border:none;background:var(--b-sub);color:#555;border-radius:7px;padding:7px 10px;font-size:12px;flex:none;">◀</button>
-      <input id="sales-day-picker" type="date" onchange="salesDayFilter=fromDateInputValue(this.value); salesDayFilterEnd=null; refreshSalesDayArchivedCache(); render();" style="flex:1 1 0; min-width:0; padding:6px 4px; border:1px solid var(--border); border-radius:7px; font-size:12px;">
+      <input id="sales-day-picker" type="date" onchange="salesDayInput('start', this.value)" style="flex:1 1 0; min-width:0; padding:6px 4px; border:1px solid var(--border); border-radius:7px; font-size:12px;">
       <span style="font-size:12px; color:var(--muted); flex:none;">-</span>
-      <input id="sales-day-picker-end" type="date" onchange="salesDayFilterEnd=fromDateInputValue(this.value); refreshSalesDayArchivedCache(); render();" style="flex:1 1 0; min-width:0; padding:6px 4px; border:1px solid var(--border); border-radius:7px; font-size:12px;">
+      <input id="sales-day-picker-end" type="date" onchange="salesDayInput('end', this.value)" style="flex:1 1 0; min-width:0; padding:6px 4px; border:1px solid var(--border); border-radius:7px; font-size:12px;">
       <button onclick="shiftSalesDayFilter(1)" style="border:none;background:var(--b-sub);color:#555;border-radius:7px;padding:7px 10px;font-size:12px;flex:none;">▶</button>
+      <button type="button" data-menu="[[&quot;오늘&quot;,&quot;salesRangePreset('today')&quot;],[&quot;이번 달&quot;,&quot;salesRangePreset('m0')&quot;],[&quot;지난달&quot;,&quot;salesRangePreset('m1')&quot;],[&quot;최근 3개월&quot;,&quot;salesRangePreset('m3')&quot;],[&quot;올해&quot;,&quot;salesRangePreset('y0')&quot;],[&quot;전체 기간&quot;,&quot;salesRangePreset('all')&quot;]]" onclick="event.stopPropagation(); openMoreMenu(this)" style="border:none;background:var(--b-sub);color:#333;border-radius:7px;padding:7px 10px;font-size:12px;font-weight:700;flex:none;">기간 ▾</button>
     </div>
-    <div style="display:flex; gap:5px; flex-wrap:wrap;">
-      <button onclick="showCustomerLedger()" style="border:none;background:var(--b-sub);color:#333;border-radius:7px;padding:8px 10px;font-size:12px;font-weight:700;white-space:nowrap;">거래처 원장</button>
-      <button onclick="showUnpaidSummary()" style="border:none;background:var(--b-sub);color:#333;border-radius:7px;padding:8px 10px;font-size:12px;font-weight:700;white-space:nowrap;">미수금 현황</button>
-      <button onclick="showCustomerPriceList()" style="border:none;background:var(--b-sub);color:#333;border-radius:7px;padding:8px 10px;font-size:12px;font-weight:700;white-space:nowrap;">단가표</button>
-      <button onclick="toggleSalesDropdown('sales-dd-reports')" style="border:none;background:var(--b-sub);color:#333;border-radius:7px;padding:8px 10px;font-size:12px;font-weight:700;white-space:nowrap;">조회 ▾</button>
+    <div class="sv-tb">
+      <button type="button" onclick="showCustomerLedger()">거래처 원장</button>
+      <button type="button" onclick="showUnpaidSummary()">수금</button>
+      <button type="button" onclick="showReportHub()">리포트</button>
+      <button type="button" class="more" data-menu="[[&quot;#기록 보기&quot;],[&quot;지출·입금 내역&quot;,&quot;openExpenseModal()&quot;],[&quot;샘플 내역서&quot;,&quot;openSampleStmt()&quot;],[&quot;#등록&quot;],[&quot;+ 새 매출&quot;,&quot;openSaleAddModal('')&quot;],[&quot;+ 반품·불량&quot;,&quot;openCustomerPicker('__retx__')&quot;],[&quot;+ 거래처 추가&quot;,&quot;addCustomerName()&quot;]]" onclick="event.stopPropagation(); openMoreMenu(this)">더보기 ▾</button>
     </div>
     <div id="salesPickBar" style="display:flex; gap:10px; align-items:center; font-size:11px; color:var(--muted); margin-top:8px;"></div>
   </div>
-  <div id="sales-dd-reports" class="hidden" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; padding:8px; background:#faf6ff; border-radius:10px;">
-    <button onclick="addCustomerName()" style="border:none;background:var(--b-ok);color:#2f6b46;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;white-space:nowrap;">+ 거래처 추가</button>
-    <button class="btn-key" onclick="openSaleAddModal('')" style="border:none;background:var(--b-warn);color:#a15c1e;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;white-space:nowrap;">+ 새 매출 등록</button>
-    <button onclick="openCustomerPicker('__retx__')" style="border:none;background:var(--b-danger-soft);color:var(--danger);border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;white-space:nowrap;">+ 반품·불량 등록</button>
-    <button onclick="openExpenseModal()" style="border:none;background:var(--b-danger-soft);color:var(--danger);border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;white-space:nowrap;">지출·입금 내역</button>
-    <button onclick="showPaymentLedger()" style="border:none;background:var(--b-info);color:#1a56db;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;white-space:nowrap;">입금 장부</button>
-    <button onclick="showCustomerRanking()" style="border:none;background:var(--b-info);color:#6b3fa0;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;white-space:nowrap;">거래처 순위</button>
-    <button onclick="showReportMenu()" style="border:none;background:var(--b-ok);color:#1a7a4a;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;white-space:nowrap;">리포트</button>
-    <button onclick="openSampleStmt()" style="border:none;background:var(--b-warn);color:#a15c1e;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;white-space:nowrap;">샘플 내역서</button>
-    <button onclick="showItemMonthlyStats()" style="border:none;background:var(--b-info);color:var(--primary-dark);border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;white-space:nowrap;">품목별 출고량</button>
-  </div>
+  <div id="sales-dd-reports" class="hidden"></div><!-- 예전 「조회 ▾」 버튼 9개는 위 4개 버튼으로 정리함 -->
   <div id="sales-dd-manage" class="hidden"></div><!-- 예전 「관리 ▾」 내용은 설정 화면으로 옮김 -->
 </div>
 
@@ -1628,12 +1748,9 @@
     <h3>고정비 관리</h3>
     <p style="font-size:12px;color:var(--muted);margin-top:-6px;">달마다 따로 저장 · 고치지 않은 달은 앞선 달 금액이 이어집니다</p>
     <div id="fixed-cost-month-nav" style="display:flex; align-items:center; gap:8px; margin:8px 0 10px;"></div>
-    <div class="row2">
-      <div><label>항목</label><input id="fixed-cost-label" placeholder="예: 직원 월급"></div>
-      <div><label>월 금액(원)</label><input id="fixed-cost-amount" type="number" step="1" placeholder="예: 2500000"></div>
-    </div>
-    <button onclick="addFixedCost()" style="border:none;background:var(--b-ok);color:#2f6b46;border-radius:8px;padding:9px 14px;font-size:13px;font-weight:600;margin-top:8px;width:100%;">+ 추가</button>
-    <div id="fixed-cost-list" style="margin-top:12px; max-height:280px; overflow-y:auto;"></div>
+    <div style="display:none;"><input id="fixed-cost-label"><input id="fixed-cost-amount" type="number"></div><!-- 예전 입력칸 (이제 「+ 고정비 추가」 창으로 입력) -->
+    <button type="button" class="ex-add" onclick="fcAddOpen()">+ 고정비 추가</button>
+    <div id="fixed-cost-list" style="margin-top:4px;"></div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeFixedCostModal()">닫기</button>
     </div>
@@ -6185,6 +6302,7 @@ function _renderMain() {
   updateItemNameList();
   document.body.classList.toggle('sc-mode', currentTab === 'inv' && inventorySpecialView === 'stockCheck');
   document.body.classList.toggle('lg-list', ['inv', 'cost', 'china', 'order', 'sales'].includes(currentTab) && !inventorySpecialView && !salesSpecialView); // PC에서 카드 목록 2칸
+  document.body.classList.toggle('sv-on', currentTab === 'sales' && SV_HUB.includes(salesSpecialView)); // PC에서 조회 화면은 가운데 알맞은 폭으로
   if (currentTab === 'today') renderToday();
   else if (currentTab === 'inv') renderInv();
   else if (currentTab === 'cost') renderCost();
@@ -8199,9 +8317,12 @@ function openMoreMenu(btn) {
   const had = document.querySelector('.more-pop'); if (had) { had.remove(); if (had._btn === btn) return; }
   let items = []; try { items = JSON.parse(btn.dataset.menu || '[]'); } catch (e) { return; }
   const pop = document.createElement('div'); pop.className = 'more-pop'; pop._btn = btn;
-  items = items.filter(([, code]) => !moreHiddenByPerm(code)); // 권한으로 숨긴 버튼은 ⋯ 메뉴 안에서도 숨김
-  if (!items.length) return;
-  items.forEach(([label, code, danger]) => {
+  const isHd = it => String(it[0]).charAt(0) === '#' && !it[1]; // ["#제목"] = 메뉴 안 구역 제목
+  items = items.filter(it => isHd(it) || !moreHiddenByPerm(it[1])); // 권한으로 숨긴 버튼은 ⋯ 메뉴 안에서도 숨김
+  items = items.filter((it, i) => !isHd(it) || (items[i + 1] && !isHd(items[i + 1])));
+  if (!items.filter(it => !isHd(it)).length) return;
+  items.forEach(([label, code, danger], i) => {
+    if (isHd([label, code])) { const h = document.createElement('div'); h.className = 'mh' + (i ? ' sep' : ''); h.textContent = String(label).slice(1); pop.appendChild(h); return; }
     const b = document.createElement('button'); b.type = 'button'; b.textContent = label; if (danger) b.className = 'danger';
     b.onclick = (e) => { e.stopPropagation(); pop.remove(); try { (new Function(code))(); } catch (err) { console.error(err); } };
     pop.appendChild(b);
@@ -12565,7 +12686,8 @@ async function printCustomerStatement(customerName, entryIds, period) {
   await printStatementForRange(customerName, startDate, endDate);
 }
 
-async function showItemMonthlyStats() {
+function showItemMonthlyStats() { showReportHub('items'); }
+async function showItemMonthlyStatsOld() {
   salesSpecialView = 'itemMonthly';
   itemStatsPeriodIndex = 0;
   openGroups = new Set(); // 다른 화면으로 넘어갈 때 열려있던 카드들 접힌 상태로 초기화
@@ -12579,7 +12701,8 @@ function exitItemMonthlyStats() {
   openGroups = new Set(); // 다른 화면으로 넘어갈 때 열려있던 카드들 접힌 상태로 초기화
   render();
 }
-function showCustomerPriceList() {
+function showCustomerPriceList(c) { showCustomerLedger(c); ledgerTab = 'price'; render(); } // 단가표는 거래처 원장 안 「단가」 탭으로
+function showCustomerPriceListOld() {
   salesSpecialView = 'priceList';
   priceListYear = null;
   priceListArchivedCache = [];
@@ -12649,13 +12772,17 @@ async function confirmNewPriceModal() {
   closeNewPriceModal();
   priceListYear = null; // 방금 등록한 게 확실히 보이도록 전체보기로 전환 (특정 연도만 보고 있었으면 새 품목이 안 보일 수 있어서)
   priceListArchivedCache = [];
-  renderCustomerPriceListView();
+  render();
   showToast(`"${item}" 단가를 등록했습니다 - 다음부터 이 거래처 출고할 때 자동으로 채워집니다`);
 }
-function renderCustomerPriceListView() {
-  const list = document.getElementById('list');
-  list.innerHTML = '';
-
+function renderCustomerPriceListView(host, embedded) {
+  const list = host || document.getElementById('list');
+  if (!host) list.innerHTML = '';
+  if (embedded) { renderCustomerPriceListBody(list, true); return; }
+  renderCustomerPriceListBody(list, false);
+}
+function renderCustomerPriceListBody(list, embedded) {
+  if (!embedded) {
   const backBtn = document.createElement('button');
   backBtn.textContent = '← 돌아가기';
   backBtn.style.cssText = 'border:none;background:#eee;color:#555;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;margin-bottom:10px;';
@@ -12670,6 +12797,7 @@ function renderCustomerPriceListView() {
   `;
   list.appendChild(inputWrap);
 
+  }
   if (!priceListCustomer) {
     const empty = document.createElement('div');
     empty.className = 'empty';
@@ -12679,13 +12807,14 @@ function renderCustomerPriceListView() {
   }
   const t_c = priceListCustomer.trim();
 
+  if (embedded) list.insertAdjacentHTML('beforeend', `<div class="sv-subbar"><span>다음 출고 때 자동으로 채워지는 단가입니다</span><button type="button" class="sv-act" onclick="openNewPriceModal(${svA(t_c)})">+ 새 품목 단가</button></div>`);
   const header = document.createElement('div');
   header.style.cssText = 'background:var(--primary-dark); border-radius:10px; padding:12px 14px; margin-bottom:10px; color:#fff; display:flex; justify-content:space-between; align-items:center;';
   header.innerHTML = `
     <div><div style="font-size:11px; color:#c9d8e0;">거래처 단가표</div><div style="font-size:17px; font-weight:700; margin-top:2px;">${esc(t_c)}</div></div>
     <button onclick="openNewPriceModal('${escAttr(t_c)}')" style="border:none;background:rgba(255,255,255,0.15);color:#fff;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;flex:none;">+ 새 품목 단가</button>
   `;
-  list.appendChild(header);
+  if (!embedded) list.appendChild(header);
 
   // 이 거래처의 연도 목록(실제 거래가 있었던 연도들)을 뽑아서 네비게이션용으로 씀
   const years = Array.from(new Set(
@@ -12787,7 +12916,7 @@ function renderCustomerPriceListView() {
   noteP.textContent = '단가를 눌러서 고치면, 과거 거래 기록은 그대로 두고 "다음부터 쓸 기준 단가"만 바뀝니다';
   list.appendChild(noteP);
 }
-function renderItemMonthlyStatsView() {
+function renderItemMonthlyStatsViewOld() {
   const list = document.getElementById('list');
   list.innerHTML = '';
 
@@ -12946,6 +13075,7 @@ function getCostPerYardForEntry(e) {
 }
 
 function showPaymentLedger() {
+  if (!collectPayFrom || !collectPayTo) [collectPayFrom, collectPayTo] = svRangePreset('m0');
   salesSpecialView = 'paymentLedger';
   openGroups = new Set(); // 다른 화면으로 넘어갈 때 열려있던 카드들 접힌 상태로 초기화
   render();
@@ -12960,6 +13090,7 @@ function showCustomerLedger(customer) {
   if (salesSpecialView !== 'customerLedger') _prevSalesSpecialView = salesSpecialView;
   salesSpecialView = 'customerLedger';
   openGroups = new Set(); // 다른 화면으로 넘어갈 때 열려있던 카드들 접힌 상태로 초기화
+  ledgerFromList = false; ledgerTab = 'ledger';
   ledgerCustomer = customer || ledgerCustomer || '';
   ledgerStartDate = null; ledgerEndDate = null; // 매번 새로 들어올 때마다 "이번 달" 기준으로 다시 계산되게 함 (예전에 봤던 달 범위에 그대로 갇혀있지 않도록)
   render();
@@ -12975,19 +13106,20 @@ function exitCustomerLedger() {
 }
 function renderPaymentLedgerView() {
   ensureShipmentLogArchivedCacheLoaded(); // 백그라운드로 불러옴 - 완료되면 자동으로 다시 그려짐
-  const list = document.getElementById('list');
+  if (!collectPayFrom || !collectPayTo) [collectPayFrom, collectPayTo] = svRangePreset('m0');
+  const page = document.getElementById('list');
+  page.innerHTML = `${collectHead('paid')}${svRangeBar('pay', collectPayFrom, collectPayTo)}
+    <input class="sv-search" id="collect-search" placeholder="거래처·품번 찾기 (초성도 됩니다)" autocomplete="off" value="${svH(collectSearch)}" oninput="collectSearch=this.value; renderPaymentLedgerRows()">
+    <div id="pay-kpi"></div><div id="pay-rows"></div>`;
+  renderPaymentLedgerRows();
+}
+function renderPaymentLedgerRows() {
+  const list = document.getElementById('pay-rows'); if (!list) return;
   list.innerHTML = '';
-
-  const backBtn = document.createElement('button');
-  backBtn.textContent = '← 돌아가기';
-  backBtn.style.cssText = 'border:none;background:#eee;color:#555;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;margin-bottom:10px;';
-  backBtn.onclick = exitPaymentLedger;
-  list.appendChild(backBtn);
-
-  // 모든 입금 기록을 하나로 모음 (날짜필터가 과거로 걸려있으면 그 기간 보관함 캐시를, 전체보기면 전체보관함 캐시를 같이 봄)
-  if (!salesDayFilter) ensureShipmentLogArchivedCacheLoaded();
+  // 모든 입금 기록을 하나로 모음 (지금 장부 + 보관함, 중복 없이)
   let payments = [];
-  for (const e of shipmentLog.concat(salesDayFilter ? salesDayArchivedCache : shipmentLogArchivedCache)) {
+  const _liveIds = new Set(shipmentLog.map(e => e.id));
+  for (const e of shipmentLog.concat(shipmentLogArchivedCache.filter(x => !_liveIds.has(x.id)))) {
     (e.payments || []).forEach((p, idx) => {
       payments.push({
         date: p.date, amount: p.amount, method: p.method || 'cash',
@@ -12997,20 +13129,15 @@ function renderPaymentLedgerView() {
       });
     });
   }
-  if (salesDayFilter) {
-    if (salesDayFilterEnd) payments = payments.filter(p => p.date >= salesDayFilter && p.date <= salesDayFilterEnd);
-    else payments = payments.filter(p => p.date === salesDayFilter);
-  }
-  if (searchTerm.trim()) {
-    const t = searchTerm.trim().toLowerCase();
-    payments = payments.filter(p => p.customer.toLowerCase().includes(t) || p.desc.toLowerCase().includes(t));
-  }
+  payments = payments.filter(p => String(p.date) >= collectPayFrom && String(p.date) <= collectPayTo);
+  if (String(collectSearch || '').trim()) payments = payments.filter(p => svMatch(p.customer, collectSearch) || svMatch(p.desc, collectSearch));
 
   const totalCash = payments.filter(p => p.method === 'cash').reduce((s, p) => s + p.amount, 0);
   const totalOnline = payments.filter(p => p.method === 'online').reduce((s, p) => s + p.amount, 0);
-  document.getElementById('stats').innerHTML = `<span>입금 합계 ${(totalCash + totalOnline).toLocaleString()}원</span><span>현금 ${totalCash.toLocaleString()}원</span><span>온라인 ${totalOnline.toLocaleString()}원</span>`;
+  const kpi = document.getElementById('pay-kpi');
+  if (kpi) kpi.innerHTML = `<div class="sv-kpi k3"><div><small>입금 합계 · ${payments.length}건</small><b>${svN(totalCash + totalOnline)}원</b></div><div><small>현금</small><b>${svN(totalCash)}원</b></div><div><small>온라인</small><b>${svN(totalOnline)}원</b></div></div>`;
 
-  if (payments.length === 0) { list.insertAdjacentHTML('beforeend', '<div class="empty">입금 기록이 없습니다</div>'); return; }
+  if (payments.length === 0) { list.insertAdjacentHTML('beforeend', '<div class="empty">이 기간 입금 기록이 없습니다</div>'); return; }
 
   // 거래처별 현재 남은 미수금(오늘 기준 최신 상태) 미리 계산 - 전체 흐름 누적계산으로 초과입금/미수금 상쇄까지 정확히 반영
   const unpaidByCustomer = new Map();
@@ -13031,27 +13158,20 @@ function renderPaymentLedgerView() {
     byDate.get(p.date).push(p);
   }
   const dates = Array.from(byDate.keys()).sort((a, b) => b.localeCompare(a));
-
+  const DOW = ['일', '월', '화', '수', '목', '금', '토'];
+  let html = '';
   for (const date of dates) {
     const dayPayments = byDate.get(date);
     const dayCash = dayPayments.filter(p => p.method === 'cash').reduce((s, p) => s + p.amount, 0);
     const dayOnline = dayPayments.filter(p => p.method === 'online').reduce((s, p) => s + p.amount, 0);
-
-    const banner = document.createElement('div');
-    banner.className = 'factory-divider';
-    banner.textContent = `${date} · 입금 ${(dayCash + dayOnline).toLocaleString()}원 (현금 ${dayCash.toLocaleString()} / 온라인 ${dayOnline.toLocaleString()})`;
-    list.appendChild(banner);
-
+    const dd = parseKDate(date);
+    html += `<div class="sv-day"><b>${dd ? `${dd.getMonth() + 1}월 ${dd.getDate()}일 (${DOW[dd.getDay()]})` : esc(date)}${dd && dd.getFullYear() !== new Date().getFullYear() ? ` <small>${dd.getFullYear()}</small>` : ''}</b><span>${svN(dayCash + dayOnline)}원<small>${dayCash > 0 ? `현금 ${svMan(dayCash)}` : ''}${dayCash > 0 && dayOnline > 0 ? ' · ' : ''}${dayOnline > 0 ? `온라인 ${svMan(dayOnline)}` : ''}</small></span></div><div class="sv-card">`;
     // 같은 날짜 안에서 거래처별로 합쳐서 보여줌
     const byCustomer = new Map();
     for (const p of dayPayments) {
       if (!byCustomer.has(p.customer)) byCustomer.set(p.customer, []);
       byCustomer.get(p.customer).push(p);
     }
-
-    const div = document.createElement('div');
-    div.className = 'group';
-    const inner = document.createElement('div');
     for (const [customer, list2] of byCustomer) {
       const total = list2.reduce((s, p) => s + p.amount, 0);
       const cash = list2.filter(p => p.method === 'cash').reduce((s, p) => s + p.amount, 0);
@@ -13059,100 +13179,54 @@ function renderPaymentLedgerView() {
       const remaining = unpaidByCustomer.get(String(customer).trim()) || 0;
       const gk = `paylog:${date}:${customer}`;
       const isOpen = openGroups.has(gk);
-
-      const row = document.createElement('div');
-      row.className = 'order-card';
-      row.style.cursor = 'pointer';
-      row.onclick = () => toggleGroup(gk);
-      row.innerHTML = `
-        <div class="order-top">
-          <div>
-            <div class="order-name" onclick="event.stopPropagation(); showCustomerLedger('${escAttr(customer)}');" style="">${esc(customer)}</div>
-            <div class="order-sub">${cash > 0 ? `현금 ${cash.toLocaleString()}원` : ''}${cash > 0 && online > 0 ? ' · ' : ''}${online > 0 ? `온라인 ${online.toLocaleString()}원` : ''}${list2.length > 1 ? ` (${list2.length}건)` : ''} · <span style="color:${remaining > 0 ? 'var(--danger)' : 'var(--muted)'};">미수금 ${remaining.toLocaleString()}원 남음</span></div>
-          </div>
-          <div class="order-status status-done">${total.toLocaleString()}원</div>
-        </div>
-      `;
-      inner.appendChild(row);
+      html += `<div class="sv-row" style="cursor:pointer;" onclick="toggleGroup(${svA(gk)})"><div class="n"><b>${esc(customer)}</b><small>${cash > 0 ? '현금' : ''}${cash > 0 && online > 0 ? '·' : ''}${online > 0 ? '온라인' : ''}${list2.length > 1 ? ` ${list2.length}건` : ''} · ${remaining > 0 ? `<span style="color:var(--danger);">미수금 ${svN(remaining)}원 남음</span>` : '미수금 없음'}</small></div><span class="v" style="color:#1a7a4a;">${svN(total)}</span><span style="color:var(--muted);font-size:12px;">${isOpen ? '▴' : '▾'}</span></div>`;
       if (isOpen) {
-        const detail = document.createElement('div');
-        detail.style.padding = '0 4px 8px';
-        detail.innerHTML = list2.map(p => `
-          <div onclick="event.stopPropagation(); quickEditPayment(${p.entryId}, ${p.idx})" style="display:flex; justify-content:space-between; padding:6px 8px; font-size:12px; border-top:1px dashed var(--border); cursor:pointer;">
-            <span>${esc(p.desc)} · ${p.method === 'cash' ? '현금' : '온라인'}</span>
-            <span style="font-weight:600;">${p.amount.toLocaleString()}원</span>
-          </div>
-        `).join('');
-        inner.appendChild(detail);
+        html += `<div class="rp-colors" style="padding-left:12px;">${list2.map(p => `<div onclick="quickEditPayment(${p.entryId}, ${p.idx})" style="cursor:pointer;"><span>${esc(p.desc)} · ${p.method === 'cash' ? '현금' : '온라인'}</span><span style="font-weight:600;">${svN(p.amount)}원 ›</span></div>`).join('')}<div style="border:none;"><span></span><span onclick="showCustomerLedger(${svA(customer)})" style="color:var(--primary);text-decoration:underline;cursor:pointer;">원장 보기</span></div></div>`;
       }
     }
-    div.appendChild(inner);
-    list.appendChild(div);
+    html += '</div>';
   }
+  list.innerHTML = html;
 }
+
 function renderCustomerLedgerView() {
   const list = document.getElementById('list');
   list.innerHTML = '';
-
-  const backBtn = document.createElement('button');
-  backBtn.textContent = '← 돌아가기';
-  backBtn.style.cssText = 'border:none;background:#eee;color:#555;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;margin-bottom:10px;';
-  backBtn.onclick = exitCustomerLedger;
-  list.appendChild(backBtn);
-
+  if (!ledgerCustomer) { renderLedgerPickList(list); return; }
+  const c = String(ledgerCustomer).trim();
+  const back = ledgerFromList ? `<button type="button" class="sv-back" onclick="ledgerBackToList()">← 거래처 목록</button>` : `<button type="button" class="sv-back" onclick="exitCustomerLedger()">← 돌아가기</button>`;
+  const menu = [['이름 수정', `renameCustomer(${JSON.stringify(c)})`]]; if (!ledgerFromList) menu.push(['거래처 목록', 'ledgerBackToList()']);
+  list.insertAdjacentHTML('beforeend', `<div class="sv-head">${back}<h2>${esc(c)}</h2>${moreBtn(menu)}</div>
+    <input type="hidden" id="ledger-customer" value="${svH(c)}">
+    <div class="sv-seg"><button type="button" class="${ledgerTab !== 'price' ? 'on' : ''}" onclick="ledgerTab='ledger'; render()">원장</button><button type="button" class="${ledgerTab === 'price' ? 'on' : ''}" onclick="ledgerTab='price'; render()">단가</button></div>`);
+  if (ledgerTab === 'price') {
+    if (priceListCustomer !== c) { priceListCustomer = c; priceListYear = null; priceListArchivedCache = []; }
+    const host = document.createElement('div'); list.appendChild(host);
+    renderCustomerPriceListView(host, true);
+    return;
+  }
+  if (!ledgerStartDate || !ledgerEndDate) { // 처음 들어오면 이번 달
+    const [f, t] = svRangePreset('m0');
+    ledgerStartDate = toDateInputValue(f); ledgerEndDate = toDateInputValue(t);
+  }
   const controls = document.createElement('div');
   controls.id = 'ledger-controls';
-  controls.style.cssText = 'margin-bottom:14px;';
-  controls.innerHTML = `
-    <div style="display:flex; gap:6px; margin-bottom:6px;">
-      <input id="ledger-customer" placeholder="예: 클래식" autocomplete="off" value="${escAttr(ledgerCustomer || '')}" oninput="showCustomerSuggestions(this)" onfocus="showCustomerSuggestions(this)" onblur="hideItemSuggestionsDelayed()" style="flex:1; min-width:0; padding:8px 10px; font-size:13px;">
-      <button type="button" onclick="openCustomerPicker('ledger-customer')" style="border:none;background:var(--b-info);color:#3d4f6b;border-radius:7px;padding:0 12px;font-size:12px;flex:none;">목록</button>
+  controls.innerHTML = `${svRangeBar('ledger', fromDateInputValue(ledgerStartDate), fromDateInputValue(ledgerEndDate))}
+    <div class="sv-acts">
+      <button type="button" class="sv-act main btn-key" onclick="if(ledgerCustomer) payCustomerUnpaid(ledgerCustomer)">입금</button>
+      <button type="button" class="sv-act" onclick="if(ledgerCustomer) prepayOpen(ledgerCustomer)">선수금 받기</button>
+      ${outMenuBtn('명세서', [['고른 줄 인쇄', 'printCurrentLedgerStatement()'], ['이 기간 인쇄', 'printLedgerPeriod()'], ['이 기간 ' + kakaoLbl(), "printLedgerPeriod('share')"]], '').replace('style=""', 'class="sv-act"')}
     </div>
-    <div style="display:flex; gap:6px; align-items:center; margin-bottom:8px;">
-      <input id="ledger-start" type="date" style="flex:1 1 0; min-width:0; padding:7px 6px; font-size:12px;">
-      <span style="flex:none; font-size:12px; color:var(--muted);">-</span>
-      <input id="ledger-end" type="date" style="flex:1 1 0; min-width:0; padding:7px 6px; font-size:12px;">
-      <button onclick="ledgerCustomer=document.getElementById('ledger-customer').value.trim(); ledgerStartDate=document.getElementById('ledger-start').value; ledgerEndDate=document.getElementById('ledger-end').value; renderCustomerLedgerTable();" style="flex:none; border:none;background:var(--b-info);color:var(--primary-dark);border-radius:7px;padding:7px 12px;font-size:12px;font-weight:600;">조회</button>
-    </div>
-    <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px;">
-      <button onclick="printCurrentLedgerStatement()" style="border:none;background:var(--b-ok);color:#2f6b46;border-radius:7px;padding:8px 12px;font-size:12px;font-weight:600;white-space:nowrap;">명세서 인쇄</button>
-      <button class="btn-key" onclick="if(ledgerCustomer) payCustomerUnpaid(ledgerCustomer)" style="border:none;background:var(--b-ok);color:#2f6b46;border-radius:7px;padding:8px 12px;font-size:12px;font-weight:600;white-space:nowrap;">입금 처리</button>
-      <button onclick="if(ledgerCustomer) prepayOpen(ledgerCustomer)" style="border:none;background:#e3ecfb;color:#1a56db;border-radius:7px;padding:8px 12px;font-size:12px;font-weight:600;white-space:nowrap;">선수금 받기</button>
-      ${outMenuBtn('기간별 출력', [['인쇄', 'printLedgerPeriod()'], [kakaoLbl(), "printLedgerPeriod('share')"]], 'border:none;background:var(--b-info);color:#3d4f6b;border-radius:7px;padding:8px 12px;font-size:12px;font-weight:600;white-space:nowrap;')}
-    </div>
-    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding-top:6px; border-top:1px dashed var(--border); font-size:11px; color:var(--muted);">
-      <span onclick="if(ledgerCustomer) renameCustomer(ledgerCustomer)" style="text-decoration:underline; cursor:pointer;">이름 수정</span>
-      <span onclick="document.querySelectorAll('.ledger-print-check').forEach(cb=>cb.checked=true)" style="text-decoration:underline; cursor:pointer;">전체 선택</span>
-      <span onclick="document.querySelectorAll('.ledger-print-check').forEach(cb=>cb.checked=false)" style="text-decoration:underline; cursor:pointer;">전체 해제</span>
-      <label style="margin-left:auto; display:flex; align-items:center; gap:4px;"><input type="checkbox" id="ledger-print-add-tax" style="width:auto;"> 부가세 포함해서 인쇄</label>
-    </div>
-  `;
+    <div class="sv-small">
+      <span onclick="document.querySelectorAll('.ledger-print-check').forEach(cb=>cb.checked=true)">전체 선택</span>
+      <span onclick="document.querySelectorAll('.ledger-print-check').forEach(cb=>cb.checked=false)">전체 해제</span>
+      <label><input type="checkbox" id="ledger-print-add-tax"> 부가세 포함해서 인쇄</label>
+    </div>`;
   list.appendChild(controls);
-
-  if (!ledgerStartDate || !ledgerEndDate) {
-    const now = new Date();
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-    // toISOString()은 UTC로 변환해서 문자열을 만들어서, 한국 시간 새벽 시간대엔 하루가 밀려 나오는 문제가 있었음 - 로컬 날짜 그대로 직접 조립함
-    ledgerStartDate = `${monthStart.getFullYear()}-${String(monthStart.getMonth() + 1).padStart(2, '0')}-${String(monthStart.getDate()).padStart(2, '0')}`;
-    ledgerEndDate = `${monthEnd.getFullYear()}-${String(monthEnd.getMonth() + 1).padStart(2, '0')}-${String(monthEnd.getDate()).padStart(2, '0')}`;
-  }
-  document.getElementById('ledger-start').value = ledgerStartDate;
-  document.getElementById('ledger-end').value = ledgerEndDate;
-
-  const profileWrap = document.createElement('div');
-  profileWrap.id = 'ledger-profile-wrap';
-  list.appendChild(profileWrap);
-
-  const memoWrap = document.createElement('div');
-  memoWrap.id = 'ledger-memo-wrap';
-  list.appendChild(memoWrap);
-
-  const tableWrap = document.createElement('div');
-  tableWrap.id = 'ledger-table-wrap';
-  list.appendChild(tableWrap);
-
-  if (ledgerCustomer) renderCustomerLedgerTable();
+  const profileWrap = document.createElement('div'); profileWrap.id = 'ledger-profile-wrap'; list.appendChild(profileWrap);
+  const memoWrap = document.createElement('div'); memoWrap.id = 'ledger-memo-wrap'; list.appendChild(memoWrap);
+  const tableWrap = document.createElement('div'); tableWrap.id = 'ledger-table-wrap'; list.appendChild(tableWrap);
+  renderCustomerLedgerTable();
 }
 let _paymentEditRefs = null; // 단일이면 {entryId, paymentIdx} 하나, 여러건 합쳐진거면 배열
 async function editMergedPaymentGroup(refsJson) {
@@ -14531,7 +14605,161 @@ async function deleteBackupMoment(label, docIdsJson) {
     showToast('삭제 중 오류가 났습니다');
   }
 }
+// ===== 지출·입금 내역 (전체 화면) =====
+// 볼 때가 넣을 때보다 훨씬 많아서: 내역은 매출·수금 탭 안의 전체 화면(이번 달 요약 → 항목별 합계 → 날짜별 목록), 추가·수정만 작은 창
+// 금액·저장 방식(expenses 배열, persistExpenses)은 예전과 똑같음
+let expSearch = '', expView = 'list', expOpenSampleDays = new Set();
 function openExpenseModal() {
+  const now = new Date();
+  expenseViewYear = now.getFullYear(); expenseViewMonth = now.getMonth() + 1;
+  expenseSelectedDate = null; expenseFilterMethod = 'all'; expSearch = ''; expView = 'list'; expOpenSampleDays = new Set();
+  if (currentTab !== 'sales') switchTab('sales');
+  salesSpecialView = 'expenses'; openGroups = new Set(); render(); window.scrollTo(0, 0);
+}
+function exitExpenseView() { salesSpecialView = null; render(); }
+const EXP_DOW = '일월화수목금토';
+function expDayLabel(d) { const m = String(d).match(/^(\d{2})\.(\d{2})\.(\d{2})$/); if (!m) return d; const w = new Date(2000 + +m[1], +m[2] - 1, +m[3]).getDay(); return `${+m[2]}/${+m[3]}(${EXP_DOW[w]})`; }
+function expWon(n) { return Math.round(n).toLocaleString(); }
+function expMan(n) { const v = Math.abs(n); return v >= 10000 ? (Math.round(v / 1000) / 10).toLocaleString() + '만' : v.toLocaleString(); }
+function expMonthKey() { return `${String(expenseViewYear).slice(2)}.${String(expenseViewMonth).padStart(2, '0')}`; }
+function expRowsAll() { // 방법 필터 + 검색(검색 중이면 모든 달) / 아니면 보는 달(+선택한 날)
+  const q = expSearch.trim();
+  let r = expenses.filter(e => expenseFilterMethod === 'all' || (e.method || 'cash') === expenseFilterMethod);
+  if (q) return r.filter(e => String(e.title || '').includes(q) || String(e.note || '').includes(q));
+  const mk = expMonthKey();
+  r = r.filter(e => String(e.date).startsWith(mk));
+  return expenseSelectedDate ? r.filter(e => e.date === expenseSelectedDate) : r;
+}
+function renderExpenseView() {
+  const list = document.getElementById('list'); list.innerHTML = '';
+  const q = expSearch.trim();
+  const mk = expMonthKey();
+  const monthRows = expenses.filter(e => String(e.date).startsWith(mk) && (expenseFilterMethod === 'all' || (e.method || 'cash') === expenseFilterMethod));
+  const sumRows = q ? expRowsAll() : monthRows;
+  const tExp = sumRows.filter(e => e.type !== 'income').reduce((s, e) => s + (Number(e.amount) || 0), 0);
+  const tInc = sumRows.filter(e => e.type === 'income').reduce((s, e) => s + (Number(e.amount) || 0), 0);
+  // 항목별 합계 (지출만, 샘플 원가는 한 줄로)
+  const byTitle = new Map();
+  for (const e of sumRows) { if (e.type === 'income') continue; const k = e.method === 'sample' ? '샘플 원가' : (String(e.title || '').trim() || '(항목 없음)'); byTitle.set(k, (byTitle.get(k) || 0) + (Number(e.amount) || 0)); }
+  const tops = [...byTitle.entries()].sort((a, b) => b[1] - a[1]);
+  const maxT = tops.length ? tops[0][1] : 1;
+  const chip = (m, l) => `<button type="button" class="ex-chip${expenseFilterMethod === m ? ' on' : ''}" onclick="setExpenseFilterMethod('${m}')">${l}</button>`;
+  const wrap = document.createElement('div'); wrap.className = 'ex-wrap';
+  wrap.innerHTML = `<div class="ex-top"><button type="button" class="ex-back" onclick="exitExpenseView()">← 돌아가기</button><h2>지출·입금 내역</h2></div>
+    <div class="ex-grid"><div class="ex-main">
+      <div class="ex-mon">${q ? `<b>「${esc(q)}」 검색 결과 · ${sumRows.length}건</b>` : `<button type="button" onclick="shiftExpenseMonth(-1)">◀</button><b>${expenseViewYear}년 ${expenseViewMonth}월</b><button type="button" onclick="shiftExpenseMonth(1)">▶</button>`}</div>
+      <div class="ex-sum"><div class="r"><span>지출</span><b>-${expWon(tExp)}</b></div><div class="g"><span>기타 입금</span><b>+${expWon(tInc)}</b></div><div><span>차액</span><b>${tInc - tExp < 0 ? '-' : '+'}${expWon(Math.abs(tInc - tExp))}</b></div></div>
+      <button type="button" class="ex-add" onclick="expFormOpen()">+ 지출·입금 추가</button>
+      <div class="ex-tools"><input id="exSearch" type="search" placeholder="항목·메모 찾기 (모든 달)" value="${escAttr(expSearch)}" oninput="expSearch=this.value; expSearchRender()">
+        <div class="ex-seg ex-mob"><button type="button" class="${expView === 'list' ? 'on' : ''}" onclick="expView='list'; renderExpenseView()">목록</button><button type="button" class="${expView === 'cal' ? 'on' : ''}" onclick="expView='cal'; renderExpenseView()">달력</button></div></div>
+      <div class="ex-chips">${chip('all', '전체')}${chip('cash', '현금')}${chip('online', '온라인')}${chip('sample', '샘플 원가')}</div>
+      ${tops.length ? `<div class="ex-topk ex-mob">${tops.slice(0, 6).map(([k, v]) => `<span>${esc(k)} <b>${expMan(v)}</b></span>`).join('')}</div>` : ''}
+      <div class="ex-calbox ex-mob-cal${expView === 'cal' && !q ? ' show' : ''}">${expCalendarHtml()}</div>
+      <div id="exList">${expListHtml()}</div>
+    </div>
+    <div class="ex-side">
+      ${tops.length ? `<div class="ex-card"><div class="ex-h">항목별 지출</div>${tops.slice(0, 8).map(([k, v]) => `<div class="ex-bar"><span class="k">${esc(k)}</span><span class="b"><i style="width:${Math.max(3, Math.round(v / maxT * 100))}%"></i></span><span class="v">${expMan(v)}</span></div>`).join('')}</div>` : ''}
+      ${q ? '' : `<div class="ex-card ex-pc-cal">${expCalendarHtml()}</div>`}
+    </div></div>`;
+  list.appendChild(wrap);
+}
+function expSearchRender() { // 검색 칸 입력 중에는 칸을 다시 그리지 않음 (글자가 끊기지 않게)
+  const el = document.getElementById('exSearch'); const pos = el ? el.selectionStart : 0;
+  renderExpenseView();
+  const n = document.getElementById('exSearch'); if (n) { n.focus(); try { n.setSelectionRange(pos, pos); } catch (e) {} }
+}
+function expCalendarHtml() {
+  const y = expenseViewYear, m = expenseViewMonth, mk = expMonthKey();
+  const days = new Date(y, m, 0).getDate(), first = new Date(y, m - 1, 1).getDay();
+  const byDay = new Map();
+  for (const e of expenses) {
+    if (expenseFilterMethod !== 'all' && (e.method || 'cash') !== expenseFilterMethod) continue;
+    if (!String(e.date).startsWith(mk)) continue;
+    const d = parseInt(String(e.date).split('.')[2]); if (!byDay.has(d)) byDay.set(d, { x: 0, i: 0 });
+    const r = byDay.get(d); if (e.type === 'income') r.i += Number(e.amount) || 0; else r.x += Number(e.amount) || 0;
+  }
+  let cells = [...'일월화수목금토'].map(w => `<div class="w">${w}</div>`).join('') + '<div></div>'.repeat(first);
+  for (let d = 1; d <= days; d++) {
+    const ds = `${mk}.${String(d).padStart(2, '0')}`, r = byDay.get(d), sel = expenseSelectedDate === ds;
+    cells += `<div class="d${r ? ' has' : ''}${sel ? ' sel' : ''}" onclick="pickExpenseDate('${ds}')">${d}${r && r.x ? `<small class="x">-${expMan(r.x)}</small>` : ''}${r && r.i ? `<small class="i">+${expMan(r.i)}</small>` : ''}</div>`;
+  }
+  return `<div class="ex-cal">${cells}</div>${expenseSelectedDate ? `<div class="ex-selnote">${expDayLabel(expenseSelectedDate)}만 보는 중 · <span onclick="pickExpenseDate('${expenseSelectedDate}')">전체 보기</span></div>` : ''}`;
+}
+function expListHtml() {
+  const rows = expRowsAll().sort((a, b) => String(b.date).localeCompare(String(a.date)) || b.id - a.id);
+  if (!rows.length) return `<div class="empty">${expSearch.trim() ? '찾는 내역이 없습니다' : '이 기간엔 기록이 없습니다'}</div>`;
+  const byDate = new Map(); for (const e of rows) { if (!byDate.has(e.date)) byDate.set(e.date, []); byDate.get(e.date).push(e); }
+  const tag = { cash: '현금', online: '온라인', sample: '샘플' };
+  const row = e => `<div class="ex-row" onclick="expItemOpen(${e.id})"><span class="t"><span class="ex-tag${e.method === 'online' ? ' on' : ''}">${tag[e.method || 'cash'] || '현금'}</span>${esc(e.title)}${e.note ? `<small>${esc(e.note)}</small>` : ''}</span><span class="a ${e.type === 'income' ? 'g' : 'r'}">${e.type === 'income' ? '+' : '-'}${expWon(Number(e.amount) || 0)}</span></div>`;
+  let h = '';
+  for (const [date, list] of byDate) {
+    const x = list.filter(e => e.type !== 'income').reduce((s, e) => s + (Number(e.amount) || 0), 0), i = list.filter(e => e.type === 'income').reduce((s, e) => s + (Number(e.amount) || 0), 0);
+    h += `<div class="ex-dh"><span>${expDayLabel(date)}</span><span>${x ? '-' + expMan(x) : ''}${x && i ? ' · ' : ''}${i ? '+' + expMan(i) : ''}</span></div>`;
+    const smp = list.filter(e => e.method === 'sample'), rest = list.filter(e => e.method !== 'sample');
+    h += rest.map(row).join('');
+    if (smp.length) {
+      const open = expOpenSampleDays.has(date) || expenseFilterMethod === 'sample' || !!expSearch.trim();
+      if (open) h += smp.map(row).join('');
+      else h += `<div class="ex-smp" onclick="expOpenSampleDays.add('${date}'); document.getElementById('exList').innerHTML = expListHtml()"><span>샘플 원가 ${smp.length}건 ▾</span><b>-${expWon(smp.reduce((s, e) => s + (Number(e.amount) || 0), 0))}</b></div>`;
+    }
+  }
+  return h;
+}
+// 추가·수정 창 (작은 창)
+let _expForm = null;
+function expFormOpen(id) {
+  const e = id != null ? expenses.find(x => x.id === id) : null;
+  _expForm = { id: e ? e.id : null, type: e ? (e.type === 'income' ? 'income' : 'expense') : 'expense', method: e ? (e.method || 'cash') : 'cash' };
+  const recent = (() => { const m = new Map(); for (const x of expenses.slice(-400)) { if (x.method === 'sample' || !x.title) continue; const k = String(x.title).trim(); m.set(k, (m.get(k) || 0) + 1); } return [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([k]) => k); })();
+  let ov = document.getElementById('expFormModal');
+  if (!ov) { ov = document.createElement('div'); ov.id = 'expFormModal'; ov.className = 'sm-ov'; document.body.appendChild(ov); ov.addEventListener('mousedown', ev => { if (ev.target === ov) ov.remove(); }); }
+  const seg = (k, v, l) => `<button type="button" data-k="${k}" data-v="${v}" class="${_expForm[k] === v ? 'on' : ''}${v === 'expense' ? ' red' : ''}" onclick="expFormSeg('${k}','${v}')">${l}</button>`;
+  ov.innerHTML = `<div class="sm-box rx-box ex-form"><div class="rx-top"><h3>${e ? '지출·입금 수정' : '지출·입금 추가'}</h3><button type="button" class="rx-close" onclick="document.getElementById('expFormModal').remove()">✕</button></div>
+    <div class="ex-seg">${seg('type', 'expense', '지출')}${seg('type', 'income', '기타 입금')}</div>
+    <div class="ex-seg" style="margin-top:6px;">${seg('method', 'cash', '현금')}${seg('method', 'online', '온라인')}${e && e.method === 'sample' ? seg('method', 'sample', '샘플 원가') : ''}</div>
+    <label>금액</label><input id="exf-amount" class="ex-big" type="text" inputmode="numeric" value="${e ? expWon(e.amount) : ''}" placeholder="0" oninput="const v=this.value.replace(/[^0-9]/g,''); this.value=v?Number(v).toLocaleString():''">
+    <label>항목</label><input id="exf-title" value="${e ? escAttr(e.title) : ''}" placeholder="예: 식대, 퀵비, 택배비">
+    ${recent.length ? `<div class="ex-qc">${recent.map(t => `<button type="button" onclick="document.getElementById('exf-title').value=this.textContent">${esc(t)}</button>`).join('')}</div>` : ''}
+    <label>날짜</label><input id="exf-date" type="date" value="${toDateInputValue(e ? e.date : (expenseSelectedDate || todayStr()))}">
+    <label>메모 (선택)</label><input id="exf-note" value="${e ? escAttr(e.note || '') : ''}" placeholder="예: 점심">
+    <div class="rx-acts"><button type="button" class="ui-btn" onclick="document.getElementById('expFormModal').remove()">취소</button><button type="button" class="ui-btn ui-btn-main" onclick="expFormSave()">저장</button></div>
+    <div class="dp-note">거래처에게 받은 돈은 매출·수금 › 입금 처리에서 넣어 주세요. 「기타 입금」은 시재 채움 같은 가게 돈입니다.</div></div>`;
+  setTimeout(() => { const a = document.getElementById('exf-amount'); if (a && !e) a.focus(); }, 50);
+}
+function expFormSeg(k, v) { _expForm[k] = v; document.querySelectorAll(`#expFormModal .ex-seg button[data-k="${k}"]`).forEach(b => b.classList.toggle('on', b.dataset.v === v)); }
+async function expFormSave() {
+  if (!_expForm) return;
+  const amount = Number(String(document.getElementById('exf-amount').value).replace(/[^0-9]/g, ''));
+  const title = document.getElementById('exf-title').value.trim();
+  const note = document.getElementById('exf-note').value.trim();
+  const date = fromDateInputValue(document.getElementById('exf-date').value) || todayStr();
+  if (!(amount > 0)) { showToast('금액을 확인해 주세요'); return; }
+  if (!title) { showToast('항목을 적어 주세요'); return; }
+  if (_expForm.id == null) {
+    expenses.push({ id: nextExpenseId++, date, title, amount, note, type: _expForm.type, method: _expForm.method });
+    const ok = await persistExpenses(); if (ok === false) { expenses.pop(); return; }
+    showToast(_expForm.type === 'income' ? '기타 입금 등록 완료' : '지출 등록 완료');
+  } else {
+    const e = expenses.find(x => x.id === _expForm.id); if (!e) return;
+    const before = { ...e };
+    Object.assign(e, { date, title, amount, note, type: _expForm.type, method: _expForm.method });
+    const ok = await persistExpenses(); if (ok === false) { Object.assign(e, before); return; }
+    showToast('수정 완료');
+  }
+  const m = document.getElementById('expFormModal'); if (m) m.remove();
+  const [yy, mm] = String(date).split('.'); if (!expSearch.trim() && yy && mm) { expenseViewYear = 2000 + +yy; expenseViewMonth = +mm; } // 넣은 날짜의 달로 이동
+  render();
+}
+function expItemOpen(id) { // 줄을 누르면: 내용 + 수정·삭제 (큰 버튼)
+  const e = expenses.find(x => x.id === id); if (!e) return;
+  let ov = document.getElementById('expItemModal');
+  if (!ov) { ov = document.createElement('div'); ov.id = 'expItemModal'; ov.className = 'sm-ov'; document.body.appendChild(ov); ov.addEventListener('mousedown', ev => { if (ev.target === ov) ov.remove(); }); }
+  const tag = { cash: '현금', online: '온라인', sample: '샘플 원가' };
+  ov.innerHTML = `<div class="sm-box rx-box"><div class="rx-top"><h3>${esc(e.title)} · ${expWon(e.amount)}원</h3><button type="button" class="rx-close" onclick="document.getElementById('expItemModal').remove()">✕</button></div>
+    <div style="font-size:13px;color:var(--muted);">${expDayLabel(e.date)} · ${tag[e.method || 'cash'] || '현금'} · ${e.type === 'income' ? '기타 입금' : '지출'}${e.note ? `<br>${esc(e.note)}` : ''}</div>
+    <div class="rx-acts"><button type="button" class="ui-btn" style="background:var(--b-danger-soft);color:var(--danger);" onclick="document.getElementById('expItemModal').remove(); deleteExpense(${e.id})">삭제</button><button type="button" class="ui-btn ui-btn-main" onclick="document.getElementById('expItemModal').remove(); expFormOpen(${e.id})">수정</button></div></div>`;
+}
+function openExpenseModalOld() {
   expenseFilterMethod = 'all';
   document.getElementById('exp-date').value = toDateInputValue(todayStr());
   document.getElementById('exp-amount').value = '';
@@ -14612,22 +14840,25 @@ async function deleteExpense(id) {
   if (!(await uiConfirm('이 항목을 삭제하시겠습니까?'))) return;
   expenses = expenses.filter(e => e.id !== id);
   await persistExpenses();
+  if (salesSpecialView === 'expenses') { render(); return; }
   renderExpenseCalendar();
   renderExpenseList();
 }
 let expenseFilterMethod = 'all';
 let expenseViewYear = null, expenseViewMonth = null; // null이면 openExpenseModal에서 이번달로 채움
 let expenseSelectedDate = null; // 특정 날짜 클릭해서 그날만 보는 중이면 그 날짜, 아니면 null(그 달 전체)
-function setExpenseFilterMethod(m) { expenseFilterMethod = m; renderExpenseCalendar(); renderExpenseList(); }
+function setExpenseFilterMethod(m) { expenseFilterMethod = m; if (salesSpecialView === 'expenses') { render(); return; } renderExpenseCalendar(); renderExpenseList(); }
 function shiftExpenseMonth(delta) {
   let m = expenseViewMonth + delta, y = expenseViewYear;
   if (m < 1) { m = 12; y--; } else if (m > 12) { m = 1; y++; }
   expenseViewYear = y; expenseViewMonth = m;
   expenseSelectedDate = null;
+  if (salesSpecialView === 'expenses') { render(); return; }
   renderExpenseCalendar(); renderExpenseList();
 }
 function pickExpenseDate(dateStr) {
   expenseSelectedDate = (expenseSelectedDate === dateStr) ? null : dateStr; // 같은 날 다시 누르면 선택 해제(그 달 전체 보기로)
+  if (salesSpecialView === 'expenses') { render(); return; }
   renderExpenseCalendar(); renderExpenseList();
 }
 function renderExpenseCalendar() {
@@ -14719,15 +14950,7 @@ function renderExpenseList() {
 let monthlyReportOffset = 0; // 0=이번달, -1=지난달 ...
 let yearlyReportOffset = 0; // 0=올해, -1=작년 ...
 let reportUnlocked = false; // 이 화면 켜져있는 동안만 유지 (새로고침하면 다시 잠김) - 월간/연간리포트, 회계장부 다 이 하나로 잠김
-function showReportMenu() {
-  if (!reportUnlocked) {
-    if (!can('report')) { permDeny('report'); return; }
-    reportUnlocked = true;
-  }
-  salesSpecialView = 'reportMenu';
-  openGroups = new Set();
-  render();
-}
+function showReportMenu() { showReportHub(); } // 예전 리포트 메뉴 화면은 없애고 바로 탭으로
 function exitReportMenu() {
   salesSpecialView = null;
   openGroups = new Set();
@@ -15032,7 +15255,7 @@ function payCompute(person, plan, entries) {
 }
 function showPayView() {
   if (!isOwner()) { showToast('직원 수당은 대표님만 볼 수 있습니다'); return; }
-  payOffset = 0; payPickOpen = null; paySearch = ''; salesSpecialView = 'repComm'; openGroups = new Set(); render();
+  rpM = 0; payPickOpen = null; paySearch = ''; showReportHub('pay');
 }
 async function payMonthEntries(mk) {
   const [yy, mm] = mk.split('.'); const archived = await fetchArchivedEntriesForMonth(`20${yy}-${mm}`);
@@ -15046,8 +15269,7 @@ async function renderPayView() {
   const list = document.getElementById('list'); list.innerHTML = '';
   const mk = payMk(payOffset); const people = payPeople();
   const top = document.createElement('div'); top.className = 'pay-top';
-  top.innerHTML = `<button onclick="salesSpecialView='reportMenu'; openGroups=new Set(); render()">← 돌아가기</button><button onclick="payOffset--; render()">◀</button><b>${monthKeyLabel(mk)} 직원 수당</b><button onclick="payOffset++; render()" ${payOffset >= 0 ? 'disabled' : ''}>▶</button>`;
-  list.appendChild(top);
+  list.appendChild(rpHead('pay'));
   if (!people.length) {
     list.insertAdjacentHTML('beforeend', `<div class="pay-card"><div style="font-weight:800;font-size:15px;">아직 등록한 직원이 없습니다</div><div class="pay-sub" style="margin-top:4px;line-height:1.6;">영업 담당 거래처 출고량, 가게 전체 출고량(창고·배송), 매출·순이익 비율, 고정 수당까지 직원마다 다르게 계산합니다.</div><button class="pay-add" onclick="payEdit(null)">+ 직원 추가</button></div>`);
     return;
@@ -15162,12 +15384,7 @@ function payRepOf(customer) { // 거래처 원장에 "담당 김영업" 표시�
   for (const p of payPeople()) { const c = (p.customers || []).find(x => x.name === n); if (c) return { name: p.name, isNew: !!c.isNew }; }
   return null;
 }
-function showMonthlyReport() {
-  monthlyReportOffset = 0;
-  salesSpecialView = 'monthlyReport';
-  openGroups = new Set(); // 다른 화면으로 넘어갈 때 열려있던 카드들 접힌 상태로 초기화
-  render();
-}
+function showMonthlyReport() { rpMode = 'month'; rpM = 0; showReportHub('summary'); }
 function exitMonthlyReport() {
   salesSpecialView = 'reportMenu';
   openGroups = new Set(); // 다른 화면으로 넘어갈 때 열려있던 카드들 접힌 상태로 초기화
@@ -15177,12 +15394,7 @@ function shiftMonthlyReport(delta) {
   monthlyReportOffset += delta;
   render();
 }
-function showYearlyReport() {
-  yearlyReportOffset = 0;
-  salesSpecialView = 'yearlyReport';
-  openGroups = new Set();
-  render();
-}
+function showYearlyReport() { rpMode = 'year'; rpY = 0; showReportHub('summary'); }
 function exitYearlyReport() {
   salesSpecialView = 'reportMenu';
   openGroups = new Set();
@@ -15230,16 +15442,10 @@ function openFixedCostModal(mk) {
     <button onclick="shiftFixedCostMonth(-1)" style="border:none;background:var(--b-sub);color:#555;border-radius:8px;padding:6px 12px;font-size:13px;">◀</button>
     <div style="flex:1; text-align:center; font-size:15px; font-weight:700;">${monthKeyLabel(fixedCostModalMonth)}<div style="font-size:11px; font-weight:400; color:var(--muted);">${hasOwn ? '이 달에 따로 저장된 고정비' : '앞선 달 고정비를 이어서 쓰는 중'}</div></div>
     <button onclick="shiftFixedCostMonth(1)" style="border:none;background:var(--b-sub);color:#555;border-radius:8px;padding:6px 12px;font-size:13px;">▶</button>`;
+  // 줄을 누르면 수정·삭제 (작은 글자 링크 대신), 맨 아래 합계
   listEl.innerHTML = items.length === 0 ? '<div class="empty">아직 등록된 고정비가 없습니다</div>' : items.map((c, i) => `
-    <div style="display:flex; justify-content:space-between; align-items:center; padding:6px 4px; border-bottom:1px dashed var(--border);">
-      <div style="font-size:13px;">${esc(c.label)}</div>
-      <div style="display:flex; align-items:center; gap:8px;">
-        <span style="font-weight:600;">${c.amount.toLocaleString()}원/월</span>
-        <button onclick="editFixedCost(${i})" style="border:none;background:none;color:var(--primary-dark);font-size:11px;text-decoration:underline;">수정</button>
-        <button onclick="deleteFixedCost(${i})" style="border:none;background:none;color:var(--muted);font-size:11px;">삭제</button>
-      </div>
-    </div>
-  `).join('');
+    <div class="ex-row" onclick="fcItemOpen(${i})"><span class="t">${esc(c.label)}</span><span class="a">${c.amount.toLocaleString()}원</span></div>`).join('')
+    + `<div class="ex-row" style="cursor:default;background:none;border-bottom:none;"><span class="t" style="font-weight:700;">월 합계</span><span class="a">${items.reduce((s, c) => s + (Number(c.amount) || 0), 0).toLocaleString()}원</span></div>`;
   document.getElementById('fixed-cost-label').value = '';
   document.getElementById('fixed-cost-amount').value = '';
   document.getElementById('fixedCostModal').classList.add('open');
@@ -15249,6 +15455,20 @@ function closeFixedCostModal() {
   fixedCostModalMonth = null;
   renderMonthlyReportView();
 }
+async function fcAddOpen() {
+  const r = await askForm('고정비 추가', [{ label: '항목', value: '', placeholder: '예: 직원 월급, 매장 임대료' }, { label: `${monthKeyLabel(fixedCostModalMonth)}부터 월 금액(원)`, value: '', numeric: true, placeholder: '예: 2500000' }], { okText: '추가' });
+  if (!r) return;
+  document.getElementById('fixed-cost-label').value = r[0] || ''; document.getElementById('fixed-cost-amount').value = String(r[1] || '').replace(/[^0-9.]/g, '');
+  await addFixedCost();
+}
+function fcItemOpen(i) {
+  const c = getFixedCostsForMonth(fixedCostModalMonth)[i]; if (!c) return;
+  let ov = document.getElementById('fcItemModal');
+  if (!ov) { ov = document.createElement('div'); ov.id = 'fcItemModal'; ov.className = 'sm-ov'; document.body.appendChild(ov); ov.addEventListener('mousedown', ev => { if (ev.target === ov) ov.remove(); }); }
+  ov.innerHTML = `<div class="sm-box rx-box"><div class="rx-top"><h3>${esc(c.label)} · ${Number(c.amount).toLocaleString()}원</h3><button type="button" class="rx-close" onclick="document.getElementById('fcItemModal').remove()">✕</button></div>
+    <div style="font-size:13px;color:var(--muted);">${monthKeyLabel(fixedCostModalMonth)} 고정비</div>
+    <div class="rx-acts"><button type="button" class="ui-btn" style="background:var(--b-danger-soft);color:var(--danger);" onclick="document.getElementById('fcItemModal').remove(); deleteFixedCost(${i})">삭제</button><button type="button" class="ui-btn ui-btn-main" onclick="document.getElementById('fcItemModal').remove(); editFixedCost(${i})">수정</button></div></div>`;
+}
 async function addFixedCost() {
   const label = document.getElementById('fixed-cost-label').value.trim();
   const amount = parseFloat(document.getElementById('fixed-cost-amount').value);
@@ -15257,7 +15477,7 @@ async function addFixedCost() {
   const items = getFixedCostsForMonth(fixedCostModalMonth).slice();
   items.push({ label, amount });
   await saveFixedCostsForMonth(fixedCostModalMonth, items);
-  openFixedCostModal(fixedCostModalMonth);
+  fcRefresh();
 }
 async function editFixedCost(idx) {
   const items = getFixedCostsForMonth(fixedCostModalMonth).slice();
@@ -15272,13 +15492,15 @@ async function editFixedCost(idx) {
   if (!newAmount || newAmount <= 0) { showToast('금액을 확인해 주세요'); return; }
   items[idx] = { label: newLabel.trim(), amount: newAmount };
   await saveFixedCostsForMonth(fixedCostModalMonth, items);
-  openFixedCostModal(fixedCostModalMonth);
+  fcRefresh();
 }
 async function deleteFixedCost(idx) {
+  const _it = getFixedCostsForMonth(fixedCostModalMonth)[idx];
+  if (_it && !(await uiConfirm(`${_it.label} 고정비를 ${monthKeyLabel(fixedCostModalMonth)}부터 삭제하시겠습니까?`))) return;
   const items = getFixedCostsForMonth(fixedCostModalMonth).slice();
   items.splice(idx, 1);
   await saveFixedCostsForMonth(fixedCostModalMonth, items);
-  openFixedCostModal(fixedCostModalMonth);
+  fcRefresh();
 }
 function computeProfitFieldsForEntries(entries) {
   // renderSales가 라이브 항목에 하는 원가/순이익/마진율 계산과 완전히 똑같은 로직 - 보관함에서 가져온 항목에도 똑같이 적용하기 위한 함수
@@ -15297,7 +15519,8 @@ function computeProfitFieldsForEntries(entries) {
     }
   }
 }
-async function renderMonthlyReportView() {
+async function renderMonthlyReportView() { return renderRpSummary(); }
+async function renderMonthlyReportViewOld() {
   const myToken = ++_reportRenderToken;
   ensureShipmentLogArchivedCacheLoaded(); // 미수금 총액 계산에 필요 - 백그라운드로 불러오고 완료되면 자동 재계산
   const list = document.getElementById('list');
@@ -15496,7 +15719,8 @@ function printMonthlyReport() {
   document.getElementById('printArea').innerHTML = `<div style="padding:10mm; font-family:-apple-system,'Malgun Gothic',sans-serif;">${content.innerHTML}</div>`;
   setTimeout(() => window.print(), 100);
 }
-async function renderYearlyReportView() {
+async function renderYearlyReportView() { return renderRpSummary(); }
+async function renderYearlyReportViewOld() {
   const myToken = ++_reportRenderToken;
   ensureShipmentLogArchivedCacheLoaded(); // 미수금 총액 계산에 필요 - 백그라운드로 불러오고 완료되면 자동 재계산
   const list = document.getElementById('list');
@@ -15684,7 +15908,8 @@ function printYearlyReport() {
   setTimeout(() => window.print(), 100);
 }
 let customerRankingOffset = 0; // 0=이번달, -1=지난달 ...
-function showCustomerRanking() {
+function showCustomerRanking() { showReportHub('ranking'); }
+function showCustomerRankingOld() {
   salesSpecialView = 'customerRanking';
   openGroups = new Set(); // 다른 화면으로 넘어갈 때 열려있던 카드들 접힌 상태로 초기화
   customerRankingOffset = 0;
@@ -15700,7 +15925,7 @@ function exitCustomerRanking() {
   openGroups = new Set(); // 다른 화면으로 넘어갈 때 열려있던 카드들 접힌 상태로 초기화
   render();
 }
-async function renderCustomerRankingView() {
+async function renderCustomerRankingViewOld() {
   const list = document.getElementById('list');
   list.innerHTML = '';
 
@@ -15827,7 +16052,7 @@ function exitUnpaidSummary() {
   openGroups = new Set(); // 다른 화면으로 넘어갈 때 열려있던 카드들 접힌 상태로 초기화
   render();
 }
-function renderUnpaidSummaryView() {
+function renderUnpaidSummaryViewOld() {
   const list = document.getElementById('list');
   list.innerHTML = '';
 
@@ -15854,7 +16079,7 @@ async function addNewCustomerUnpaid() {
   if (customer === null || !customer.trim()) return;
   await editCarryoverBalance(customer.trim(), null);
 }
-function renderUnpaidSummaryList() {
+function renderUnpaidSummaryListOld() {
   ensureShipmentLogArchivedCacheLoaded(); // 백그라운드로 불러옴 - 완료되면 자동으로 다시 그려짐
   const custMap = new Map(); // customer -> {carryoverId}
   for (const e of shipmentLog) {
@@ -16346,6 +16571,10 @@ function shiftOrderDayFilter(delta) {
   render();
 }
 function shiftSalesDayFilter(delta) {
+  if (salesDayFilter && salesDayFilterEnd && salesDayFilterEnd !== salesDayFilter) { // 기간으로 보고 있으면 그 길이만큼 (한 달이면 지난달·다음 달)
+    [salesDayFilter, salesDayFilterEnd] = svRangeShift(salesDayFilter, salesDayFilterEnd, delta);
+    refreshSalesDayArchivedCache(); render(); return;
+  }
   const base = salesDayFilter ? parseKDate(salesDayFilter) : new Date();
   if (!base) return;
   base.setDate(base.getDate() + delta);
@@ -16357,15 +16586,458 @@ function shiftSalesDayFilter(delta) {
   refreshSalesDayArchivedCache();
   render();
 }
+// ===== 매출·수금 조회 화면 (수금 · 리포트 · 거래처 원장) 공통 =====
+// 화면 배치·이름만 정리함. 잔액·미수금 계산은 예전 함수(getCustomerTrueUnpaidAll 등)를 그대로 씀
+const SV_HUB = ['unpaidSummary', 'paymentLedger', 'customerLedger', 'monthlyReport', 'yearlyReport', 'customerRanking', 'itemMonthly', 'fixedCost', 'repComm', 'priceList', 'reportMenu'];
+function svA(s) { return JSON.stringify(String(s == null ? '' : s)).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); } // onclick="fn(${svA(x)})" 안에 넣는 안전한 글자
+function svH(s) { return esc(s == null ? '' : s).replace(/"/g, '&quot;'); }
+function svPad(n) { return String(n).padStart(2, '0'); }
+function svKd(d) { return `${String(d.getFullYear()).slice(2)}.${svPad(d.getMonth() + 1)}.${svPad(d.getDate())}`; }
+function svD(d) { d = String(d || ''); return d.slice(0, 2) === todayStr().slice(0, 2) ? d.slice(3) : d; } // 올해 날짜는 '11.23'처럼 짧게
+function svN(n) { return Math.round(Number(n) || 0).toLocaleString(); }
+function svMan(n) {
+  const v = Math.round(Number(n) || 0), a = Math.abs(v), s = v < 0 ? '-' : '';
+  if (a >= 100000000) return s + (Math.round(a / 10000000) / 10) + '억';
+  if (a >= 10000) return s + Math.round(a / 10000).toLocaleString() + '만';
+  return v.toLocaleString();
+}
+function svMatch(name, q) { q = String(q || '').trim().toLowerCase(); if (!q) return true; const n = String(name || '').toLowerCase(); return n.includes(q) || getChosung(String(name || '')).includes(q); }
+function svPct(cur, prev) { return prev > 0 ? Math.round(((cur - prev) / prev) * 1000) / 10 : null; }
+function svPctHtml(p, prefix) { if (p == null) return ''; return `<span style="color:${p >= 0 ? '#c0392b' : '#1a56db'};">${prefix ? prefix + ' ' : ''}${p >= 0 ? '▲' : '▼'}${Math.abs(p)}%</span>`; }
+
+// 기간 고르기 (◀ 기간 ▶ + 이번 달·지난달·최근 3개월·올해·직접 고르기)
+function svLastDay(d) { return new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate(); }
+function svRangePreset(p) {
+  const n = new Date(), y = n.getFullYear(), m = n.getMonth();
+  if (p === 'today') return [svKd(n), svKd(n)];
+  if (p === 'm0') return [svKd(new Date(y, m, 1)), svKd(new Date(y, m + 1, 0))];
+  if (p === 'm1') return [svKd(new Date(y, m - 1, 1)), svKd(new Date(y, m, 0))];
+  if (p === 'm3') return [svKd(new Date(y, m - 2, 1)), svKd(new Date(y, m + 1, 0))];
+  if (p === 'y0') return [svKd(new Date(y, 0, 1)), svKd(new Date(y, 11, 31))];
+  return [null, null];
+}
+function svRangeShift(from, to, dir) { // 한 달(여러 달)로 보고 있으면 달 단위로, 아니면 같은 일수만큼 옮김
+  const a = parseKDate(from), b = parseKDate(to || from); if (!a || !b) return [from, to];
+  if (a.getDate() === 1 && b.getDate() === svLastDay(b)) {
+    const months = (b.getFullYear() - a.getFullYear()) * 12 + b.getMonth() - a.getMonth() + 1;
+    const na = new Date(a.getFullYear(), a.getMonth() + dir * months, 1);
+    return [svKd(na), svKd(new Date(na.getFullYear(), na.getMonth() + months, 0))];
+  }
+  const days = Math.round((b - a) / 86400000) + 1;
+  const na = new Date(a); na.setDate(na.getDate() + dir * days);
+  const nb = new Date(b); nb.setDate(nb.getDate() + dir * days);
+  return [svKd(na), svKd(nb)];
+}
+function svRangeLabel(from, to) {
+  if (!from) return '전체 기간';
+  const a = parseKDate(from), b = parseKDate(to || from); if (!a || !b) return '';
+  if (from === (to || from)) return `${a.getFullYear()}년 ${a.getMonth() + 1}월 ${a.getDate()}일`;
+  if (a.getDate() === 1 && b.getDate() === svLastDay(b)) {
+    if (a.getFullYear() === b.getFullYear() && a.getMonth() === 0 && b.getMonth() === 11) return `${a.getFullYear()}년`;
+    if (a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth()) return `${a.getFullYear()}년 ${a.getMonth() + 1}월`;
+    if (a.getFullYear() === b.getFullYear()) return `${a.getFullYear()}년 ${a.getMonth() + 1}-${b.getMonth() + 1}월`;
+  }
+  return `${from} - ${to}`;
+}
+const SV_RANGE = {
+  ledger: { get: () => [fromDateInputValue(ledgerStartDate || ''), fromDateInputValue(ledgerEndDate || '')], set: (f, t) => { ledgerStartDate = toDateInputValue(f); ledgerEndDate = toDateInputValue(t); } },
+  pay: { get: () => [collectPayFrom, collectPayTo], set: (f, t) => { collectPayFrom = f; collectPayTo = t; } },
+};
+let _svCustom = {};
+function svRangeBar(key, from, to) {
+  const presets = [['m0', '이번 달'], ['m1', '지난달'], ['m3', '최근 3개월'], ['y0', '올해']];
+  const cur = presets.find(([p]) => { const [f, t] = svRangePreset(p); return f === from && t === to; });
+  const open = !!_svCustom[key] || !cur;
+  return `<div class="sv-per"><button type="button" class="arr" onclick="svRangeGo('${key}','prev')">◀</button><div class="lbl">${esc(svRangeLabel(from, to))}</div><button type="button" class="arr" onclick="svRangeGo('${key}','next')" ${to && to >= todayStr() ? 'disabled' : ''}>▶</button></div>
+  <div class="sv-chips">${presets.map(([p, l]) => `<button type="button" class="${cur && cur[0] === p ? 'on' : ''}" onclick="svRangeGo('${key}','${p}')">${l}</button>`).join('')}<button type="button" class="${!cur ? 'on' : ''}" onclick="svRangeGo('${key}','custom')">직접 고르기</button></div>
+  <div class="sv-custom${open ? '' : ' hidden'}" id="svc-${key}"><input type="date" id="${key}-start" value="${toDateInputValue(from)}" onchange="svRangeGo('${key}','input')"><span>-</span><input type="date" id="${key}-end" value="${toDateInputValue(to)}" onchange="svRangeGo('${key}','input')"></div>`;
+}
+function svRangeGo(key, act) {
+  const R = SV_RANGE[key]; if (!R) return;
+  let [f, t] = R.get();
+  if (act === 'custom') { _svCustom[key] = !_svCustom[key]; const el = document.getElementById('svc-' + key); if (el) el.classList.toggle('hidden', !_svCustom[key]); return; }
+  if (act === 'prev' || act === 'next') [f, t] = svRangeShift(f, t, act === 'prev' ? -1 : 1);
+  else if (act === 'input') {
+    f = fromDateInputValue(document.getElementById(key + '-start').value) || f;
+    t = fromDateInputValue(document.getElementById(key + '-end').value) || t;
+    if (f && t && f > t) [f, t] = [t, f];
+  } else { [f, t] = svRangePreset(act); _svCustom[key] = false; }
+  R.set(f, t); render();
+}
+// 매출 화면 위쪽 기간: ◀▶는 보고 있는 기간 길이만큼 옮기고, 「기간 ▾」으로 바로 고름
+function salesRangePreset(p) {
+  if (p === 'all') { salesDayFilter = null; salesDayFilterEnd = null; }
+  else if (p === 'today') { salesDayFilter = todayStr(); salesDayFilterEnd = null; }
+  else { const [f, t] = svRangePreset(p); salesDayFilter = f; salesDayFilterEnd = t; }
+  refreshSalesDayArchivedCache(); render();
+}
+function salesDayInput(which, v) {
+  const d = fromDateInputValue(v);
+  if (which === 'start') {
+    salesDayFilter = d || null;
+    if (!salesDayFilter) salesDayFilterEnd = null;
+    else if (salesDayFilterEnd && salesDayFilterEnd < salesDayFilter) salesDayFilterEnd = null; // 끝 날짜가 앞서면 그날 하루만
+  } else {
+    salesDayFilterEnd = d || null;
+    if (salesDayFilterEnd && !salesDayFilter) salesDayFilter = salesDayFilterEnd;
+    if (salesDayFilterEnd && salesDayFilter && salesDayFilterEnd < salesDayFilter) [salesDayFilter, salesDayFilterEnd] = [salesDayFilterEnd, salesDayFilter];
+  }
+  refreshSalesDayArchivedCache(); render();
+}
+
+// ===== 수금 (미수금 + 입금 내역) =====
+let collectSearch = '', collectSort = 'amt', collectMemoOpen = false, collectPayFrom = null, collectPayTo = null;
+function collectHead(tab) {
+  const menu = [['기존 미수금 입력', 'addNewCustomerUnpaid()'], ['거래처 메모 추가', 'addDepositMemoAskCustomer()']];
+  return `<div class="sv-head"><button type="button" class="sv-back" onclick="exitCollect()">← 돌아가기</button><h2>수금</h2>${moreBtn(menu)}</div>
+  <div class="sv-seg"><button type="button" class="${tab === 'unpaid' ? 'on' : ''}" onclick="showUnpaidSummary()">미수금</button><button type="button" class="${tab === 'paid' ? 'on' : ''}" onclick="showPaymentLedger()">입금 내역</button></div>`;
+}
+function exitCollect() { salesSpecialView = null; openGroups = new Set(); render(); }
+function collectUnpaidData() {
+  const liveCarry = new Map(); // 「직접 수정」할 이월 미수금 (지금 장부에 있는 것)
+  for (const e of shipmentLog) if (e.item === '이월 미수금' && !e.isPrepay && e.customer) { const k = String(e.customer).trim(); if (!liveCarry.has(k)) liveCarry.set(k, e.id); }
+  const today = parseKDate(todayStr()), mk = todayStr().slice(0, 5);
+  const bucketOf = age => age <= 30 ? 0 : age <= 60 ? 1 : age <= 90 ? 2 : 3;
+  let monthIn = 0;
+  const rows = withFullArchiveMerged(() => {
+    const ub = getCustomerTrueUnpaidAll();
+    const per = new Map();
+    for (const e of shipmentLog) {
+      for (const p of (e.payments || [])) if (String(p.date).slice(0, 5) === mk) monthIn += Number(p.amount) || 0;
+      const k = String(e.customer || '').trim(); if (!k || !((ub.get(k) || 0) > 0)) continue;
+      let r = per.get(k); if (!r) per.set(k, r = { sales: [], lastPay: null, lastSale: null });
+      for (const p of (e.payments || [])) if (p.amount > 0 && (!r.lastPay || String(p.date) > r.lastPay)) r.lastPay = String(p.date);
+      if (e.saleAmount != null && !e.isReturn && !e.isDefect && !e.isPrepay && !e.isSample) {
+        const due = (e.saleAmount || 0) - (e.discount || 0);
+        if (due > 0) r.sales.push({ d: String(e.date), a: due });
+        if (e.item !== '이월 미수금' && (!r.lastSale || String(e.date) > r.lastSale)) r.lastSale = String(e.date);
+      }
+    }
+    const out = [];
+    for (const [k, u] of ub) {
+      if (!(u > 0)) continue;
+      const r = per.get(k) || { sales: [], lastPay: null, lastSale: null };
+      // 받은 돈은 오래된 출고부터 갚은 것으로 보고, 남은 미수금이 어느 출고에서 왔는지 최근 것부터 채움 (얼마나 오래된 돈인지 보기용 - 금액 계산과는 무관)
+      r.sales.sort((a, b) => b.d.localeCompare(a.d));
+      let left = u, oldest = null; const bk = [0, 0, 0, 0];
+      for (const s of r.sales) {
+        if (left <= 0.001) break;
+        const take = Math.min(left, s.a), age = Math.max(0, Math.round((today - parseKDate(s.d)) / 86400000));
+        bk[bucketOf(age)] += take; left -= take; oldest = age;
+      }
+      if (left > 0.001) bk[oldest == null ? 3 : bucketOf(oldest)] += left;
+      out.push({ customer: k, unpaid: u, carryoverId: liveCarry.has(k) ? liveCarry.get(k) : null, oldest, lastPay: r.lastPay, lastSale: r.lastSale, bk });
+    }
+    return out;
+  });
+  return { rows, monthIn };
+}
+function renderUnpaidSummaryView() {
+  ensureShipmentLogArchivedCacheLoaded(); // 백그라운드로 불러옴 - 완료되면 자동으로 다시 그려짐
+  const list = document.getElementById('list');
+  list.innerHTML = `<div class="sv-page">${collectHead('unpaid')}<div id="unpaid-top"></div>
+    <input class="sv-search" id="collect-search" placeholder="거래처 찾기 (초성도 됩니다)" autocomplete="off" value="${svH(collectSearch)}" oninput="collectSearch=this.value; renderUnpaidSummaryList()">
+    <div id="unpaid-summary-list"></div></div>`;
+  renderUnpaidSummaryList();
+}
+function renderUnpaidSummaryList() {
+  const topEl = document.getElementById('unpaid-top'), listEl = document.getElementById('unpaid-summary-list');
+  if (!listEl) return;
+  ensureShipmentLogArchivedCacheLoaded();
+  const { rows, monthIn } = collectUnpaidData();
+  const total = rows.reduce((s, r) => s + r.unpaid, 0);
+  const B = [0, 1, 2, 3].map(i => rows.reduce((s, r) => s + r.bk[i], 0));
+  const cols = ['#9fc3d6', '#e8b98c', '#e39a8f', '#c0392b'], names = ['30일 이내', '31-60일', '61-90일', '90일 넘음'];
+  const n90 = rows.filter(r => r.bk[3] > 0.5).length;
+  if (collectSort === '90' && n90 === 0) collectSort = 'amt';
+  if (topEl) topEl.innerHTML = `<div class="sv-kpi k2"><div><small>총 미수금 · ${rows.length}곳</small><b style="color:var(--danger);">${svN(total)}원</b></div><div><small>이번 달 입금</small><b>${svN(monthIn)}원</b></div></div>
+    ${total > 0 ? `<div class="sv-age"><div class="h">미수금이 얼마나 오래됐나 <span>· 출고일 기준</span></div><div class="bar">${B.map((v, i) => v > 0.5 ? `<i style="flex:${v};background:${cols[i]};"></i>` : '').join('')}</div><div class="lg">${B.map((v, i) => `<span><i style="background:${cols[i]};"></i>${names[i]}<b>${svMan(v)}</b></span>`).join('')}</div></div>` : ''}
+    <div class="sv-chips"><button type="button" class="${collectSort === 'amt' ? 'on' : ''}" onclick="collectSort='amt'; renderUnpaidSummaryList()">금액 큰 순</button><button type="button" class="${collectSort === 'old' ? 'on' : ''}" onclick="collectSort='old'; renderUnpaidSummaryList()">오래된 순</button>${n90 ? `<button type="button" class="${collectSort === '90' ? 'on' : ''}" onclick="collectSort='90'; renderUnpaidSummaryList()">90일 넘은 곳 ${n90}</button>` : ''}</div>`;
+  let shown = rows.filter(r => svMatch(r.customer, collectSearch));
+  if (collectSort === '90') shown = shown.filter(r => r.bk[3] > 0.5);
+  shown.sort(collectSort === 'amt' ? (a, b) => b.unpaid - a.unpaid : (a, b) => (b.oldest || 0) - (a.oldest || 0) || b.unpaid - a.unpaid);
+  const pill = r => r.oldest == null || r.oldest <= 30 ? '' : `<span class="sv-pill ${r.oldest > 90 ? 'r' : 'o'}">${r.oldest}일 지남</span>`;
+  const rowHtml = r => {
+    const menu = [['원장 보기', `showCustomerLedger(${JSON.stringify(r.customer)})`], ['선수금 받기', `prepayOpen(${JSON.stringify(r.customer)})`], ['미수금 직접 수정', `editCarryoverBalance(${JSON.stringify(r.customer)}, ${r.carryoverId != null ? r.carryoverId : 'null'})`]];
+    return `<div class="sv-row"><div class="n" onclick="showCustomerLedger(${svA(r.customer)})"><b>${esc(r.customer)}</b>${pill(r)}<small>${r.lastPay ? `입금 ${svD(r.lastPay)}` : '입금 기록 없음'}${r.lastSale ? ` · 출고 ${svD(r.lastSale)}` : ''}</small></div>
+      <span class="v" style="color:var(--danger);">${svN(r.unpaid)}</span><button type="button" class="sv-btn btn-key" onclick="payCustomerUnpaid(${svA(r.customer)})">입금</button>${moreBtn(menu)}</div>`;
+  };
+  const memoHtml = `<div class="sv-card"><div class="sv-row" style="cursor:pointer;" onclick="collectMemoOpen=!collectMemoOpen; renderUnpaidSummaryList()"><div class="n"><b style="font-size:14px;">거래처 메모 ${depositMemos.length}건</b><small>선수금·약속 같은 메모 (거래처 원장에도 보입니다)</small></div><span style="color:var(--muted);">${collectMemoOpen ? '접기 ▴' : '펼치기 ▾'}</span></div>
+    ${collectMemoOpen ? (depositMemos.length === 0 ? '<div class="sv-row"><div class="n"><small>아직 메모가 없습니다</small></div></div>' : depositMemos.slice().reverse().filter(m => svMatch(m.customer, collectSearch)).map(m => `<div class="sv-row"><div class="n" onclick="showCustomerLedger(${svA(m.customer)})"><b style="font-size:14px;">${esc(m.customer)}</b><small>${esc(m.date)} · ${esc(m.text)}</small></div>${moreBtn([['수정', `editDepositMemo(${m.id})`], ['삭제', `deleteDepositMemo(${m.id})`, 1]])}</div>`).join('')) : ''}</div>`;
+  listEl.innerHTML = (shown.length === 0 ? `<div class="empty">${rows.length === 0 ? '받을 미수금이 없습니다' : '찾는 거래처가 없습니다'}</div>` : `<div class="sv-card">${shown.map(rowHtml).join('')}</div>`) + memoHtml;
+}
+
+// ===== 리포트 (요약 · 거래처 순위 · 품목별 출고 · 고정비 · 직원 수당) - 위쪽 기간(월/연)을 모든 탭이 같이 씀 =====
+let rpMode = 'month', rpM = 0, rpY = 0, rpSort = 'sale', rpItemSearch = '', _rpItemsLoaded = false;
+const RP_TABS = [['summary', '요약'], ['ranking', '거래처 순위'], ['items', '품목별 출고'], ['fixed', '고정비'], ['pay', '직원 수당']];
+function rpTabOK(t) { if (t === 'summary' || t === 'fixed') return can('report'); if (t === 'pay') return featureOn('payroll') && isOwner(); return can('sales'); }
+function rpTabOf(v) { return { monthlyReport: 'summary', yearlyReport: 'summary', reportMenu: 'summary', customerRanking: 'ranking', itemMonthly: 'items', fixedCost: 'fixed', repComm: 'pay' }[v] || null; }
+function rpSync() { monthlyReportOffset = rpM; customerRankingOffset = rpM; payOffset = rpM; yearlyReportOffset = rpY; }
+function showReportHub(tab) {
+  if (can('report')) reportUnlocked = true;
+  rpGo(tab && rpTabOK(tab) ? tab : (can('report') ? 'summary' : 'ranking'));
+}
+function rpGo(tab) {
+  if (!rpTabOK(tab)) { if (tab === 'summary' || tab === 'fixed') permDeny('report'); return; }
+  if (can('report')) reportUnlocked = true;
+  salesSpecialView = tab === 'summary' ? (rpMode === 'year' ? 'yearlyReport' : 'monthlyReport') : tab === 'ranking' ? 'customerRanking' : tab === 'items' ? 'itemMonthly' : tab === 'fixed' ? 'fixedCost' : 'repComm';
+  openGroups = new Set(); rpSync(); render(); window.scrollTo(0, 0);
+}
+function rpPeriod(tab) {
+  const n = new Date();
+  if (tab !== 'pay' && rpMode === 'year') { const y = n.getFullYear() + rpY; return { year: true, y, key: String(y).slice(2), prevKey: String(y - 1).slice(2), len: 2, label: `${y}년`, prevName: '작년', atEnd: rpY >= 0 }; }
+  const d = new Date(n.getFullYear(), n.getMonth() + rpM, 1), p = new Date(d.getFullYear(), d.getMonth() - 1, 1);
+  const k = x => `${String(x.getFullYear()).slice(2)}.${svPad(x.getMonth() + 1)}`;
+  return { year: false, y: d.getFullYear(), m: d.getMonth() + 1, key: k(d), prevKey: k(p), len: 5, label: `${d.getFullYear()}년 ${d.getMonth() + 1}월`, prevName: '지난달', atEnd: rpM >= 0 };
+}
+function rpNav(d) {
+  if (rpMode === 'year' && rpTabOf(salesSpecialView) !== 'pay') rpY = Math.min(0, rpY + d); else rpM = Math.min(0, rpM + d);
+  rpSync(); render();
+}
+function rpSetMode(m) {
+  if (m === rpMode) return;
+  const n = new Date();
+  if (m === 'year') { const d = new Date(n.getFullYear(), n.getMonth() + rpM, 1); rpY = d.getFullYear() - n.getFullYear(); }
+  else { const selY = n.getFullYear() + rpY, d = new Date(n.getFullYear(), n.getMonth() + rpM, 1); if (d.getFullYear() !== selY) rpM = selY === n.getFullYear() ? 0 : (selY - n.getFullYear()) * 12 + (11 - n.getMonth()); }
+  rpMode = m; rpGo(rpTabOf(salesSpecialView) || 'summary');
+}
+function rpHead(tab, extra) {
+  const P = rpPeriod(tab);
+  const el = document.createElement('div');
+  el.innerHTML = `<div class="sv-head"><button type="button" class="sv-back" onclick="exitReportMenu()">← 돌아가기</button><h2>리포트</h2>${extra || ''}</div>
+    <div class="sv-chips sv-tabs">${RP_TABS.filter(([t]) => rpTabOK(t)).map(([t, l]) => `<button type="button" class="${t === tab ? 'on' : ''}" onclick="rpGo('${t}')">${l}</button>`).join('')}</div>
+    <div class="sv-per"><button type="button" class="arr" onclick="rpNav(-1)">◀</button><div class="lbl">${P.label}</div><button type="button" class="arr" onclick="rpNav(1)" ${P.atEnd ? 'disabled' : ''}>▶</button>${tab === 'pay' ? '' : `<div class="sv-tw"><button type="button" class="${!P.year ? 'on' : ''}" onclick="rpSetMode('month')">월</button><button type="button" class="${P.year ? 'on' : ''}" onclick="rpSetMode('year')">연</button></div>`}</div>`;
+  setTimeout(() => { const on = el.querySelector('.sv-tabs .on'); if (on && on.scrollIntoView) on.scrollIntoView({ block: 'nearest', inline: 'nearest' }); }, 0);
+  return el;
+}
+function rpRev(e) { return (e.supplyAmount != null ? e.supplyAmount : e.saleAmount) - (e.discount || 0) + (e.extraAmount || 0); }
+function rpProf(e) { // 월간·연간 리포트가 쓰던 순이익 계산 그대로
+  const r = rpRev(e), c = getCostPerYardForEntry(e);
+  if (c != null && r > 0) return r - Math.round(c * e.yardsShipped);
+  if (!hasKnownItem(e.item) && r > 0) return r;
+  return 0;
+}
+async function rpAllEntries() { // 지금 장부 + 보관함 전체 (중복 없이)
+  const arch = await fetchAllArchivedEntries();
+  const liveIds = new Set(shipmentLog.map(e => e.id));
+  return { all: shipmentLog.concat((arch || []).filter(e => !liveIds.has(e.id))), ok: arch !== null };
+}
+function rpSummaryCompute(P, all) {
+  const inP = d => String(d).slice(0, P.len) === P.key, inPv = d => String(d).slice(0, P.len) === P.prevKey;
+  let sale = 0, ret = 0, profit = 0, prevSale = 0, prevProfit = 0, cash = 0, online = 0;
+  const itemQty = new Map(), byMonth = new Map();
+  const bm = k => { let r = byMonth.get(k); if (!r) byMonth.set(k, r = { sale: 0, profit: 0 }); return r; };
+  for (const e of all) {
+    for (const p of (e.payments || [])) if (inP(p.date)) { if ((p.method || 'cash') === 'cash') cash += p.amount; else online += p.amount; }
+    if (e.item === '이월 미수금') continue;
+    const c = inP(e.date), pv = inPv(e.date); if (!c && !pv) continue;
+    if (e.isReturn || e.isDefect) {
+      if (e.deductAmount != null) { const v = returnSupplyOf(e); if (c) { ret += v; profit -= v; if (P.year) { const m = bm(String(e.date).slice(0, 5)); m.sale -= v; m.profit -= v; } } else { prevSale -= v; prevProfit -= v; } }
+      continue;
+    }
+    if (e.saleAmount == null) continue;
+    const r = rpRev(e), pr = rpProf(e);
+    if (c) { sale += r; profit += pr; if (!e.isFee && e.yardsShipped) itemQty.set(e.item, (itemQty.get(e.item) || 0) + e.yardsShipped); if (P.year) { const m = bm(String(e.date).slice(0, 5)); m.sale += r; m.profit += pr; } }
+    else { prevSale += r; prevProfit += pr; }
+  }
+  sale -= ret;
+  const ex = expenses.filter(x => inP(x.date));
+  const expense = ex.filter(x => x.type !== 'income').reduce((s, x) => s + x.amount, 0);
+  const income = ex.filter(x => x.type === 'income').reduce((s, x) => s + x.amount, 0);
+  let fixedItems, fixedNote = '';
+  if (P.year) { // 올해면 이번 달까지만 (앞으로 올 달 고정비는 아직 안 뺌)
+    const n = new Date(), lastM = P.y === n.getFullYear() ? n.getMonth() + 1 : 12;
+    const byLabel = new Map();
+    for (let mo = 1; mo <= lastM; mo++) for (const c of getFixedCostsForMonth(`${P.key}.${svPad(mo)}`)) byLabel.set(c.label, (byLabel.get(c.label) || 0) + c.amount);
+    fixedItems = Array.from(byLabel, ([label, amount]) => ({ label, amount })); fixedNote = lastM === 12 ? '1-12월' : `1-${lastM}월`;
+  } else fixedItems = getFixedCostsForMonth(P.key);
+  const fixed = fixedItems.reduce((s, c) => s + c.amount, 0);
+  const unpaid = Math.round(withFullArchiveMerged(() => { let s = 0; for (const v of getCustomerTrueUnpaidAll().values()) s += v || 0; return s; }));
+  return { sale, profit, prevSale, prevProfit, cash, online, expense, income, fixed, fixedItems, fixedNote, unpaid, byMonth, top: Array.from(itemQty).sort((a, b) => b[1] - a[1]).slice(0, 5) };
+}
+async function renderRpSummary() {
+  const myToken = ++_reportRenderToken;
+  ensureShipmentLogArchivedCacheLoaded();
+  const P = rpPeriod('summary');
+  const list = document.getElementById('list'); list.innerHTML = '';
+  list.appendChild(rpHead('summary', `<button type="button" class="sv-back" onclick="rpPrint()">인쇄</button>`));
+  const body = document.createElement('div'); body.id = 'rp-print'; body.innerHTML = '<div class="empty">계산하는 중...</div>'; list.appendChild(body);
+  const { all, ok } = await rpAllEntries();
+  if (myToken !== _reportRenderToken) return;
+  const S = rpSummaryCompute(P, all);
+  const net = S.profit - S.expense + S.income, trueNet = net - S.fixed;
+  const margin = S.sale > 0 ? Math.round(S.profit / S.sale * 1000) / 10 : null;
+  const monthsHtml = !P.year ? '' : (() => {
+    const n = new Date(), lastM = P.y === n.getFullYear() ? n.getMonth() + 1 : 12;
+    let firstM = 1; while (firstM < lastM && !S.byMonth.has(`${P.key}.${svPad(firstM)}`)) firstM++; // 장부를 쓰기 전 빈 달은 안 보임
+    const ms = []; for (let mo = firstM; mo <= lastM; mo++) ms.push([mo, S.byMonth.get(`${P.key}.${svPad(mo)}`) || { sale: 0, profit: 0 }]);
+    const mx = Math.max(1, ...ms.map(([, v]) => v.sale));
+    return `<div class="sv-card"><div class="rp-ct">달별 매출 · 순이익</div>${ms.map(([mo, v]) => `<div class="rp-mrow" onclick="rpMode='month'; rpM=${(P.y - n.getFullYear()) * 12 + (mo - 1 - n.getMonth())}; rpGo('summary')"><span class="m">${mo}월</span><span class="bar"><i style="width:${Math.max(0, v.sale / mx * 100)}%"></i></span><span class="s">${svMan(v.sale)}</span><span class="p">${svMan(v.profit)}</span></div>`).join('')}</div>`;
+  })();
+  body.innerHTML = `${ok ? '' : '<div class="pay-warn">⚠️ 보관함을 불러오지 못해 예전 기록 일부가 빠졌을 수 있습니다</div>'}
+    <div class="sv-kpi">
+      <div><small>매출 · 세금 별도</small><b>${svN(S.sale)}원</b><div class="sub">${svPctHtml(svPct(S.sale, S.prevSale), P.prevName + ' 대비')}</div></div>
+      <div><small>매출 순이익</small><b style="color:#1a7a4a;">${svN(S.profit)}원</b><div class="sub">${margin != null ? `마진 ${margin}%` : ''}${margin != null && S.prevProfit > 0 ? ' · ' : ''}${svPctHtml(svPct(S.profit, S.prevProfit))}</div></div>
+      <div><small>실제 들어온 돈</small><b>${svN(S.cash + S.online)}원</b><div class="sub">현금 ${svMan(S.cash)} · 온라인 ${svMan(S.online)}</div></div>
+      <div><small>진짜 순이익</small><b style="color:${trueNet >= 0 ? '#1a7a4a' : 'var(--danger)'};">${svN(trueNet)}원</b><div class="sub">지출·고정비까지 뺀 금액</div></div>
+    </div>
+    <div class="sv-card rp-wf">
+      <div class="ln"><span>매출 순이익</span><b>${svN(S.profit)}</b></div>
+      <div class="ln"><span>지출 <a onclick="openExpenseModal()">내역</a></span><span style="color:var(--danger);">${S.expense ? '-' + svN(S.expense) : '0'}</span></div>
+      <div class="ln"><span>기타 입금 <small>지출·입금 내역에 적은 입금</small></span><span style="color:#2f6b46;">${S.income ? '+' + svN(S.income) : '0'}</span></div>
+      <div class="ln"><span>고정비${S.fixedNote ? ` (${S.fixedNote})` : ''} ${S.fixedItems.length}건 <a onclick="rpGo('fixed')">보기·고치기</a></span><span style="color:var(--danger);">${S.fixed ? '-' + svN(S.fixed) : '0'}</span></div>
+      <div class="ln tot"><span>진짜 순이익</span><b style="color:${trueNet >= 0 ? '#1a7a4a' : 'var(--danger)'};">${svN(trueNet)}</b></div>
+    </div>
+    ${monthsHtml}
+    <div class="sv-card rp-wf"><div class="ln"><span>지금 미수금 총액 <a onclick="showUnpaidSummary()">수금 보기</a></span><b style="color:var(--danger);">${svN(S.unpaid)}</b></div></div>
+    <div class="sv-card"><div class="rp-ct">가장 많이 나간 품목 <a onclick="rpGo('items')">전체 보기</a></div>${S.top.length === 0 ? '<div class="sv-row"><div class="n"><small>기록 없음</small></div></div>' : S.top.map(([it, q], i) => `<div class="sv-row"><span class="rk">${i + 1}</span><div class="n"><b style="font-size:14px;">${esc(it)}</b></div><span class="v">${svN(q)}y</span></div>`).join('')}</div>`;
+}
+function rpPrint() {
+  const c = document.getElementById('rp-print'); if (!c) return;
+  document.getElementById('printArea').innerHTML = `<div style="padding:10mm; font-family:-apple-system,'Malgun Gothic',sans-serif;"><h2 style="margin:0 0 10px;">${esc(rpPeriod('summary').label)} 리포트</h2>${c.innerHTML}</div>`;
+  setTimeout(() => window.print(), 100);
+}
+async function renderCustomerRankingView() {
+  const myToken = ++_reportRenderToken;
+  ensureShipmentLogArchivedCacheLoaded();
+  const P = rpPeriod('ranking'), showCost = canSeeCost();
+  const list = document.getElementById('list'); list.innerHTML = '';
+  list.appendChild(rpHead('ranking'));
+  const body = document.createElement('div'); body.innerHTML = '<div class="empty">계산하는 중...</div>'; list.appendChild(body);
+  const { all, ok } = await rpAllEntries();
+  if (myToken !== _reportRenderToken) return;
+  if (!ok) showToast('보관함을 못 불러왔습니다 - 최근 데이터 기준으로만 보입니다');
+  const cur = new Map(), prev = new Map(), lastOrder = new Map(), monthsWith = new Map();
+  const get = (m, k) => { let r = m.get(k); if (!r) m.set(k, r = { sale: 0, profit: 0, y: 0 }); return r; };
+  for (const e of all) {
+    if (!e.customer || e.item === '이월 미수금') continue;
+    const k = String(e.customer).trim(), d = String(e.date);
+    const c = d.slice(0, P.len) === P.key, pv = d.slice(0, P.len) === P.prevKey;
+    if (e.isReturn || e.isDefect) { if (e.deductAmount != null && (c || pv)) { const r = get(c ? cur : prev, k), v = returnSupplyOf(e); r.sale -= v; r.profit -= v; } continue; }
+    if (e.saleAmount == null) continue;
+    if (c || pv) { const r = get(c ? cur : prev, k); r.sale += rpRev(e); r.profit += rpProf(e); if (!e.isFee && e.yardsShipped > 0) r.y += e.yardsShipped; }
+    if (!monthsWith.has(k)) monthsWith.set(k, new Set()); monthsWith.get(k).add(d.slice(0, 5));
+    if (!lastOrder.get(k) || d > lastOrder.get(k)) lastOrder.set(k, d);
+  }
+  const ub = withFullArchiveMerged(() => getCustomerTrueUnpaidAll());
+  let rows = Array.from(cur, ([k, v]) => { const p = prev.get(k); return { k, sale: Math.round(v.sale), profit: Math.round(v.profit), y: Math.round(v.y * 100) / 100, margin: v.sale > 0 ? Math.round(v.profit / v.sale * 1000) / 10 : null, pct: p && p.sale > 0 ? svPct(v.sale, p.sale) : (v.sale > 0 ? 'new' : null), unpaid: Math.round(ub.get(k) || 0) }; }).filter(r => r.sale > 0);
+  if (!showCost && (rpSort === 'profit' || rpSort === 'margin')) rpSort = 'sale';
+  const sv = r => rpSort === 'pct' ? (r.pct === 'new' ? 1e9 : r.pct == null ? -1e9 : r.pct) : (r[rpSort] == null ? -1e12 : r[rpSort]);
+  rows.sort((a, b) => sv(b) - sv(a) || b.sale - a.sale);
+  const totalSale = Math.round(Array.from(cur.values()).reduce((s, v) => s + v.sale, 0)); // 반품만 있는 거래처까지 합쳐서 요약 화면 매출과 같게
+  const pctH = r => r.pct === 'new' ? '<span style="color:#2f6b46;">신규</span>' : r.pct == null ? '-' : svPctHtml(r.pct);
+  const sorts = [['sale', '매출'], ...(showCost ? [['profit', '순이익'], ['margin', '마진']] : []), ['y', '출고량'], ['pct', P.prevName + ' 대비'], ['unpaid', '미수금']];
+  const th = (k, l) => `<th class="${rpSort === k ? 'on' : ''}" onclick="rpSort='${k}'; render()">${l}${rpSort === k ? ' ▼' : ''}</th>`;
+  // 뜸해진 단골: 2달 넘게 거래했는데 최근 30일 주문이 없는 곳 (이번 달을 볼 때만)
+  const quiet = [];
+  if (!P.year && rpM === 0) {
+    const cut = new Date(); cut.setDate(cut.getDate() - 30); const cutS = svKd(cut), today = parseKDate(todayStr());
+    for (const [k, ms] of monthsWith) { const last = lastOrder.get(k); if (ms.size >= 2 && last && last < cutS) quiet.push({ k, last, days: Math.floor((today - parseKDate(last)) / 86400000) }); }
+    quiet.sort((a, b) => a.days - b.days);
+  }
+  body.innerHTML = rows.length === 0 ? `<div class="empty">${esc(P.label)} 매출 기록이 없습니다</div>` : `
+    <div class="rp-note">${rows.length}곳 · 매출 합계 ${svN(totalSale)}원 (세금 별도, 반품·불량 뺀 금액)</div>
+    <div class="sv-chips rp-list">${sorts.map(([k, l]) => `<button type="button" class="${rpSort === k ? 'on' : ''}" onclick="rpSort='${k}'; render()">${l} 순</button>`).join('')}</div>
+    <div class="sv-card rp-list">${rows.map((r, i) => `<div class="sv-row" onclick="showCustomerLedger(${svA(r.k)})" style="cursor:pointer;"><span class="rk${i < 3 ? ' top' : ''}">${i + 1}</span><div class="n"><b>${esc(r.k)}</b><small>${svN(r.y)}y${rpSort === 'unpaid' ? (r.unpaid > 0 ? ` · 미수금 ${svMan(r.unpaid)}` : ' · 미수금 없음') : showCost ? ` · 순이익 ${svMan(r.profit)}${r.margin != null ? ` (${r.margin}%)` : ''}` : ''}</small></div><div class="v" style="text-align:right;">${svN(r.sale)}<small style="display:block;font-size:11px;font-weight:600;">${pctH(r)}</small></div></div>`).join('')}</div>
+    <div class="rp-tbl-wrap"><table class="rp-tbl"><thead><tr><th>순위</th><th>거래처</th>${sorts.map(([k, l]) => th(k, l)).join('')}</tr></thead><tbody>${rows.map((r, i) => `<tr onclick="showCustomerLedger(${svA(r.k)})"><td>${i + 1}</td><td><b>${esc(r.k)}</b></td><td>${svN(r.sale)}</td>${showCost ? `<td>${svN(r.profit)}</td><td>${r.margin != null ? r.margin + '%' : '-'}</td>` : ''}<td>${svN(r.y)}y</td><td>${pctH(r)}</td><td style="color:${r.unpaid > 0 ? 'var(--danger)' : 'var(--muted)'};">${svN(r.unpaid)}</td></tr>`).join('')}</tbody></table></div>`
+    + (quiet.length ? `<div class="sv-card"><div class="rp-ct">최근 30일 주문이 없는 단골 ${quiet.length}곳</div>${quiet.map(q => `<div class="sv-row" onclick="showCustomerLedger(${svA(q.k)})" style="cursor:pointer;"><div class="n"><b style="font-size:14px;">${esc(q.k)}</b><small>마지막 주문 ${esc(q.last)}</small></div><span class="sv-pill ${q.days > 90 ? 'r' : 'o'}">${q.days}일째 없음</span></div>`).join('')}</div>` : '');
+}
+function renderItemMonthlyStatsView() {
+  const list = document.getElementById('list'); list.innerHTML = '';
+  list.appendChild(rpHead('items'));
+  list.insertAdjacentHTML('beforeend', `<input class="sv-search" id="rp-item-search" placeholder="품번 찾기" autocomplete="off" value="${svH(rpItemSearch)}" oninput="rpItemSearch=this.value; rpItemsRows()"><div id="rp-items"></div>`);
+  if (!_rpItemsLoaded) {
+    document.getElementById('rp-items').innerHTML = '<div class="empty">불러오는 중...</div>';
+    fetchAllArchivedEntries().then(r => { itemMonthlyArchivedCache = r || []; _rpItemsLoaded = r !== null; if (r === null) showToast('보관함을 못 불러왔습니다 - 최근 데이터만 보입니다'); if (salesSpecialView === 'itemMonthly') rpItemsRows(); });
+    return;
+  }
+  rpItemsRows();
+}
+function rpItemsRows() {
+  const host = document.getElementById('rp-items'); if (!host) return;
+  const P = rpPeriod('items');
+  const liveIds = new Set(shipmentLog.map(e => e.id));
+  const ships = shipmentLog.concat(itemMonthlyArchivedCache.filter(e => !liveIds.has(e.id))).filter(e => !e.isReturn && !e.isDefect && !e.manualClose && !e.isFee && e.yardsShipped > 0);
+  const cur = new Map(); let prevTotal = 0;
+  for (const e of ships) {
+    const d = String(e.date).slice(0, P.len);
+    if (d === P.prevKey) { prevTotal += e.yardsShipped; continue; }
+    if (d !== P.key) continue;
+    const it = resolveInventoryItem(e.item), c = e.color || '(컬러 없음)';
+    let r = cur.get(it); if (!r) cur.set(it, r = { total: 0, colors: new Map() });
+    r.total = Math.round((r.total + e.yardsShipped) * 100) / 100;
+    r.colors.set(c, Math.round(((r.colors.get(c) || 0) + e.yardsShipped) * 100) / 100);
+  }
+  const items = Array.from(cur).sort((a, b) => b[1].total - a[1].total);
+  const total = Math.round(items.reduce((s, [, r]) => s + r.total, 0) * 100) / 100;
+  const shown = items.filter(([it]) => svMatch(it, rpItemSearch));
+  const mx = items.length ? items[0][1].total : 1;
+  host.innerHTML = items.length === 0 ? `<div class="empty">${esc(P.label)} 출고 기록이 없습니다</div>` : `
+    <div class="sv-kpi"><div><small>총 출고</small><b>${svN(total)}y</b><div class="sub">${svPctHtml(svPct(total, prevTotal), P.prevName + ' 대비')}</div></div><div><small>나간 품목</small><b>${items.length}종</b></div></div>
+    ${shown.length === 0 ? '<div class="empty">찾는 품번이 없습니다</div>' : `<div class="sv-card">${shown.map(([it, r]) => { const gk = 'itm:' + it, open = openGroups.has(gk), cs = Array.from(r.colors).sort((a, b) => b[1] - a[1]); const rank = items.findIndex(x => x[0] === it) + 1;
+      return `<div class="sv-row" style="cursor:pointer;" onclick="rpItemToggle(${svA(gk)})"><span class="rk${rank <= 3 ? ' top' : ''}">${rank}</span><div class="n"><b style="font-size:14.5px;">${esc(it)}</b><span class="rp-share"><i style="width:${r.total / mx * 100}%"></i></span><small>컬러 ${cs.length}개 ${open ? '▴' : '▾'}</small></div><span class="v">${svN(r.total)}y</span></div>${open ? `<div class="rp-colors">${cs.map(([c, y]) => `<div><span>${esc(c)}</span><span>${svN(y)}y</span></div>`).join('')}</div>` : ''}`; }).join('')}</div>`}`;
+}
+function rpItemToggle(gk) { if (openGroups.has(gk)) openGroups.delete(gk); else openGroups.add(gk); rpItemsRows(); }
+function renderFixedCostTab() {
+  const list = document.getElementById('list'); list.innerHTML = '';
+  const P = rpPeriod('fixed');
+  list.appendChild(rpHead('fixed'));
+  if (P.year) {
+    const n = new Date(), lastM = P.y === n.getFullYear() ? n.getMonth() + 1 : 12;
+    const ms = []; for (let mo = 1; mo <= lastM; mo++) { const mk = `${P.key}.${svPad(mo)}`; ms.push([mo, getFixedCostsForMonth(mk).reduce((s, c) => s + (Number(c.amount) || 0), 0), !!(settings.fixedCostsByMonth || {})[mk]]); }
+    list.insertAdjacentHTML('beforeend', `<div class="rp-note">달을 누르면 그 달 고정비를 보고 고칠 수 있습니다</div><div class="sv-card">${ms.map(([mo, t, own]) => `<div class="sv-row" style="cursor:pointer;" onclick="rpMode='month'; rpM=${(P.y - n.getFullYear()) * 12 + (mo - 1 - n.getMonth())}; rpGo('fixed')"><div class="n"><b style="font-size:14.5px;">${mo}월</b><small>${own ? '이 달에 따로 저장' : '앞선 달 그대로'}</small></div><span class="v">${svN(t)}원</span><span style="color:var(--muted);">›</span></div>`).join('')}<div class="sv-row"><div class="n"><b style="font-size:14.5px;">합계${lastM < 12 ? ` (1-${lastM}월)` : ''}</b></div><span class="v">${svN(ms.reduce((s, m) => s + m[1], 0))}원</span></div></div>`);
+    return;
+  }
+  fixedCostModalMonth = P.key;
+  const items = getFixedCostsForMonth(P.key), own = !!(settings.fixedCostsByMonth || {})[P.key];
+  list.insertAdjacentHTML('beforeend', `<div class="rp-note">${own ? '이 달에 따로 저장한 고정비입니다' : '앞선 달 고정비를 그대로 쓰고 있습니다. 고치면 이 달부터 바뀝니다'}</div>
+    <div class="sv-card">${items.length === 0 ? '<div class="sv-row"><div class="n"><small>아직 등록한 고정비가 없습니다. 직원 월급·임대료처럼 매달 나가는 돈을 넣으면 리포트의 「진짜 순이익」에 반영됩니다</small></div></div>' : items.map((c, i) => `<div class="sv-row" style="cursor:pointer;" onclick="fcItemOpen(${i})"><div class="n"><b style="font-size:14.5px;">${esc(c.label)}</b></div><span class="v">${svN(c.amount)}원</span><span style="color:var(--muted);">›</span></div>`).join('')}
+    ${items.length ? `<div class="sv-row"><div class="n"><b style="font-size:14.5px;">월 합계</b></div><span class="v">${svN(items.reduce((s, c) => s + (Number(c.amount) || 0), 0))}원</span></div>` : ''}</div>
+    <button type="button" class="ui-btn ui-btn-main" style="width:100%;" onclick="fcAddOpen()">+ 고정비 추가</button>`);
+}
+function fcRefresh() { if (salesSpecialView === 'fixedCost') render(); else openFixedCostModal(fixedCostModalMonth); }
+
+// ===== 거래처 원장: 처음엔 거래처 목록, 고르면 원장 · 단가 =====
+let ledgerFromList = false, ledgerTab = 'ledger', ledgerListSearch = '', ledgerListSort = 'recent';
+function ledgerPick(name) { ledgerCustomer = name; ledgerFromList = true; ledgerTab = 'ledger'; ledgerStartDate = null; ledgerEndDate = null; openGroups = new Set(); render(); window.scrollTo(0, 0); }
+function ledgerBackToList() { ledgerCustomer = null; ledgerFromList = false; ledgerTab = 'ledger'; ledgerStartDate = null; ledgerEndDate = null; render(); }
+function renderLedgerPickList(list) {
+  ensureShipmentLogArchivedCacheLoaded();
+  list.innerHTML = `<div class="sv-head"><button type="button" class="sv-back" onclick="exitCustomerLedger()">← 돌아가기</button><h2>거래처 원장</h2>${moreBtn([['+ 거래처 추가', 'addCustomerName()']])}</div>
+    <input class="sv-search" id="ledger-pick-search" placeholder="거래처 찾기 (초성도 됩니다)" autocomplete="off" value="${svH(ledgerListSearch)}" oninput="ledgerListSearch=this.value; renderLedgerPickRows()">
+    <div id="ledger-pick-rows"></div>`;
+  renderLedgerPickRows();
+}
+function renderLedgerPickRows() {
+  const host = document.getElementById('ledger-pick-rows'); if (!host) return;
+  const last = new Map();
+  const liveIds = new Set(shipmentLog.map(e => e.id));
+  for (const e of shipmentLog.concat(shipmentLogArchivedCache.filter(e => !liveIds.has(e.id)))) {
+    const k = String(e.customer || '').trim(); if (!k) continue;
+    if (!last.has(k)) last.set(k, '');
+    if (e.saleAmount != null && e.item !== '이월 미수금' && !e.isPrepay && String(e.date) > last.get(k)) last.set(k, String(e.date));
+  }
+  for (const c of customerList) { const k = String(c).trim(); if (k && !last.has(k)) last.set(k, ''); }
+  for (const o of orders) { const k = String(o.customer || '').trim(); if (k && !last.has(k)) last.set(k, ''); }
+  const ub = withFullArchiveMerged(() => getCustomerTrueUnpaidAll());
+  let rows = Array.from(last, ([k, d]) => ({ k, d, u: Math.round(ub.get(k) || 0) })).filter(r => svMatch(r.k, ledgerListSearch));
+  rows.sort(ledgerListSort === 'unpaid' ? (a, b) => b.u - a.u || a.k.localeCompare(b.k, 'ko') : ledgerListSort === 'name' ? (a, b) => a.k.localeCompare(b.k, 'ko') : (a, b) => b.d.localeCompare(a.d) || a.k.localeCompare(b.k, 'ko'));
+  const chip = (k, l) => `<button type="button" class="${ledgerListSort === k ? 'on' : ''}" onclick="ledgerListSort='${k}'; renderLedgerPickRows()">${l}</button>`;
+  const bal = u => u > 0 ? `<span style="color:var(--danger);">미수금 ${svN(u)}원</span>` : u < 0 ? `<span style="color:#1a56db;">선수금 ${svN(-u)}원</span>` : '미수금 없음';
+  host.innerHTML = `<div class="sv-chips">${chip('recent', '최근 거래 순')}${chip('unpaid', '미수금 큰 순')}${chip('name', '가나다 순')}</div>`
+    + (rows.length === 0 ? '<div class="empty">찾는 거래처가 없습니다</div>' : `<div class="sv-card">${rows.map(r => `<div class="sv-row" style="cursor:pointer;" onclick="ledgerPick(${svA(r.k)})"><div class="n"><b>${esc(r.k)}</b><small>${r.d ? `최근 거래 ${svD(r.d)}` : '거래 기록 없음'} · ${bal(r.u)}</small></div><span style="color:var(--muted);font-size:18px;">›</span></div>`).join('')}</div>`);
+}
+
 function renderSales() {
   document.getElementById('rateBar').classList.add('hidden');
   document.getElementById('invTools').classList.add('hidden');
   document.getElementById('orderTools').classList.add('hidden');
   document.getElementById('salesTools').classList.remove('hidden');
   const _ctl = document.querySelector('.controls');
-  if (_ctl) _ctl.style.display = salesSpecialView === 'customerLedger' ? 'none' : ''; // 거래처 원장 화면에서는 위쪽 검색/기간/버튼 줄을 숨김 (원장 안에 자체 검색·기간이 있어서 중복)
+  if (_ctl) _ctl.style.display = (SV_HUB.includes(salesSpecialView) || salesSpecialView === 'expenses') ? 'none' : ''; // 원장·수금·리포트 화면은 자기 검색·기간이 있어서 위쪽 매출 검색/기간/버튼 줄을 숨김
+  if (SV_HUB.includes(rpTabOf(salesSpecialView) ? salesSpecialView : '')) rpSync();
   document.getElementById('sales-day-picker').value = salesDayFilter ? toDateInputValue(salesDayFilter) : '';
-  document.getElementById('sales-day-picker-end').value = salesDayFilterEnd ? toDateInputValue(salesDayFilterEnd) : '';
+  document.getElementById('sales-day-picker-end').value = salesDayFilterEnd ? toDateInputValue(salesDayFilterEnd) : (salesDayFilter ? toDateInputValue(salesDayFilter) : ''); // 하루만 볼 때도 끝 칸이 비어 보이지 않게
   document.getElementById('chipRow').innerHTML = '';
   if (salesSpecialView === 'itemMonthly') {
     document.getElementById('stats').innerHTML = '';
@@ -16402,14 +17074,25 @@ function renderSales() {
     renderPayView();
     return;
   }
-  if (salesSpecialView === 'monthlyReport') {
+  if (salesSpecialView === 'monthlyReport' || salesSpecialView === 'yearlyReport' || salesSpecialView === 'reportMenu') {
     document.getElementById('stats').innerHTML = '';
-    renderMonthlyReportView();
+    if (salesSpecialView === 'reportMenu') salesSpecialView = rpMode === 'year' ? 'yearlyReport' : 'monthlyReport';
+    renderRpSummary();
+    return;
+  }
+  if (salesSpecialView === 'fixedCost') {
+    document.getElementById('stats').innerHTML = '';
+    renderFixedCostTab();
     return;
   }
   if (salesSpecialView === 'yearlyReport') {
     document.getElementById('stats').innerHTML = '';
     renderYearlyReportView();
+    return;
+  }
+  if (salesSpecialView === 'expenses') {
+    document.getElementById('stats').innerHTML = '';
+    renderExpenseView();
     return;
   }
   if (salesSpecialView === 'backupManager') {
