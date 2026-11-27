@@ -198,6 +198,40 @@ async function runAll() {
     await expectOk('83. 유예가 끝난 가게로 바꾸기 (어제)', () => ADM.db.collection('shops').doc(SA).update({ premiumUntil: TS(Date.now() - 864e5) }));
     await expectDenied('84. 유예 끝나면 고객 페이지 닫힘', () => anonPub('pubIndex'));
     await expectOk('85. 운영자가 다시 프리미엄 켜기 (유예 지움)', () => ADM.db.collection('shops').doc(SA).update({ plan: 'premium', planAt: new Date().toISOString(), premiumUntil: firebase.firestore.FieldValue.delete() }));
+    // [데이터 보호] 운영자는 평소 장부를 못 읽음. 대표가 「지원 접근」을 켜고 + 운영자가 그 시간 접근 기록을 남겨야만 읽기(쓰기는 불가)
+    const SH = (u) => u.db.collection('shops').doc(SA);
+    const AL = (u) => SH(u).collection('accessLog');
+    const hourNo = () => Math.floor(Date.now() / 3600000);
+    const supportLog = async () => { let okN = 0; for (const h of [hourNo() - 1, hourNo(), hourNo() + 1]) { try { await AL(ADM).doc(ADM.uid + '_' + h).set({ at: ST(), by: ADM.uid, kind: 'support', what: '시험' }); okN++; } catch (e) { /* 서버 시각과 다른 시간 번호는 막힘 */ } } if (okN !== 1) throw new Error('기록 ' + okN + '개'); };
+    await expectDenied('86. 운영자가 평소 A 가게 장부 읽기', () => D(ADM, SA, 'data', 'rolls').get());
+    await expectDenied('87. 운영자가 평소 A 가게 변경 기록 보기', () => ADM.db.collection('shops').doc(SA).collection('logs').get());
+    await expectDenied('88. 운영자가 평소 A 가게 손님 요청 보기', () => ADM.db.collection('shops').doc(SA).collection('requests').get());
+    await expectDenied('89. 운영자가 A 가게 직원 명단 보기', () => ADM.db.collection('shops').doc(SA).collection('members').get());
+    await expectOk('89-1. 운영자는 가입 승인용 대표 계정 문서만 봄', () => D(ADM, SA, 'members', A.uid).get());
+    await expectDenied('90. 운영자가 스스로 지원 접근 켜기', () => SH(ADM).update({ supportUntil: TS(Date.now() + 864e5) }));
+    await expectDenied('91. 대표B가 A 가게 지원 접근 켜기', () => SH(B).update({ supportUntil: TS(Date.now() + 864e5) }));
+    await expectDenied('92. 대표A가 지원 접근 4일 (최대 3일)', () => SH(A).update({ supportUntil: TS(Date.now() + 4 * 864e5), supportAt: ST() }));
+    await expectDenied('92-1. 지원 접근 꺼져 있을 때 운영자 기록 남기기', () => AL(ADM).doc(ADM.uid + '_' + hourNo()).set({ at: ST(), by: ADM.uid, kind: 'support', what: '' }));
+    await expectOk('93. 대표A가 지원 접근 24시간 켜기 + 기록', async () => { await SH(A).update({ supportUntil: TS(Date.now() + 864e5), supportAt: ST() }); await AL(A).add({ at: ST(), by: A.uid, kind: 'allow', what: '24시간', until: TS(Date.now() + 864e5) }); });
+    await expectDenied('94. 지원 중이어도 기록 없이 장부 읽기', () => D(ADM, SA, 'data', 'rolls').get());
+    await expectDenied('95. 운영자가 다른 시간 번호(미래)로 기록 남기기', () => AL(ADM).doc(ADM.uid + '_' + (hourNo() + 5)).set({ at: ST(), by: ADM.uid, kind: 'support', what: '' }));
+    await expectDenied('95-1. 운영자가 시간 기록을 "view" 종류로 위장', () => AL(ADM).doc(ADM.uid + '_' + (hourNo() + 5)).set({ at: ST(), by: ADM.uid, kind: 'view', what: '' }));
+    await expectOk('96. 운영자가 지금 시간 접근 기록 남기기 (서버 시각 기준 1개만 됨)', supportLog);
+    await expectOk('97. 기록을 남긴 뒤 운영자가 장부 읽기', () => D(ADM, SA, 'data', 'rolls').get());
+    await expectOk('97-1. 운영자가 화면 열람 기록 추가', () => AL(ADM).add({ at: ST(), by: ADM.uid, kind: 'view', what: '재고' }));
+    await expectDenied('98. 지원 중에도 운영자가 장부 쓰기', () => D(ADM, SA, 'data', 'rolls').set({ data: '[]', rev: 99, stamp: 2 }));
+    await expectDenied('99. 운영자가 접근 기록 지우기', () => AL(ADM).doc(ADM.uid + '_' + hourNo()).delete());
+    await expectDenied('99-1. 운영자가 접근 기록 고치기', () => AL(ADM).doc(ADM.uid + '_' + hourNo()).update({ what: '바꿈' }));
+    await expectDenied('100. 운영자가 접근 기록 보기', () => AL(ADM).get());
+    await expectOk('100-1. 대표A가 접근 기록 보기', () => AL(A).get());
+    await expectDenied('100-2. 대표A도 접근 기록 지우기 못 함', () => AL(A).doc(ADM.uid + '_' + hourNo()).delete());
+    await expectDenied('100-3. 대표B가 A 가게 접근 기록 남기기', () => AL(B).add({ at: ST(), by: B.uid, kind: 'allow', what: '' }));
+    await expectOk('101. 대표A가 지원 접근 끄기', () => SH(A).update({ supportUntil: null, supportAt: ST() }));
+    await expectDenied('101-1. 끈 뒤 운영자가 장부 읽기 (기록이 있어도)', () => D(ADM, SA, 'data', 'rolls').get());
+    await expectDenied('102. 탈퇴 신청: 30일보다 짧게', () => SH(A).update({ closeAt: TS(Date.now() + 5 * 864e5), closeReqAt: ST() }));
+    await expectOk('102-1. 대표A 탈퇴 신청 (30일 뒤 삭제)', () => SH(A).update({ closeAt: TS(Date.now() + 30 * 864e5 + 60000), closeReqAt: ST() }));
+    await expectDenied('102-2. 운영자가 탈퇴 날짜 바꾸기', () => SH(ADM).update({ closeAt: TS(Date.now() + 31 * 864e5) }));
+    await expectOk('102-3. 대표A 탈퇴 취소', () => SH(A).update({ closeAt: null, closeReqAt: ST() }));
   } catch (e) { log(false, '검사 준비 실패', e.code || e.message); }
   document.getElementById('sum').innerHTML = fail === 0 ? `<span class="ok">전부 통과 (${pass}개)</span>` : `<span class="bad">실패 ${fail}개 / 통과 ${pass}개</span>`;
 }

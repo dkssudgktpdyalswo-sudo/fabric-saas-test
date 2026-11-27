@@ -108,14 +108,21 @@ function render() {
       : `<button class="btn main" onclick="setStatus('${esc(s.id)}', 'active', this)">다시 사용</button>`;
     const prem = s.plan === 'premium';
     const planBtn = k === 'active' ? `<button class="btn ${prem ? '' : 'main'}" onclick="setPlan('${esc(s.id)}', '${prem ? 'basic' : 'premium'}', this)">${prem ? '프리미엄 해제' : '프리미엄 적용'}</button>` : '';
+    // [데이터 보호] 장부는 가게 대표가 「고객센터 지원 접근」을 켠 동안만 볼 수 있음 (보기만, 들어간 기록이 대표에게 남음)
+    const ms = v => v && typeof v.toMillis === 'function' ? v.toMillis() : 0;
+    const supUntil = ms(s.supportUntil), closeAt = ms(s.closeAt);
+    const md = t => { const d = new Date(t); return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`; };
+    const supBtn = supUntil > Date.now() ? `<a class="btn main" href="app.html#support=${esc(s.id)}" target="_blank" rel="noopener" style="text-decoration:none;">지원 보기</a>` : '';
+    const supLine = supUntil > Date.now() ? `<span style="color:#2f8a57;font-weight:700;">지원 접근 허용 중 · ${md(supUntil)}까지</span>` : '장부 열람 불가 (가게가 지원 접근을 켜지 않음)';
+    const closeLine = closeAt ? (closeAt < Date.now() ? `<br><b style="color:#c0392b;">탈퇴 · 삭제 필요</b> - 파이어베이스 콘솔에서 shops/${esc(s.id)} 를 하위 항목까지 삭제` : `<br><span style="color:#c0392b;">탈퇴 신청 · ${md(closeAt).split(' ')[0]} 삭제 예정</span>`) : '';
     const sigBtn = k === 'active' ? `<button class="btn" onclick="setSig('${esc(s.id)}', ${s.sigDesign ? 'false' : 'true'}, this)">${s.sigDesign ? '시그니처 끄기' : '시그니처 켜기'}</button>` : '';
     return `<div class="card"><div class="row"><div style="min-width:0;">
       <div class="nm">${esc(s.name || '(이름 없음)')}<span class="chip ${k}">${LABEL[k]}</span>${prem ? '<span class="chip prem">프리미엄</span>' : ''}${s.sigDesign ? '<span class="chip prem">시그니처</span>' : ''}${!prem && s.premiumUntil && s.premiumUntil.toMillis && s.premiumUntil.toMillis() > Date.now() ? `<span class="chip">유예 ~${new Date(s.premiumUntil.toMillis()).getMonth() + 1}/${new Date(s.premiumUntil.toMillis()).getDate()}</span>` : ''}</div>
-      <div class="meta">가게 코드 ${esc(s.id)} · 대표 ${esc(s.ownerName || '')} ${esc(s.ownerEmail || '')}<br>신청 ${esc(String(s.createdAt || '').slice(0, 10))}${s.statusAt ? ` · 상태 변경 ${esc(String(s.statusAt).slice(0, 10))}` : ''}</div>
-    </div><div class="acts">${acts}${planBtn}${sigBtn}</div></div></div>`;
+      <div class="meta">가게 코드 ${esc(s.id)} · 대표 ${esc(s.ownerName || '')} ${esc(s.ownerEmail || '')}<br>신청 ${esc(String(s.createdAt || '').slice(0, 10))}${s.statusAt ? ` · 상태 변경 ${esc(String(s.statusAt).slice(0, 10))}` : ''}<br>${supLine}${closeLine}</div>
+    </div><div class="acts">${supBtn}${acts}${planBtn}${sigBtn}</div></div></div>`;
   }).join('');
   $('app').innerHTML = `<div class="tabs">${tabs}</div>${cards || '<div class="empty">해당하는 가게가 없습니다</div>'}
-    <p class="meta" style="text-align:center;">승인하면 그 가게 화면이 저절로 열립니다. 사용 중지해도 장부 내용은 지워지지 않습니다.</p>`;
+    <p class="meta" style="text-align:center;">승인하면 그 가게 화면이 저절로 열립니다. 사용 중지해도 장부 내용은 지워지지 않습니다.<br>운영자는 가게 장부를 볼 수 없습니다. 가게 대표가 「고객센터 지원 접근」을 켠 동안만 「지원 보기」(읽기 전용)가 열리고, 들어간 기록이 대표에게 남습니다.</p>`;
 }
 // 프리미엄(홍보 탭) 켜기·끄기 - 끄는 건 한 번 더 누르게
 async function setSig(id, on, btn) { // 시그니처 디자인(홍보 이미지): 운영자가 켜 준 가게만 고를 수 있음

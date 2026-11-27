@@ -75,6 +75,48 @@
   .acct-menu .who small { display: block; color: var(--muted); font-size: 12px; }
   .acct-menu button { display: block; width: 100%; text-align: left; border: none; background: none; padding: 10px 12px; border-radius: 8px; font-size: 14px; color: var(--text); cursor: pointer; }
   .acct-menu button:hover { background: var(--bg); }
+  .st-trust { max-width: 1000px; margin: 14px auto 0; background: #eef5ef; border: 1px solid #cfe3d4; border-radius: 12px; padding: 12px 14px; font-size: 12.5px; color: #2f5d3c; line-height: 1.6; box-sizing: border-box; }
+  @media (max-width: 1028px) { .st-trust { margin: 14px 14px 0; } }
+  .st-trust b { display: block; font-size: 13.5px; margin-bottom: 2px; }
+  .dp-opt { display: flex; justify-content: space-between; align-items: center; width: 100%; border: 1.5px solid var(--border); background: #fff; border-radius: 10px; padding: 12px 14px; margin-top: 8px; font-size: 14px; font-weight: 600; color: var(--text); cursor: pointer; font-family: inherit; }
+  .dp-opt:hover { border-color: var(--primary); background: #f2f7fa; } .dp-opt small { font-weight: 400; color: var(--muted); font-size: 12px; }
+  .dp-status { background: #fff7e6; border: 1px solid #f1dcb0; border-radius: 10px; padding: 10px 12px; font-size: 13px; color: #7a5a17; margin: 10px 0 4px; }
+  .dp-note { font-size: 11.5px; color: var(--muted); margin-top: 10px; line-height: 1.6; }
+  .dp-log { padding: 10px 12px; border-top: 1px solid #f0ece5; font-size: 13px; } .dp-log:first-child { border-top: none; }
+  .dp-t { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
+  .dp-tag { display: inline-block; font-size: 10.5px; font-weight: 700; border-radius: 5px; padding: 1px 6px; margin-right: 5px; background: var(--b-info); color: var(--primary-dark); }
+  .dp-tag.op { background: var(--b-danger-soft); color: var(--danger); }
+  #closeBanner { background: #fdecea; color: var(--danger); font-size: 12.5px; font-weight: 600; text-align: center; padding: 7px 12px; }
+  #closeBanner span { text-decoration: underline; cursor: pointer; margin-left: 8px; font-weight: 800; }
+  #supportBar { background: #2b2b2b; color: #fff; font-size: 12.5px; font-weight: 600; text-align: center; padding: 7px 12px; position: sticky; top: 0; z-index: 11; }
+  body.support-mode .fab, body.support-mode #acctBar .gear-btn { display: none !important; }
+  .acct-menu button.st-entry { font-weight: 700; color: var(--primary-dark); }
+  #acctBar { display: flex; align-items: center; gap: 6px; }
+  .gear-btn { border: none; background: rgba(255,255,255,.1); color: #fff; width: 30px; height: 30px; border-radius: 15px; font-size: 16px; line-height: 1; cursor: pointer; flex: none; }
+  .gear-btn:hover { background: rgba(255,255,255,.2); }
+  #settingsPage { display: none; position: fixed; inset: 0; z-index: 25; background: var(--bg); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  #settingsPage.open { display: block; }
+  body.st-open { overflow: hidden; }
+  .st-hdr { background: var(--primary); color: #fff; padding: 10px 16px 14px; position: sticky; top: 0; z-index: 1; }
+  .st-in { max-width: 1000px; margin: 0 auto; }
+  .st-back { border: none; background: none; color: #fff; opacity: .9; font-size: 13px; padding: 4px 0; cursor: pointer; }
+  .st-hdr h1 { margin: 2px 0 2px; font-size: 19px; }
+  .st-who { font-size: 12px; opacity: .8; }
+  .st-body { max-width: 1000px; margin: 0 auto; padding: 4px 14px 60px; }
+  .st-sec { margin-top: 16px; }
+  .st-sec h2 { font-size: 12px; color: var(--muted); margin: 0 0 6px 4px; font-weight: 700; }
+  .st-box { background: #fff; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .st-it { display: flex; align-items: center; gap: 10px; width: 100%; padding: 13px 16px; border: none; border-top: 1px solid #f0ece5; background: #fff; font-size: 14px; color: var(--text); text-align: left; cursor: pointer; font-family: inherit; }
+  .st-it:first-child { border-top: none; }
+  .st-it:hover { background: #faf8f5; }
+  .st-ic { width: 28px; height: 28px; border-radius: 8px; background: var(--b-info); color: var(--primary-dark); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; flex: none; }
+  .st-tx { flex: 1; min-width: 0; }
+  .st-tx small { display: block; color: var(--muted); font-size: 11.5px; margin-top: 1px; }
+  .st-v { color: var(--muted); font-size: 12px; flex: none; }
+  .st-ar { color: #bbb; flex: none; }
+  .st-it.red { color: var(--danger); } .st-it.red .st-ic { background: var(--b-danger-soft); color: var(--danger); }
+  .st-note { margin: 14px 4px; font-size: 12px; color: var(--muted); }
+  @media (min-width: 900px) { .st-body { display: grid; grid-template-columns: 1fr 1fr; column-gap: 18px; align-items: start; padding-top: 8px; } .st-note { grid-column: 1 / -1; } .st-hdr { padding: 14px 24px 18px; } }
   .acct-menu button.out { color: var(--danger); border-top: 1px solid var(--border); border-radius: 0 0 8px 8px; margin-top: 4px; }
   body.no-cost .cost-ui, body.no-cost #tab-cost { display: none !important; }
   body.no-sales #tab-sales, body.no-sales #tab-promo, body.no-sales .promo-only, body.no-premium .promo-only { display: none !important; }
@@ -233,6 +275,19 @@
   .group-head .total .cnt { font-size: 11px; color: var(--muted); }
   .rolls { border-top: 1px solid var(--border); display: none; }
   .rolls.open { display: block; }
+  .np-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .np-go.np-free { background: var(--b-sub); color: #555; }
+  .np-go { flex: none; border: none; background: var(--b-info); color: var(--primary-dark); border-radius: 7px; padding: 6px 10px; font-size: 12px; font-weight: 700; }
+  .main-flag-checkbox { display: none !important; }
+  body.sales-pick .main-flag-checkbox { display: inline-block !important; }
+  .sales-total { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; }
+  .factory-divider.sales-day { font-size: 14px; padding: 9px 14px; position: relative; padding-right: 30px; border-radius: 8px; margin-top: 8px; }
+  .factory-divider.sales-day .sd-sub { font-size: 11.5px; font-weight: 500; opacity: .85; margin-top: 2px; }
+  .factory-divider.sales-day .sd-sub:empty { display: none; }
+  .factory-divider.sales-day[data-arrow]::after { content: attr(data-arrow); position: absolute; right: 12px; top: 50%; transform: translateY(-50%); opacity: .8; font-size: 12px; }
+  .factory-divider.sales-day:not(.open) { background: #4a6d84 !important; }
+  .color-card.cc-empty > .group-head { opacity: .55; }
+  .color-card.cc-empty > .group-head .swatch-num { opacity: .8; }
   .color-card {
     background: #faf8f4; border-top: 1px solid var(--border); margin: 0;
   }
@@ -273,6 +328,7 @@
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; align-items: flex-end; justify-content: center; z-index: 30; }
   .modal-overlay.open { display: flex; }
   #orderReceiveModal.open { z-index: 40; }
+  #shotModal.open { z-index: 45; } /* 이미지 창은 샘플 내역서 같은 다른 창 위에서 열려도 가려지지 않게 */
   #askInputModal.open { z-index: 60; } /* 입력창은 다른 화면 위에서 열려도 항상 최상단 */
   #similarCustomerModal.open { z-index: 50; } /* 다른 화면(매출수정 등) 위에 열려있어도, 이 확인창이 가려지지 않고 항상 최상단에 뜨게 함 */
   .modal { background: white; width: 100%; max-width: 420px; border-radius: 16px 16px 0 0; padding: 20px; max-height: 85vh; overflow-y: auto; min-height: 0; }
@@ -333,7 +389,8 @@
     .btns, .order-btns { display: flex; flex-wrap: wrap; gap: 5px; }
   }
   @media (max-width: 480px) {
-    .roll-row { flex-wrap: wrap; row-gap: 6px; }
+    .roll-row { flex-wrap: nowrap; row-gap: 6px; }
+    .roll-row .btns { flex: none; }
     .roll-row .btns { flex: 1 1 100%; justify-content: flex-start; margin-top: 0; }
   }
 
@@ -350,6 +407,7 @@
   /* ===== 버튼 색: 기본=연한 회색 / 중요(입고 등)=연한 푸른톤 / 삭제·반품·불량=빨강 ===== */
   :root { --btn-neutral-bg: #eceff1; --btn-neutral-text: #3a3f45; --btn-key-bg: #dcebf8; --btn-key-text: #1c4f86; --btn-danger-bg: #fdecea; }
   :is(#list, .controls, .rate-bar) button:is([style*="var(--b-info)"], [style*="var(--b-ok)"], [style*="var(--b-warn)"], [style*="var(--b-sub)"], [style*="#dbe9f0"], [style*="rgb(219, 233, 240)"], [style*="#eaf3ec"], [style*="rgb(234, 243, 236)"], [style*="#fff3d6"], [style*="rgb(255, 243, 214)"], [style*="#e8edf5"], [style*="rgb(232, 237, 245)"], [style*="#e8f0fb"], [style*="rgb(232, 240, 251)"], [style*="#f1eee7"], [style*="rgb(241, 238, 231)"], [style*="#fce8d6"], [style*="rgb(252, 232, 214)"], [style*="#f0e6fa"], [style*="rgb(240, 230, 250)"], [style*="#e6f0fa"], [style*="rgb(230, 240, 250)"], [style*="#e6faf0"], [style*="rgb(230, 250, 240)"], [style*="#fdf0e0"], [style*="rgb(253, 240, 224)"], [style*="background:#eee"], [style*="background: #eee"], [style*="rgb(238, 238, 238)"]), :is(#list, .controls, .rate-bar) :is(.btn-out, .btn-receive, .btn-complete) { background: var(--btn-neutral-bg) !important; color: var(--btn-neutral-text) !important; }
+  button[style*="var(--b-warn)"] { background: var(--btn-neutral-bg) !important; color: var(--btn-neutral-text) !important; }
   :is(#list, .controls, .rate-bar) button.btn-key { background: var(--btn-key-bg) !important; color: var(--btn-key-text) !important; }
   :is(#list, .controls, .rate-bar) button:is([style*="var(--b-danger-soft)"], [style*="#fdecea"], [style*="rgb(253, 236, 234)"], .btn-del, .btn-danger) { background: var(--btn-danger-bg) !important; color: var(--danger) !important; box-shadow: none; }
 
@@ -360,14 +418,27 @@
     #expenseModal .modal { max-width: 720px; }
     #expense-list { max-height: 480px; }
   }
-  /* PC 넓은 화면: 내용은 가운데 1920px 안에 (양옆 여백은 줄이고, 아주 큰 모니터에서만 끝없이 늘어나지 않게) */
+  /* PC 넓은 화면: 내용은 가운데 1440px 안에 (헤더·검색줄·목록이 같은 폭으로 맞춰짐) */
   @media (min-width: 1180px) {
-    header { padding-left: max(24px, calc((100vw - 1920px) / 2)); padding-right: max(24px, calc((100vw - 1920px) / 2)); }
+    header { padding-left: max(24px, calc((100vw - 1440px) / 2)); padding-right: max(24px, calc((100vw - 1440px) / 2)); }
     .tabs { justify-content: flex-start; gap: 4px; }
     .tab-btn { flex: none; padding: 12px 18px; }
-    .controls, .rate-bar { padding-left: max(24px, calc((100vw - 1920px) / 2 + 12px)); padding-right: max(24px, calc((100vw - 1920px) / 2 + 12px)); }
-    #list { max-width: 1920px; margin: 0 auto; padding-left: 24px; padding-right: 24px; box-sizing: border-box; }
-    body #promoPane { max-width: 1920px; padding-left: 24px; padding-right: 24px; box-sizing: border-box; }
+    .controls, .rate-bar { padding-left: max(24px, calc((100vw - 1440px) / 2 + 24px)); padding-right: max(24px, calc((100vw - 1440px) / 2 + 24px)); }
+    #list { max-width: 1440px; margin: 0 auto; padding-left: 24px; padding-right: 24px; box-sizing: border-box; }
+    body #promoPane { max-width: 1440px; padding-left: 24px; padding-right: 24px; box-sizing: border-box; }
+    /* 목록 2칸: 재고·원가·발주·이월장부·매출 카드는 두 줄로 나란히 (펼친 카드는 그 칸 안에서 펼쳐짐 - 다른 카드가 움직이지 않게) */
+    body.lg-list #list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 14px; align-items: start; }
+    body.lg-list #list > * { grid-column: 1 / -1; }
+    body.lg-list #list > button { justify-self: start; }
+    body.lg-list #list > .group, body.lg-list #list > .cost-row, body.lg-list #list > .cn-card { grid-column: auto; min-width: 0; }
+    /* 매출 기간 합계: 넓은 화면에선 세 숫자를 한 줄로 */
+    .sales-total .st-grid { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 16px; align-items: end; }
+    .sales-total .st-grid > .st-main { margin-bottom: 0 !important; }
+    .sales-total .st-grid > .st-rest { display: contents !important; }
+    .sales-total .st-grid > .st-rest > div { border-left: 1px solid var(--border); padding-left: 16px; }
+    /* 날짜 칸은 날짜 길이만큼만 */
+    #sales-day-picker, #sales-day-picker-end { flex: 0 0 170px !important; }
+    #ledger-controls { max-width: 760px; } /* 원장 검색줄은 PC에서 입력칸이 끝없이 늘어나지 않게 */
     /* 홍보: 왼쪽 = 품번 고르기, 오른쪽 = 이미지 설정·만들기 (스크롤해도 오른쪽은 따라옴) */
     #promoPane #cat-body { display: grid; grid-template-columns: minmax(0, 1fr) 420px; grid-template-rows: auto auto 1fr; column-gap: 20px; align-items: start; }
     #promoPane #cat-body > #cat-new-scope, #promoPane #cat-body > #cat-stock-scope { grid-column: 1; grid-row: 1 / span 3; }
@@ -463,6 +534,28 @@
   .pay-prow label { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 120px; margin: 0; } .pay-prow label small { color: var(--muted); } .pay-prow input[type=checkbox] { width: auto; margin: 0; }
   .pay-prow .pay-new-l { flex: none; min-width: 0; font-size: 12px; color: #1a7a4a; } .pay-since { width: 84px; padding: 4px 6px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; }
   .pe-types { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; } .pe-type { border: 1.5px solid var(--border); background: #fff; border-radius: 9px; padding: 8px; text-align: left; } .pe-type b { display: block; font-size: 13.5px; } .pe-type small { font-size: 11.5px; color: var(--muted); } .pe-type.on { border-color: var(--primary-dark); background: #eef4f8; }
+  .gs-card { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px 10px; margin-bottom: 12px; }
+  .gs-h { display: flex; justify-content: space-between; align-items: center; } .gs-h h3 { margin: 0; font-size: 16px; }
+  .gs-close { border: none; background: var(--b-sub); color: #555; border-radius: 8px; padding: 5px 12px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .gs-lead { font-size: 12.5px; color: var(--muted); margin: 3px 0 10px; }
+  .gs-bar { height: 6px; background: var(--b-sub); border-radius: 3px; overflow: hidden; } .gs-bar i { display: block; height: 100%; background: var(--primary); border-radius: 3px; transition: width .3s; }
+  .gs-prog { font-size: 11.5px; color: var(--muted); margin: 4px 0 4px; }
+  .gs-st { display: flex; align-items: center; gap: 10px; padding: 11px 0; border-top: 1px solid #f0ece5; }
+  .gs-ck { width: 22px; height: 22px; border-radius: 11px; border: 2px solid #cfc8bc; flex: none; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #fff; font-weight: 800; box-sizing: border-box; }
+  .gs-st.done .gs-ck { background: #2f8a57; border-color: #2f8a57; }
+  .gs-tx { flex: 1; min-width: 0; font-size: 14px; font-weight: 600; } .gs-tx small { display: block; font-weight: 400; color: var(--muted); font-size: 11.5px; margin-top: 1px; } .gs-tx em { font-style: normal; font-weight: 400; color: #999; font-size: 11px; }
+  .gs-st.done .gs-tx { color: #9a9a9a; font-weight: 500; }
+  .gs-go { flex: none; border: none; background: var(--primary); color: #fff; border-radius: 8px; padding: 7px 12px; font-size: 12px; font-weight: 700; cursor: pointer; }
+  .gs-go.sub { background: var(--b-info); color: var(--primary-dark); }
+  .gs-later { display: flex; justify-content: space-between; padding-top: 4px; } .gs-later a { font-size: 11.5px; color: var(--primary); font-weight: 700; text-decoration: none; } .gs-later span { font-size: 11.5px; color: var(--muted); text-decoration: underline; cursor: pointer; }
+  @media (min-width: 1180px) { .gs-card { max-width: 640px; } }
+  .eg { text-align: center; padding: 48px 20px 30px; grid-column: 1 / -1; }
+  .eg-ic { width: 64px; height: 64px; border-radius: 32px; background: var(--b-info); margin: 0 auto 14px; display: flex; align-items: center; justify-content: center; color: var(--primary-dark); font-size: 26px; }
+  .eg h4 { margin: 0 0 6px; font-size: 16px; } .eg p { margin: 0 0 16px; font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .eg-btns { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+  .eg-b1 { border: none; background: var(--primary); color: #fff; border-radius: 10px; padding: 11px 18px; font-size: 14px; font-weight: 700; cursor: pointer; }
+  .eg-b2 { border: none; background: var(--b-sub); color: #333; border-radius: 10px; padding: 11px 16px; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .eg-tip { margin: 22px auto 0; max-width: 360px; background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; font-size: 12px; color: #666; text-align: left; line-height: 1.6; }
   .td-strip { display: flex; gap: 8px; margin-bottom: 10px; } .td-big { font-size: 18px; font-weight: 800; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .td-row { display: flex; align-items: center; gap: 10px; padding: 11px 0; border-top: 1px solid var(--border); cursor: pointer; font-size: 14.5px; font-weight: 600; }
   .td-todo .td-row:nth-child(2) { border-top: none; } .td-row i { width: 9px; height: 9px; border-radius: 50%; flex: none; } .td-row span { flex: 1; min-width: 0; }
@@ -681,6 +774,7 @@
       <button class="lg-sub" onclick="logout()">로그아웃</button>
     </div>
     <div id="lock-error"></div>
+    <div style="text-align:center;margin-top:12px;font-size:12px;"><a href="guide.html" target="_blank" rel="noopener" style="color:var(--primary);">사용 안내 · 데이터 보호</a></div>
   </div>
 </div>
 
@@ -719,14 +813,14 @@
     <button onclick="toggleSalesDropdown('order-dd-more')" style="border:none;background:var(--b-sub);color:#333;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:700;">⋯</button>
     <div id="order-dd-more" class="hidden" style="width:100%; display:flex; flex-wrap:wrap; gap:6px; padding:8px; background:#f6f4ee; border-radius:10px;">
       <button onclick="arrivalOpenManual()" style="border:none;background:var(--b-ok);color:#2f6b46;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:700;">입고 안내</button>
-      <button onclick="archiveOldCompleted()" style="border:none;background:var(--b-warn);color:#a15c1e;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;">오래된 완료건 내보내기 및 정리</button>
     </div>
-    <div style="width:100%; display:flex; align-items:center; gap:6px; margin-top:4px;">
+    <div id="orderDayOff" style="width:100%; margin-top:4px;"><span onclick="orderDayFilter=todayStr(); orderDayFilterEnd=null; render();" style="font-size:11px; color:var(--muted); text-decoration:underline; cursor:pointer;">등록일로 보기</span></div>
+    <div id="orderDayOn" style="width:100%; display:flex; align-items:center; gap:6px; margin-top:4px;">
       <span style="font-size:12px; color:var(--muted); flex:none;">등록일</span>
       <button onclick="shiftOrderDayFilter(-1)" style="border:none;background:var(--b-sub);color:#555;border-radius:7px;padding:6px 10px;font-size:12px;flex:none;">◀</button>
       <input id="order-day-picker" type="date" onchange="orderDayFilter=fromDateInputValue(this.value); orderDayFilterEnd=null; render();" style="flex:0 0 auto; width:150px; padding:6px 4px; border:1px solid var(--border); border-radius:7px; font-size:12px;">
       <button onclick="shiftOrderDayFilter(1)" style="border:none;background:var(--b-sub);color:#555;border-radius:7px;padding:6px 10px;font-size:12px;flex:none;">▶</button>
-      <span onclick="orderDayFilter=null; orderDayFilterEnd=null; render();" style="font-size:11px; color:var(--muted); text-decoration:underline; cursor:pointer; flex:none;">전체보기</span>
+      <span onclick="orderDayFilter=null; orderDayFilterEnd=null; render();" style="font-size:11px; color:var(--muted); text-decoration:underline; cursor:pointer; flex:none;">전체 보기</span>
     </div>
   </div>
   <div id="salesTools" class="hidden" style="margin-top:6px;">
@@ -742,13 +836,8 @@
       <button onclick="showUnpaidSummary()" style="border:none;background:var(--b-sub);color:#333;border-radius:7px;padding:8px 10px;font-size:12px;font-weight:700;white-space:nowrap;">미수금 현황</button>
       <button onclick="showCustomerPriceList()" style="border:none;background:var(--b-sub);color:#333;border-radius:7px;padding:8px 10px;font-size:12px;font-weight:700;white-space:nowrap;">단가표</button>
       <button onclick="toggleSalesDropdown('sales-dd-reports')" style="border:none;background:var(--b-sub);color:#333;border-radius:7px;padding:8px 10px;font-size:12px;font-weight:700;white-space:nowrap;">조회 ▾</button>
-      <button onclick="toggleSalesDropdown('sales-dd-manage')" style="border:none;background:var(--b-sub);color:#333;border-radius:7px;padding:8px 10px;font-size:12px;font-weight:700;white-space:nowrap;">관리 ▾</button>
     </div>
-    <div style="display:flex; gap:10px; font-size:11px; color:var(--muted); margin-top:8px;">
-      <span onclick="printSelectedMainStatements()" style="text-decoration:underline; cursor:pointer;">선택한 거래처 명세서 인쇄</span>
-      <span onclick="toggleAllMainFlags(true)" style="text-decoration:underline; cursor:pointer;">전체 선택</span>
-      <span onclick="toggleAllMainFlags(false)" style="text-decoration:underline; cursor:pointer;">전체 해제</span>
-    </div>
+    <div id="salesPickBar" style="display:flex; gap:10px; align-items:center; font-size:11px; color:var(--muted); margin-top:8px;"></div>
   </div>
   <div id="sales-dd-reports" class="hidden" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; padding:8px; background:#faf6ff; border-radius:10px;">
     <button onclick="addCustomerName()" style="border:none;background:var(--b-ok);color:#2f6b46;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;white-space:nowrap;">+ 거래처 추가</button>
@@ -761,15 +850,7 @@
     <button onclick="openSampleStmt()" style="border:none;background:var(--b-warn);color:#a15c1e;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;white-space:nowrap;">샘플 내역서</button>
     <button onclick="showItemMonthlyStats()" style="border:none;background:var(--b-info);color:var(--primary-dark);border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;white-space:nowrap;">품목별 출고량</button>
   </div>
-  <div id="sales-dd-manage" class="hidden" style="display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; padding:8px; background:#f6f4f0; border-radius:10px;">
-    <button onclick="archiveOldSalesLog()" style="border:none;background:var(--b-warn);color:#a15c1e;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;white-space:nowrap;">매출장부 내보내기 및 정리</button>
-    <button onclick="showAvailableBackups()" style="border:none;background:var(--b-sub);color:var(--muted);border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;white-space:nowrap;">백업 · 복구</button>
-    <button class="owner-ui" onclick="openBizInfoModal()" style="border:none;background:var(--b-info);color:var(--primary-dark);border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;white-space:nowrap;">가게 정보 설정</button>
-    <button onclick="showDuplicateCheck()" style="border:none;background:var(--b-sub);color:var(--muted);border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;white-space:nowrap;">중복 점검</button>
-    <button onclick="restorePriceBookFromHistory()" style="border:none;background:var(--b-sub);color:var(--muted);border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;white-space:nowrap;">단가 복구</button>
-    <button onclick="freezeCostsNow()" style="border:none;background:var(--b-sub);color:var(--muted);border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;white-space:nowrap;">원가 고정 저장</button>
-    <button onclick="manualBackupNow()" style="border:none;background:var(--b-ok);color:#2f6b46;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;white-space:nowrap;">지금 백업</button>
-  </div>
+  <div id="sales-dd-manage" class="hidden"></div><!-- 예전 「관리 ▾」 내용은 설정 화면으로 옮김 -->
 </div>
 
 <div id="list"></div>
@@ -837,7 +918,7 @@
     <div id="c-supplier-wrap"><label>발주처</label><select id="c-supplier" onchange="onCostTypeChange()"></select></div>
     <label id="c-price-label">중국단가 (위안/미터)</label>
     <input id="c-price" type="number" step="0.1" placeholder="예: 12.5">
-    <div id="c-cut-wrap"><label>컷 단가 (선택 · 컷으로 사면 단가가 다를 때만)</label>
+    <div id="c-cut-wrap"><label>컷 단가 (선택)</label>
     <input id="c-price-cut" type="number" step="0.1" placeholder="비우면 위 단가와 같음"></div>
     <p id="c-price-hint" style="font-size:12px;color:var(--muted);">최종원가 = 중국단가 × 환율 × 야드환산 + 운임비 (자동 계산됩니다)</p>
     <button type="button" id="c-more-btn" class="rx-link" onclick="toggleCostMore(true)">+ 더 입력 (분류·혼용률<span id="c-more-w">·중량</span>)</button>
@@ -846,7 +927,7 @@
     <input id="c-cat" placeholder="예: ㄱ">
     <label>혼용률 (선택)</label>
     <input id="c-mix" maxlength="40" placeholder="예: 폴리 95 스판 5" autocomplete="off">
-    <div id="c-weight-wrap"><label>중량 (g/y, 선택 - kg당 가공비 계산에 씀)</label>
+    <div id="c-weight-wrap"><label>중량 (g/y, 선택)</label>
     <input id="c-weight" type="number" step="1" placeholder="예: 280"></div>
     </div>
     <div class="modal-actions">
@@ -991,7 +1072,7 @@
   <div class="modal">
     <h3 id="china-modal-title">발주 등록</h3>
     <div id="china-supplier-wrap" style="display:none;"><label>발주처 <a href="#" onclick="event.preventDefault(); openSupplierModal();" class="owner-ui" style="font-size:11px;font-weight:400;color:var(--primary);">관리</a></label><select id="china-supplier" onchange="onChinaSupplierChange()"></select></div>
-    <label>발주일 (한번에 등록하는 항목들은 같은 날짜로 저장됩니다)</label>
+    <label>발주일</label>
     <input id="china-date" type="date">
     <label>도착 예정일 <span id="china-arrival-rule" style="font-weight:400; color:var(--muted); font-size:12px;">(화/토 배송 기준 자동계산 - 직접 고치셔도 됩니다)</span></label>
     <input id="china-arrival-date" type="date" oninput="_chinaArrivalManuallyEdited = true;">
@@ -1024,7 +1105,7 @@
     <p id="china-receive-desc" style="font-size:13px;color:var(--muted);margin-top:-6px;"></p>
     <label>이번에 실제로 입고된 수량</label>
     <input id="china-receive-qty" placeholder="예: 2절">
-    <label>남아서 이월할 수량 (다 왔으면 빈칸)</label>
+    <label>남은 수량 (이월)</label>
     <input id="china-receive-remain" placeholder="예: 1절">
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeChinaReceiveModal()">취소</button>
@@ -1083,11 +1164,11 @@
     <p id="sw-desc" style="font-size:13px;color:var(--muted);margin-top:-6px;"></p>
     <label>컬러 이름</label>
     <input id="sw-color-name" placeholder="예: #3보카밤">
-    <label>F/W 스왓치 순번 (숫자만, 비우면 삭제)</label>
+    <label>F/W 스왓치 순번</label>
     <input id="sw-order" type="number" placeholder="예: 5">
-    <label>S/S 스왓치 순번 (S/S 책에 있는 컬러만, 비우면 삭제)</label>
+    <label>S/S 스왓치 순번</label>
     <input id="sw-order-spring" type="number" placeholder="예: 3">
-    <label>중국품번(컬러북 품번, 비우면 삭제)</label>
+    <label>중국품번 (컬러북 품번)</label>
     <input id="sw-china" placeholder="예: 2040">
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeSwatchEditModal()">취소</button>
@@ -1151,7 +1232,7 @@
         <option value="절">절 (1절 ≈ 50~60y)</option>
       </select>
       <div id="o-received-wrap" class="hidden">
-        <label>이미 처리(출고)된 양 — 잘못됐으면 여기서 고쳐 주세요</label>
+        <label>출고된 양</label>
         <input id="o-received" type="number" step="0.1" placeholder="예: 20" oninput="updateOrderEditRemainHint('received')">
       </div>
       <button onclick="openReturnFromOrderForm()" style="border:none;background:var(--b-warn);color:#a15c1e;border-radius:8px;padding:9px 12px;font-size:13px;font-weight:600;margin-top:10px;width:100%;">추가금 등록</button>
@@ -1174,14 +1255,14 @@
 
     <div id="or-jeol-wrap" class="hidden">
       <div id="or-jeol-stock-info" style="font-size:13px; color:var(--primary-dark); background:#eef3f8; border-radius:8px; padding:8px 10px; margin-bottom:8px;"></div>
-      <label>출고 절 수 (기록용 - 재고 매칭이 없으면 이 숫자로 계산합니다)</label>
+      <label>출고 절 수</label>
       <input id="or-jeol-count" type="number" min="1" step="1" placeholder="예: 2">
 
       <div id="or-jeol-tang-section" class="hidden" style="margin-top:12px;">
         <label>탕별 실제 나갈 야드</label>
         <div id="or-jeol-tang-list"></div>
         <div id="or-jeol-new-tang-list" style="margin-top:6px;"></div>
-        <button onclick="addJeolNewTangRow()" style="border:none;background:var(--b-warn);color:#a15c1e;border-radius:8px;padding:6px 10px;font-size:12px;margin-top:6px;">+ 새 탕(기존 재고에 없는 물량) 추가</button>
+        <button onclick="addJeolNewTangRow()" style="border:none;background:var(--b-warn);color:#a15c1e;border-radius:8px;padding:6px 10px;font-size:12px;margin-top:6px;">+ 새 탕 추가</button>
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:6px; font-size:13px;">
           <button onclick="autoFillJeolTangs()" style="border:none;background:var(--b-info);color:var(--primary-dark);border-radius:8px;padding:6px 10px;font-size:12px;">자동 채우기</button>
           <span>합계: <b id="or-jeol-tang-total">0</b>y</span>
@@ -1198,10 +1279,10 @@
     </div>
 
     <div id="or-rolls-wrap" class="hidden">
-      <label id="or-rolls-label">절별 이번에 나갈 양 (자동 채움을 누른 뒤 고쳐도 됩니다)</label>
+      <label id="or-rolls-label">절별 출고량</label>
       <div id="or-rolls-list"></div>
       <div id="or-new-tang-list" style="margin-top:6px;"></div>
-      <button onclick="addNewTangRow()" style="border:none;background:var(--b-warn);color:#a15c1e;border-radius:8px;padding:6px 10px;font-size:12px;margin-top:6px;">+ 새 탕(기존 재고에 없는 물량) 추가</button>
+      <button onclick="addNewTangRow()" style="border:none;background:var(--b-warn);color:#a15c1e;border-radius:8px;padding:6px 10px;font-size:12px;margin-top:6px;">+ 새 탕 추가</button>
       <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; font-size:13px;">
         <button onclick="autoFillOrderRolls()" style="border:none;background:var(--b-info);color:var(--primary-dark);border-radius:8px;padding:6px 10px;font-size:12px;">자동 채우기</button>
         <span>합계: <b id="or-rolls-total">0</b>y</span>
@@ -1223,12 +1304,12 @@
         <div><label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text);"><input type="radio" name="or-price-mode" value="unit" checked style="width:auto;" onchange="onPriceModeChange()"> 단가로 입력</label></div>
         <div><label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text);"><input type="radio" name="or-price-mode" value="total" style="width:auto;" onchange="onPriceModeChange()"> 총액 직접 입력</label></div>
       </div>
-      <label id="or-price-label">판매단가 — 매출로 잡을 때만 입력 (아니면 빈칸)</label>
-      <input id="or-price" type="number" step="1" placeholder="예: 3500">
+      <label id="or-price-label">판매단가</label>
+      <input id="or-price" type="number" step="1" placeholder="예: 3500 · 비우면 「단가 미입력」으로 남습니다">
       <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text);margin-top:8px;"><input type="checkbox" id="or-tax" style="width:auto;"> 부가세 10% 추가해서 매출 잡기 (온라인 결제 등)</label>
     </div>
-    <label>비고 (스타일넘버, 어느 공장으로 갔는지, 불량이면 어떤 불량인지 등)</label>
-    <input id="or-note" placeholder="선택사항">
+    <label>비고</label>
+    <input id="or-note" placeholder="스타일넘버, 보낸 공장, 불량 내용 등 (선택)">
 
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeOrderReceiveModal()">취소</button>
@@ -1287,7 +1368,7 @@
       <input id="ret-extra-amount" type="number" step="1" placeholder="예: 30000">
       <label>비고 (사유)</label>
       <input id="ret-note" placeholder="예: 급송비">
-      <label>공장/연락처 (선택 - 어느 건으로 나가는지 헷갈릴 수 있으면 적어 주세요)</label>
+      <label>공장·연락처 (선택)</label>
       <input id="ret-extra-factory" placeholder="예: 010-0000-0000 또는 매장">
       <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text);margin-top:6px;"><input type="checkbox" id="ret-extra-tax" style="width:auto;"> 부가세 10% 포함해서 청구 (입력한 금액은 공급가액 기준)</label>
       <div id="ret-extra-order-pick-wrap" class="hidden">
@@ -1439,7 +1520,7 @@
 <!-- 사업자 정보 설정 모달 -->
 <div class="modal-overlay" id="bizInfoModal">
   <div class="modal">
-    <h3>가게 정보 설정</h3>
+    <h3>가게 정보</h3>
     <p style="font-size:12px;color:var(--muted);margin-top:-6px;">명세서·샘플 내역서·사진 이미지·고객 페이지·거래처 장부 링크에 쓰입니다</p>
     <label>상호</label>
     <input id="biz-name" placeholder="예: ○○섬유">
@@ -1661,7 +1742,7 @@
     <div id="sps-list"></div>
     <div id="sps-foot"></div>
     <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);margin-top:12px;"><input type="checkbox" id="sps-tax" onchange="spsRefreshAmounts()" style="width:auto;"> 세액(10%) 추가해서 인쇄 <span style="font-size:11px;color:var(--muted);">(금액은 공급가액 기준)</span></label>
-    <label>인쇄 시작 칸 (쓰다 남은 종이면 비어있는 칸부터)</label>
+    <label>인쇄 시작 칸 (종이 인쇄할 때만)</label>
     <select id="sps-slot">
       <option value="1">1번 칸 (왼쪽 위)</option>
       <option value="2">2번 칸 (오른쪽 위)</option>
@@ -1670,7 +1751,7 @@
     </select>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeSampleStmt()">닫기</button>
-      <button class="btn-save" id="sps-print-btn" onclick="printSampleStmt()">인쇄</button>
+      <button class="btn-save" id="sps-print-btn" onclick="event.stopPropagation(); openMoreMenu(this)">출력 ▾</button>
     </div>
   </div>
 </div>
@@ -1725,7 +1806,7 @@
       <label id="sale-edit-breakdown-wrap-label">절별로 나눠서 수정 (자동 채우기로 조정 가능)</label>
       <div id="sale-edit-breakdown-list"></div>
       <div id="sale-edit-new-tang-list" style="margin-top:6px;"></div>
-      <button onclick="addSaleEditNewTangRow()" style="border:none;background:var(--b-warn);color:#a15c1e;border-radius:8px;padding:6px 10px;font-size:12px;margin-top:6px;">+ 새 탕(기존 재고에 없는 물량) 추가</button>
+      <button onclick="addSaleEditNewTangRow()" style="border:none;background:var(--b-warn);color:#a15c1e;border-radius:8px;padding:6px 10px;font-size:12px;margin-top:6px;">+ 새 탕 추가</button>
       <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; font-size:13px;">
         <button onclick="autoFillSaleEditRolls()" style="border:none;background:var(--b-info);color:var(--primary-dark);border-radius:8px;padding:6px 10px;font-size:12px;">자동 채우기</button>
         <span>합계: <b id="sale-edit-breakdown-total">0</b>y</span>
@@ -1734,7 +1815,7 @@
     <label>판매단가</label>
     <input id="sale-edit-price" type="number" step="1">
     <div id="sale-edit-cost-wrap" class="hidden">
-      <label>이 매출 원가 (원/y) — 잘못 들어간 원가를 여기서 바로 고칠 수 있습니다</label>
+      <label>이 매출 원가 (원/y)</label>
       <input id="sale-edit-cost" type="number" step="0.01" placeholder="비우면 지금 원가표 기준으로 다시 계산">
       <div id="sale-edit-cost-hint" style="font-size:11px;color:var(--muted);margin-top:2px;"></div>
       <button type="button" id="sale-edit-cost-calc-toggle" onclick="toggleSaleCostCalc()" style="border:none;background:var(--b-ok);color:#2f6b46;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:600;margin-top:6px;">단가로 계산하기 (중국산/국내산 + 가공비) ▾</button>
@@ -1743,7 +1824,7 @@
         <select id="sce-sp" onchange="onSaleCostTypeChange()"></select>
         <label id="sce-price-label">중국단가 (위안/미터)</label>
         <input id="sce-price" type="number" step="0.1" placeholder="예: 12.5" oninput="updateSaleCostCalcPreview()">
-        <label>가공비 추가 (원/y, 선택 · 텐타가공 등)</label>
+        <label>가공비 추가 (원/y, 선택)</label>
         <input id="sce-fee" type="number" step="1" placeholder="예: 150" oninput="updateSaleCostCalcPreview()">
         <p id="sce-detail" style="font-size:11px;color:var(--muted);margin:6px 0 0;"></p>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;font-size:14px;">
@@ -1757,17 +1838,17 @@
     <input id="sale-edit-note" placeholder="예: 급송비 포함">
     <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text);margin-top:8px;"><input type="checkbox" id="sale-edit-tax" style="width:auto;"> 부가세 10% 포함</label>
 
-    <label>공제액(원) — 깎아줄 금액 (선택사항)</label>
+    <label>공제액 (원, 선택)</label>
     <input id="sale-edit-discount" type="number" step="1" placeholder="예: 10000" oninput="document.getElementById('sale-edit-discount-reason-wrap').classList.toggle('hidden', !(parseFloat(this.value) > 0))">
     <div id="sale-edit-discount-reason-wrap" class="hidden">
-      <label>공제 사유 (내역서에 같이 나옵니다)</label>
+      <label>공제 사유 (명세서에 표시)</label>
       <input id="sale-edit-discount-reason" placeholder="예: 재구매 할인">
     </div>
 
-    <label>추가액(원) — 더 받을 금액 (선택사항, 예: 별도 작업비)</label>
+    <label>추가액 (원, 선택)</label>
     <input id="sale-edit-extra" type="number" step="1" placeholder="예: 20000" oninput="document.getElementById('sale-edit-extra-reason-wrap').classList.toggle('hidden', !(parseFloat(this.value) > 0))">
     <div id="sale-edit-extra-reason-wrap" class="hidden">
-      <label>추가 사유 (내역서에 같이 나옵니다)</label>
+      <label>추가 사유 (명세서에 표시)</label>
       <input id="sale-edit-extra-reason" placeholder="예: 급송비">
     </div>
 
@@ -1787,7 +1868,7 @@
     <div id="pay-range" class="hidden" style="margin:-4px 0 10px;">
       <div class="rx-seg" style="margin-top:0;"><button type="button" id="pay-rg-all" class="on" onclick="setPayRange('all')">전체 미수금</button><button type="button" id="pay-rg-cut" onclick="setPayRange('cut')">날짜까지만 정산</button></div>
       <div id="pay-cut-wrap" class="hidden" style="margin-top:8px;"><label style="margin-top:0;">이 날짜 매출분까지</label><input id="pay-cut-date" type="date" onchange="setPayRange('cut')"></div>
-      <label>덜 받을 때 공제 사유 (원장·명세서에 같이 찍힘)</label><input id="pay-disc-reason" placeholder="예: 네고, 단수 정리">
+      <label>공제 사유 (원장·명세서에 표시)</label><input id="pay-disc-reason" placeholder="예: 네고, 단수 정리">
     </div>
     <p id="payment-desc" style="font-size:13px;color:var(--muted);margin-top:-6px;white-space:pre-line;"></p>
     <label>입금액(원)</label>
@@ -1857,7 +1938,7 @@
     <label>마수(y)</label>
     <input id="roll-edit-qty" type="number" step="0.1">
     <p style="font-size:12px;color:var(--muted);margin-top:-6px;">0으로 저장하면 재고 없음 처리</p>
-    <label class="cost-ui">이 절 하나만의 원가 (선택 - 이 절만 다를 때. 같은 탕의 다른 절은 안 바뀝니다)</label>
+    <label class="cost-ui">이 절 원가 (선택 · 이 절만 적용)</label>
     <div class="cost-ui" style="display:flex; gap:6px; align-items:center;">
       <input id="roll-edit-cost" type="number" step="1" placeholder="비워두면 원가표 기본값 사용" style="flex:1;">
       <button type="button" onclick="calcCostForRollEdit()" style="border:none;background:var(--b-sub);color:#555;border-radius:8px;padding:8px 10px;font-size:12px;flex:none;">원가 계산</button>
@@ -1905,7 +1986,7 @@
       <label id="log-edit-breakdown-wrap-label">절별로 나눠서 수정 (자동 채우기로 조정 가능)</label>
       <div id="log-edit-breakdown-list"></div>
       <div id="log-edit-new-tang-list" style="margin-top:6px;"></div>
-      <button onclick="addLogEditNewTangRow()" style="border:none;background:var(--b-warn);color:#a15c1e;border-radius:8px;padding:6px 10px;font-size:12px;margin-top:6px;">+ 새 탕(기존 재고에 없는 물량) 추가</button>
+      <button onclick="addLogEditNewTangRow()" style="border:none;background:var(--b-warn);color:#a15c1e;border-radius:8px;padding:6px 10px;font-size:12px;margin-top:6px;">+ 새 탕 추가</button>
       <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; font-size:13px;">
         <button id="log-edit-autofill-btn" onclick="autoFillLogEditRolls()" style="border:none;background:var(--b-info);color:var(--primary-dark);border-radius:8px;padding:6px 10px;font-size:12px;">자동 채우기</button>
         <span>합계: <b id="log-edit-breakdown-total">0</b>y</span>
@@ -2255,6 +2336,7 @@ let salesDayFilter = monthStartStr(); // 기본은 이번 달 1일부터
 let salesDayFilterEnd = monthEndStr(); // 기본은 이번 달 말일까지 - 달력으로 하루만 고르면 그날만 보임
 let orderDayFilter = null; // 이월장부를 등록일 기준으로 볼 때 쓰는 날짜(없으면 전체)
 let orderDayFilterEnd = null;
+let salesPickMode = false; // 명세서 여러 곳 인쇄할 때만 거래처 앞 네모를 보여줌 (평소엔 숨겨서 화면을 깔끔하게)
 let printSelectedIds = new Set(); // 선택인쇄(메인 체크) 상태 - 이 화면 켜져있는 동안만 기억, 서버엔 저장 안 해서 껐다 켜면 초기화됨
 let itemStatsViewMode = 'month'; // day | month
 let itemStatsPeriodIndex = 0; // 지금 보고 있는 기간(월/일)이 periods 배열에서 몇 번째인지 - 최신이 0번
@@ -2359,11 +2441,13 @@ const SHOP_CODE_RE = /^[a-z0-9][a-z0-9-]{1,29}$/;
 const LOGIN_ID_RE = /^[a-z0-9][a-z0-9._-]{1,29}$/;
 let SHOP_SIG = false; // 시그니처 디자인(운영자가 켜 준 가게만 - 백야)
 let SHOP_PLAN = 'trial'; // 가게 구독: trial / basic / premium (운영자 화면에서만 바꿈)
+let SHOP_SUPPORT_UNTIL = 0, SHOP_CLOSE_AT = 0; // [데이터 보호] 대표가 켠 고객센터 지원 접근 끝나는 때 / 탈퇴 신청 시 삭제 예정일 (ms)
+let SUPPORT_MODE = false; // 운영자가 지원 접근으로 들어온 읽기 전용 화면
 let SHOP_PREM_UNTIL = 0; // 운영자가 프리미엄을 끈 뒤 유예가 끝나는 때 (ms). 그 전까진 고객 페이지·요청이 그대로
 function isPremium() { return SHOP_PLAN === 'premium' || SHOP_PREM_UNTIL > Date.now(); }
 function inPremGrace() { return SHOP_PLAN !== 'premium' && SHOP_PREM_UNTIL > Date.now(); }
 function premUntilOf(d) { const v = d && d.premiumUntil; return v && v.toMillis ? v.toMillis() : 0; }
-function isOwner() { return ROLE === 'owner'; }
+function isOwner() { return ROLE === 'owner' && !SUPPORT_MODE; } // 지원 보기(운영자)는 모든 탭을 보되 대표 전용 기능은 안 보임
 // ===== 권한 (영역별로 매니저·직원이 쓸 수 있는지 - 대표가 정함) =====
 const PERM_AREAS = [
   { k: 'stock', name: '재고 · 입고 · 출고', sub: '재고 확인 포함' },
@@ -2436,14 +2520,14 @@ async function permPreset(k) {
   if (await permSave(p, true)) { showToast(`권한: ${v.name}`); openPermModal(); }
 }
 function canSeeSales() { return can('sales'); }
-function canSeeCost() { return can('cost'); } // 원가: 대표만, 또는 대표가 고르면 매니저까지 (직원은 항상 안 보임)
+function canSeeCost() { if (SUPPORT_MODE) return false; return can('cost'); } // 원가: 대표만, 또는 대표가 고르면 매니저까지 (직원은 항상 안 보임)
 async function setCostMgr(on, quiet) { // 예전 "매니저 원가 보기" → 권한 설정의 원가 줄
   const p = JSON.parse(JSON.stringify(permOf())); p.mgr.cost = !!on; if (on) p.mgr.sales = true;
   const ok = await permSave(p, true); if (ok && !quiet) showToast(on ? '매니저도 원가를 봅니다' : '원가는 대표만 봅니다'); return ok;
 }
 async function askCostMgrOnce() { // 매니저를 처음 둘 때 한 번 묻기 (이미 정했으면 안 물음)
   if (!isOwner() || typeof settings.costMgr === 'boolean' || (settings.perms && settings.perms.mgr)) return;
-  const yes = await uiConfirm('매니저가 쓸 영역을 정해 주세요.\n\n「기본」은 원가·리포트를 뺀 전부, 「대표와 같게」는 원가·리포트까지입니다. 직원은 재고·발주·이월장부만 씁니다.\n(계정 메뉴 「권한 설정」에서 영역별로 바꿀 수 있습니다)', { ok: '대표와 같게', cancel: '기본', danger: false });
+  const yes = await uiConfirm('매니저가 쓸 영역을 정해 주세요.\n\n「기본」은 원가·리포트를 뺀 전부, 「대표와 같게」는 원가·리포트까지입니다. 직원은 재고·발주·이월장부만 씁니다.\n(⚙ 설정 > 권한 설정에서 영역별로 바꿀 수 있습니다)', { ok: '대표와 같게', cancel: '기본', danger: false });
   await permPreset(yes ? 'small' : 'basic'); const m = document.getElementById('permModal'); if (m) m.remove();
 }
 const ROLE_LABEL = { owner: '대표', manager: '매니저', staff: '직원' };
@@ -2482,7 +2566,7 @@ function renderAcctBar() {
   const el = document.getElementById('acctBar'); if (!el) return;
   if (!ME) { el.innerHTML = ''; return; }
   const shop = shopDisplayName() || SHOP_ID;
-  el.innerHTML = `<button type="button" class="acct-btn" onclick="toggleAcctMenu(event)" aria-haspopup="true"><span class="nm">${esc(shop)}</span><span class="rl">${ROLE_LABEL[ROLE] || ''}</span><span style="font-size:10px;opacity:.8;">▼</span></button>`;
+  el.innerHTML = `<button type="button" class="gear-btn" onclick="openSettings()" title="설정" aria-label="설정">⚙</button><button type="button" class="acct-btn" onclick="toggleAcctMenu(event)" aria-haspopup="true"><span class="nm">${esc(shop)}</span><span class="rl">${ROLE_LABEL[ROLE] || ''}</span><span style="font-size:10px;opacity:.8;">▼</span></button>`;
 }
 function toggleAcctMenu(ev) {
   if (ev) ev.stopPropagation();
@@ -2491,7 +2575,7 @@ function toggleAcctMenu(ev) {
   const m = document.createElement('div'); m.className = 'acct-menu';
   const it = (label, fn, cls) => `<button type="button" class="${cls || ''}" onclick="closeAcctMenu();${fn}">${label}</button>`;
   m.innerHTML = `<div class="who"><b>${esc(shopDisplayName() || SHOP_ID)}</b><small>가게 코드 ${esc(SHOP_ID)} · ${esc(ME.name || '')} (${ROLE_LABEL[ROLE] || ''})</small></div>`
-    + (isOwner() ? it('가게 정보 설정', 'openBizInfoModal()') + it('기능 설정', 'openFeatureModal()') + it('직원 관리', 'openStaffModal()') + it('권한 설정', 'openPermModal()') + it('변경 기록', 'openChangeLog()') + it('엑셀로 장부 넣기', 'openImportModal()') : '')
+    + it('⚙ 설정', 'openSettings()', 'st-entry') // 가게 정보·기능·직원·권한·변경 기록·엑셀 넣기는 설정 화면 안으로
     + (ROLE !== 'owner' || (firebase.auth().currentUser && !/google/.test(((firebase.auth().currentUser.providerData || [])[0] || {}).providerId || '')) ? it('비밀번호 변경', 'changeMyPassword()') : '')
     + (isInstalledApp() ? '' : it('앱으로 설치', 'installApp()'))
     + it('로그아웃', 'logout()', 'out');
@@ -2512,6 +2596,221 @@ async function installApp() {
 }
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
   window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => { /* 설치 기능만 안 될 뿐 장부는 그대로 */ }); });
+}
+// ===== 설정 화면 (흩어져 있던 가게 설정·직원·거래 기준·데이터 도구를 한 곳에) =====
+// 각 항목은 원래 있던 창을 그대로 염 - 창은 설정 화면 위에 뜨고, 닫으면 설정 화면으로 돌아옴
+// 매출·이월장부 화면에서 보여 주는 도구(백업 목록·중복 점검 등)는 설정을 닫고 그 탭으로 이동
+function settingsSections() {
+  const own = isOwner(), mgr = own || ROLE === 'manager', S = []; // 데이터를 바꾸는 도구(정리·복구)는 대표·매니저만
+  const sec = (t, items) => { items = items.filter(Boolean); if (items.length) S.push([t, items]); };
+  const go = (tab, fn) => `settingsGo('${tab}');${fn}`;
+  const rate = settings && Number(settings.rate) > 0 ? Number(settings.rate).toLocaleString() : '';
+  const preset = (() => { try { const k = permPresetOf(permOf()); return k ? PERM_PRESETS[k].name : '직접 설정'; } catch (e) { return ''; } })();
+  const sup = (() => { try { return getSuppliers().length; } catch (e) { return 0; } })();
+  const supOn = SHOP_SUPPORT_UNTIL > Date.now();
+  sec('데이터 보호', [
+    own && ['', '고객센터 지원 접근', '문의 해결이 필요할 때만 잠깐 허용', supOn ? `${fmtMdHm(SHOP_SUPPORT_UNTIL)}까지` : '꺼짐', 'supportOpen()'],
+    own && ['', '운영자 접근 기록', '운영자가 들어온 시각·내용', '', 'accessLogOpen()'],
+    own && ['', '내 데이터 전체 내보내기', '재고·원가·이월장부·매출·거래처 엑셀 + 백업 파일', '', 'exportAllData()'],
+    own && ['', SHOP_CLOSE_AT ? '탈퇴 신청 취소' : '서비스 탈퇴·데이터 삭제', SHOP_CLOSE_AT ? `${fmtMdHm(SHOP_CLOSE_AT).split(' ')[0]} 삭제 예정` : '', '', SHOP_CLOSE_AT ? 'closeCancel()' : 'closeOpen()', SHOP_CLOSE_AT ? '' : 'red'],
+  ]);
+  sec('가게', [
+    own && ['가', '가게 정보', '상호·주소·계좌·명세서 로고', '', 'openBizInfoModal()'],
+    own && ['기', '기능 켜기/끄기', '해외 발주·운임·가공비·직원 수당', '', 'openFeatureModal()'],
+  ]);
+  sec('직원·권한', [
+    own && ['직', '직원 관리', '초대·이름·사용 중지', '', 'openStaffModal()'],
+    own && ['권', '권한 설정', '매니저·직원이 볼 수 있는 영역', preset, 'openPermModal()'],
+    own && featureOn('payroll') && ['수', '직원 수당', '수당 기준·월별 계산', '', go('sales', 'showPayView()')],
+  ]);
+  sec('거래 기준', [
+    can('cost') && ['환', '환율·야드 환산·운임', '', rate ? `${rate}원/위안` : '미설정', 'openRateModal()'],
+    own && featureOn('process') && ['공', '가공 종류·가공비', '기모·워싱 등', '', 'openProcessModal()'],
+    own && ['발', '발주처', '발주처별 통화·도착 요일', sup ? `${sup}곳` : '', 'openSupplierModal()'],
+  ]);
+  sec('데이터', [
+    own && ['엑', '엑셀로 장부 넣기', '거래처·미수금·재고 첫 세팅', '', 'openImportModal()'],
+    mgr && can('sales') && ['백', '백업·복구', '자동 백업 목록에서 되돌리기', '', go('sales', 'showAvailableBackups()')],
+    can('sales') && ['저', '지금 백업', '', '', 'manualBackupNow()'],
+    mgr && can('sales') && ['매', '매출장부 내보내기·정리', '오래된 매출 기록을 파일로 받고 정리', '', go('sales', 'archiveOldSalesLog()')],
+    mgr && can('carry') && ['이', '이월장부 완료건 정리', '오래된 완료 주문을 파일로 받고 정리', '', go('order', 'archiveOldCompleted()')],
+    own && ['록', '변경 기록', '누가 언제 무엇을 바꿨는지', '', 'openChangeLog()'],
+  ]);
+  sec('점검 도구', [
+    mgr && can('sales') && ['점', '중복 점검', '같은 출고가 두 번 들어갔는지', '', go('sales', 'showDuplicateCheck()')],
+    mgr && can('sales') && ['단', '단가 복구', '거래처 단가표를 예전 기록에서 되살리기', '', 'restorePriceBookFromHistory()'],
+    mgr && can('cost') && ['원', '원가 고정 저장', '지난 매출의 원가를 지금 값으로 고정', '', 'freezeCostsNow()'],
+  ]);
+  const cu = (typeof firebase !== 'undefined' && firebase.auth && firebase.auth().currentUser) || null;
+  const pw = ROLE !== 'owner' || (cu && !/google/.test(((cu.providerData || [])[0] || {}).providerId || ''));
+  sec('내 계정', [
+    ['', '사용 안내', '기능별 사용법 · 데이터 보호 · 자주 묻는 질문', '', "window.open('guide.html', '_blank')"],
+    pw && ['비', '비밀번호 변경', '', '', 'changeMyPassword()'],
+    !isInstalledApp() && ['앱', '앱으로 설치', '홈 화면에 아이콘 추가', '', 'installApp()'],
+    ['↩', '로그아웃', '', '', 'logout()', 'red'],
+  ]);
+  return S;
+}
+function openSettings() {
+  closeAcctMenu();
+  let pg = document.getElementById('settingsPage');
+  if (!pg) { pg = document.createElement('div'); pg.id = 'settingsPage'; document.body.appendChild(pg); }
+  const S = settingsSections();
+  const row = ([ic, label, desc, val, fn, cls]) => `<button type="button" class="st-it${cls ? ' ' + cls : ''}" onclick="${String(fn).replace(/&/g, '&amp;').replace(/"/g, '&quot;')}"><span class="st-tx">${esc(label)}${desc ? `<small>${esc(desc)}</small>` : ''}</span>${val ? `<span class="st-v">${esc(val)}</span>` : ''}${label === '로그아웃' ? '' : '<span class="st-ar">›</span>'}</button>`;
+  pg.innerHTML = `<div class="st-hdr"><div class="st-in"><button type="button" class="st-back" onclick="closeSettings()">‹ 돌아가기</button><h1>설정</h1><div class="st-who">${esc(shopDisplayName() || SHOP_ID)} · ${esc(ME && ME.name || '')} (${ROLE_LABEL[ROLE] || ''})</div></div></div>
+    ${isOwner() ? '<div class="st-trust"><b>🔒 운영자는 이 가게의 장부를 볼 수 없습니다</b>재고·원가·거래처·매출은 이 가게 계정으로만 열립니다. 문의 해결에 필요할 때만 아래 「고객센터 지원 접근」으로 직접 허용해 주세요.</div>' : ''}
+    <div class="st-body">${S.map(([t, items]) => `<section class="st-sec"><h2>${esc(t)}</h2><div class="st-box">${items.map(row).join('')}</div></section>`).join('')}
+    ${isOwner() ? '' : '<div class="st-note">가게 설정은 대표만 바꿀 수 있습니다.</div>'}</div>`;
+  pg.classList.add('open'); document.body.classList.add('st-open');
+}
+function closeSettings() { const pg = document.getElementById('settingsPage'); if (pg) pg.classList.remove('open'); document.body.classList.remove('st-open'); }
+function settingsGo(tab) { closeSettings(); if (tab && currentTab !== tab) switchTab(tab); }
+// ===== 데이터 보호: 고객센터 지원 접근 · 운영자 접근 기록 · 전체 내보내기 · 탈퇴 =====
+// 운영자는 평소 이 가게 장부를 못 읽음 (서버 보안 규칙). 대표가 허용한 시간에만, 그리고 시간마다 접근 기록을 남겨야만 읽힘(쓰기는 불가)
+function fmtMdHm(ms) { const d = new Date(ms); const p = n => String(n).padStart(2, '0'); return `${d.getMonth() + 1}/${d.getDate()} ${p(d.getHours())}:${p(d.getMinutes())}`; }
+function shopRef() { return db.collection('shops').doc(SHOP_ID); }
+function dpBox(id, inner) {
+  let ov = document.getElementById(id);
+  if (!ov) { ov = document.createElement('div'); ov.id = id; ov.className = 'sm-ov'; document.body.appendChild(ov); ov.addEventListener('mousedown', e => { if (e.target === ov) ov.remove(); }); }
+  ov.innerHTML = `<div class="sm-box rx-box">${inner}</div>`;
+  return ov;
+}
+function supportOpen() {
+  if (!isOwner()) return;
+  const on = SHOP_SUPPORT_UNTIL > Date.now();
+  const opt = (h, label) => `<button type="button" class="dp-opt" onclick="supportSet(${h})"><span>${label}</span><small>${h ? fmtMdHm(Date.now() + h * 3600000) + '까지' : '기본'}</small></button>`;
+  dpBox('supportModal', `<div class="rx-top"><h3>고객센터 지원 접근</h3><button type="button" class="rx-close" onclick="document.getElementById('supportModal').remove()">✕</button></div>
+    <div class="rx-help">평소에는 운영자가 이 가게 장부를 열 수 없습니다. 문의를 해결하는 동안만 허용하고, 시간이 지나면 자동으로 닫힙니다. 허용 중에도 운영자는 <b>보기만</b> 할 수 있고 고칠 수 없으며, 들어온 기록이 모두 남습니다.</div>
+    ${on ? `<div class="dp-status">허용 중 · ${fmtMdHm(SHOP_SUPPORT_UNTIL)}까지</div>` : ''}
+    ${on ? opt(0, '지금 끄기') : opt(0, '허용 안 함')}${opt(24, '24시간 허용')}${opt(72, '3일 허용')}
+    <div class="dp-note">지원 화면에서는 원가·순이익을 표시하지 않습니다.</div>`);
+}
+async function supportSet(hours) {
+  if (!isOwner() || !useFirebase) return;
+  const until = hours ? firebase.firestore.Timestamp.fromMillis(Date.now() + hours * 3600000) : null;
+  const ST = firebase.firestore.FieldValue.serverTimestamp();
+  try {
+    await shopRef().update({ supportUntil: until, supportAt: ST });
+    await shopRef().collection('accessLog').add({ at: ST, by: ME.uid, kind: hours ? 'allow' : 'stop', what: hours ? (hours === 72 ? '3일' : hours + '시간') : '', ...(until ? { until } : {}) });
+    SHOP_SUPPORT_UNTIL = until ? until.toMillis() : 0;
+    const m = document.getElementById('supportModal'); if (m) m.remove();
+    showToast(hours ? `지원 접근 허용 · ${fmtMdHm(SHOP_SUPPORT_UNTIL)}까지` : '지원 접근을 껐습니다');
+    if (document.body.classList.contains('st-open')) openSettings();
+  } catch (e) { showToast('바꾸지 못했습니다 · ' + errHint(e)); }
+}
+async function accessLogOpen() {
+  if (!isOwner()) return;
+  const ov = dpBox('accessLogModal', '<div style="padding:10px;">불러오는 중...</div>');
+  let rows = [];
+  try { const snap = await shopRef().collection('accessLog').orderBy('at', 'desc').limit(200).get(); snap.forEach(d => rows.push(d.data())); }
+  catch (e) { ov.innerHTML = `<div class="sm-box rx-box">기록을 불러오지 못했습니다 · ${esc(errHint(e))}<div class="rx-acts"><button type="button" class="ui-btn ui-btn-main" onclick="document.getElementById('accessLogModal').remove()">닫기</button></div></div>`; return; }
+  const KIND = { support: ['운영자', '지원 접근으로 장부 열람'], view: ['운영자', ''], allow: ['대표', '지원 접근 허용'], stop: ['대표', '지원 접근 끔'], close: ['대표', '탈퇴 신청'], reopen: ['대표', '탈퇴 취소'] };
+  const on = SHOP_SUPPORT_UNTIL > Date.now();
+  const list = rows.length ? rows.map(r => { const k = KIND[r.kind] || ['', r.kind]; const t = r.at && r.at.toMillis ? fmtMdHm(r.at.toMillis()) : ''; const op = k[0] === '운영자';
+    return `<div class="dp-log"><span class="dp-tag${op ? ' op' : ''}">${k[0]}</span>${esc(k[1] ? k[1] + (r.what && ['allow', 'close'].includes(r.kind) ? ` (${r.what})` : '') : (r.what || ''))}${r.kind === 'view' ? ' 화면 열람' : ''}<div class="dp-t">${t}</div></div>`; }).join('')
+    : '<div class="dp-log" style="color:var(--muted);">운영자 접근 기록이 없습니다</div>';
+  ov.innerHTML = `<div class="sm-box rx-box"><div class="rx-top"><h3>운영자 접근 기록</h3><button type="button" class="rx-close" onclick="document.getElementById('accessLogModal').remove()">✕</button></div>
+    ${on ? `<div class="dp-status">지원 접근 허용 중 · ${fmtMdHm(SHOP_SUPPORT_UNTIL)}까지 <span onclick="document.getElementById('accessLogModal').remove(); supportSet(0)" style="text-decoration:underline;font-weight:700;cursor:pointer;margin-left:6px;">지금 끄기</span></div>` : ''}
+    <div style="max-height:55vh;overflow:auto;border:1px solid var(--border);border-radius:10px;">${list}</div>
+    <div class="dp-note">기록은 운영자도, 대표도 고치거나 지울 수 없습니다. 운영자는 이 기록을 남기지 않으면 장부를 열 수 없습니다.</div></div>`;
+}
+// 전체 내보내기: 사람이 보는 엑셀(시트별) + 그대로 되살릴 수 있는 백업 파일(JSON)
+function exportRowsOf(arr) {
+  const keys = []; const seen = new Set();
+  for (const r of arr) for (const [k, v] of Object.entries(r || {})) if (!seen.has(k) && (v == null || typeof v !== 'object' || Array.isArray(v))) { seen.add(k); keys.push(k); }
+  return [keys, ...arr.map(r => keys.map(k => { const v = (r || {})[k]; return Array.isArray(v) ? (k === 'payments' ? v.reduce((s, p) => s + (Number(p && p.amount) || 0), 0) : JSON.stringify(v)) : v; }))];
+}
+async function exportAllData() {
+  if (!isOwner()) return;
+  let XLSX; try { XLSX = await loadXlsxLib(); } catch (e) { showToast('엑셀 도구를 불러오지 못했습니다 (인터넷 연결 확인)'); return; }
+  const wb = XLSX.utils.book_new();
+  const add = (name, arr) => { if (Array.isArray(arr) && arr.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(exportRowsOf(arr)), name); };
+  add('재고(절)', rolls); add('원가표', costs); add('이월장부', orders); add('매출', shipmentLog); add('발주', chinaOrders);
+  const bal = (() => { try { return [...getCustomerTrueUnpaidAll().entries()].map(([c, v]) => ({ 거래처: c, 미수금: v })); } catch (e) { return []; } })();
+  add('거래처 미수금', bal.length ? bal : customerList.map(c => ({ 거래처: c })));
+  add('지출', expenses); add('거래처 단가', priceBook); add('스왓치', swatchInfo);
+  if (!wb.SheetNames.length) { showToast('내보낼 데이터가 없습니다'); return; }
+  const stamp = todayStr().replace(/[^0-9]/g, ''), nm = String(shopDisplayName() || SHOP_ID).replace(/[\\/:*?"<>|\s]+/g, '_');
+  XLSX.writeFile(wb, `${nm}_전체장부_${stamp}.xlsx`);
+  const raw = { exportedAt: new Date().toISOString(), shop: SHOP_ID, data: { rolls, costs, orders, shipmentLog, chinaOrders, chinaProductMap, swatchInfo, priceBook, depositMemos, customerNotes, customerList, expenses, settings } };
+  const blob = new Blob([JSON.stringify(raw)], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${nm}_백업_${stamp}.json`; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 15000);
+  showToast('엑셀과 백업 파일을 내려받았습니다');
+}
+async function closeOpen() {
+  if (!isOwner()) return;
+  const name = String(shopDisplayName() || SHOP_ID);
+  const r = await askForm('서비스 탈퇴·데이터 삭제', [{ label: `확인을 위해 가게 이름 「${name}」을 입력해 주세요`, value: '', placeholder: name }],
+    { okText: '탈퇴 신청', desc: '탈퇴하면 이 가게의 모든 장부·사진·고객 페이지가 30일 뒤 완전히 삭제됩니다. 30일 안에는 다시 로그인해서 취소할 수 있습니다. 삭제 전에 ⚙ 설정 › 내 데이터 전체 내보내기로 받아 두시길 권합니다.' });
+  if (!r) return;
+  if (String(r[0] || '').trim() !== name) { showToast('가게 이름이 맞지 않습니다'); return; }
+  const at = firebase.firestore.Timestamp.fromMillis(Date.now() + 30 * 864e5 + 3600000);
+  const ST = firebase.firestore.FieldValue.serverTimestamp();
+  try {
+    await shopRef().update({ closeAt: at, closeReqAt: ST });
+    await shopRef().collection('accessLog').add({ at: ST, by: ME.uid, kind: 'close', what: fmtMdHm(at.toMillis()).split(' ')[0] + ' 삭제 예정' });
+    SHOP_CLOSE_AT = at.toMillis(); closeBannerRender(); if (document.body.classList.contains('st-open')) openSettings();
+    showToast('탈퇴 신청 완료 · 30일 안에는 취소할 수 있습니다');
+  } catch (e) { showToast('신청하지 못했습니다 · ' + errHint(e)); }
+}
+async function closeCancel() {
+  if (!isOwner()) return;
+  if (!(await uiConfirm('탈퇴 신청을 취소하시겠습니까?\n장부는 그대로 계속 사용합니다.'))) return;
+  const ST = firebase.firestore.FieldValue.serverTimestamp();
+  try {
+    await shopRef().update({ closeAt: null, closeReqAt: ST });
+    await shopRef().collection('accessLog').add({ at: ST, by: ME.uid, kind: 'reopen', what: '' });
+    SHOP_CLOSE_AT = 0; closeBannerRender(); if (document.body.classList.contains('st-open')) openSettings();
+    showToast('탈퇴 신청을 취소했습니다');
+  } catch (e) { showToast('취소하지 못했습니다 · ' + errHint(e)); }
+}
+function closeBannerRender() { // 탈퇴 신청 중이면 화면 맨 위에 계속 표시 (대표만 취소 가능)
+  let b = document.getElementById('closeBanner');
+  if (!SHOP_CLOSE_AT) { if (b) b.remove(); return; }
+  if (!b) { b = document.createElement('div'); b.id = 'closeBanner'; document.body.insertBefore(b, document.body.firstChild); }
+  b.innerHTML = `탈퇴 신청됨 · ${fmtMdHm(SHOP_CLOSE_AT).split(' ')[0]}에 모든 데이터가 삭제됩니다${isOwner() ? ' <span onclick="closeCancel()">취소</span>' : ''}`;
+}
+// ===== 지원 보기 (운영자 · 읽기 전용) =====
+// 운영자가 app.html#support=가게코드 로 들어오면: 대표가 지원 접근을 켰는지 확인 → 이 시간 접근 기록을 남김(서버가 기록 없이는 읽기를 막음) → 보기만
+async function supportBoot(user, shop) {
+  try {
+    const adm = await db.collection('admins').doc(user.uid).get();
+    if (!adm.exists) return false;
+    const sd = await db.collection('shops').doc(shop).get();
+    const d = sd.exists ? sd.data() : null;
+    const until = d && d.supportUntil && d.supportUntil.toMillis ? d.supportUntil.toMillis() : 0;
+    if (!(until > Date.now())) { lockMsg(`${(d && d.name) || shop} 대표가 지원 접근을 허용하지 않았습니다. 대표에게 ⚙ 설정 › 고객센터 지원 접근을 켜 달라고 요청해 주세요.`); return true; }
+    if (!(await supportLogHour(user.uid, shop))) { lockMsg('접근 기록을 남기지 못해 열 수 없습니다'); return true; }
+    SUPPORT_MODE = true; SHOP_ID = shop; SHOP_NAME = d.name || ''; SHOP_PLAN = d.plan || 'trial'; SHOP_SUPPORT_UNTIL = until;
+    ROLE = 'owner'; ME = { uid: user.uid, name: '고객센터', role: 'owner', loginId: '' };
+    supportBlockWrites();
+    _booted = true; lockMsg(''); document.getElementById('lock-screen').style.display = 'none';
+    document.body.classList.add('support-mode');
+    const bar = document.createElement('div'); bar.id = 'supportBar'; bar.textContent = `지원 보기 (읽기 전용) · ${SHOP_NAME || shop} · ${fmtMdHm(until)}까지 · 접근 기록이 가게 대표에게 남습니다`; document.body.insertBefore(bar, document.body.firstChild);
+    setInterval(() => { supportLogHour(user.uid, shop); if (Date.now() > until) location.reload(); }, 20 * 60000); // 시간이 바뀌면 그 시간 기록도 남김, 허용 시간이 끝나면 닫힘
+    applyRoleChrome(); init();
+    return true;
+  } catch (e) { lockMsg('지원 보기를 열지 못했습니다 · ' + errHint(e)); return true; }
+}
+async function supportLogHour(uid, shop) { // 서버 시각 기준 시간 번호만 기록이 만들어짐 (기기 시계가 조금 틀려도 앞뒤 한 시간 중 하나가 맞음). 이미 있으면 그대로
+  const h = Math.floor(Date.now() / 3600000), col = db.collection('shops').doc(shop).collection('accessLog');
+  for (const x of [h, h - 1, h + 1]) {
+    try { await col.doc(uid + '_' + x).set({ at: firebase.firestore.FieldValue.serverTimestamp(), by: uid, kind: 'support', what: '지원 보기' }); } catch (e) { /* 이미 이번 시간 기록이 있거나(고치기 금지), 서버 시각과 다른 번호 → 정상 */ }
+  }
+  return true; // 기록이 없으면 서버가 읽기를 막으니, 여기서는 시도만 하면 됨
+}
+function supportBlockWrites() { // 지원 보기에서는 저장 시도 자체를 막음 (서버도 막지만, 화면에 오류가 쏟아지지 않게)
+  const deny = () => Promise.reject(Object.assign(new Error('지원 보기에서는 고칠 수 없습니다'), { code: 'support-readonly' }));
+  try {
+    const FS = firebase.firestore;
+    for (const C of [FS.DocumentReference, FS.WriteBatch, FS.Transaction]) {
+      if (!C || !C.prototype) continue;
+      for (const m of ['set', 'update', 'delete']) { const orig = C.prototype[m]; if (!orig) continue; C.prototype[m] = function (...a) { const path = (this && this.path) || ''; if (/\/accessLog\//.test(path)) return orig.apply(this, a); if (C === FS.DocumentReference) return deny(); throw Object.assign(new Error('지원 보기에서는 고칠 수 없습니다'), { code: 'support-readonly' }); }; }
+    }
+    const add = FS.CollectionReference && FS.CollectionReference.prototype.add;
+    if (add) FS.CollectionReference.prototype.add = function (...a) { if (/accessLog$/.test(this.path || '')) return add.apply(this, a); return deny(); };
+  } catch (e) { /* 서버 규칙이 어차피 막음 */ }
 }
 function closeAcctMenu() { const m = document.querySelector('#acctBar .acct-menu'); if (m) m.remove(); }
 async function loginGoogle() {
@@ -2590,6 +2889,7 @@ async function onAuthChanged(user) {
   if (!user) { showLockPane('login'); try { const last = localStorage.getItem('lastShopCode'); if (last) document.getElementById('lg-shop').value = last; } catch (e) { /* 없음 */ } return; }
   if (_booted) return;
   lockMsg('가게 정보를 확인하는 중...');
+  { const sup = (String(location.hash).match(/support=([a-z0-9-]{2,30})/) || [])[1]; if (sup && await supportBoot(user, sup)) return; } // 운영자 지원 보기
   try {
     const u = await db.collection('users').doc(user.uid).get();
     if (!u.exists) {
@@ -2618,7 +2918,7 @@ async function onAuthChanged(user) {
     ROLE = m.data().role;
     ME = { uid: user.uid, name: m.data().name || '', role: ROLE, loginId: m.data().loginId || '' };
     // 프리미엄을 켜고 끄면 새로고침 없이 바로 반영
-    try { db.collection('shops').doc(shop).onSnapshot(snap => { SHOP_PREM_UNTIL = snap.exists ? premUntilOf(snap.data()) : 0; const sg = !!(snap.exists && snap.data().sigDesign); if (sg !== SHOP_SIG) { SHOP_SIG = sg; if (typeof catDesignRender === 'function') catDesignRender(); } const pl = snap.exists ? (snap.data().plan || 'trial') : 'trial'; if (pl !== SHOP_PLAN) { SHOP_PLAN = pl; applyRoleChrome(); if (currentTab === 'promo') { promoEnter(); render(); } } }, () => {}); } catch (e) { /* 없음 */ }
+    try { db.collection('shops').doc(shop).onSnapshot(snap => { SHOP_PREM_UNTIL = snap.exists ? premUntilOf(snap.data()) : 0; { const d0 = snap.exists ? snap.data() : {}; const ms = v => v && typeof v.toMillis === 'function' ? v.toMillis() : 0; const su = ms(d0.supportUntil), ca = ms(d0.closeAt); if (su !== SHOP_SUPPORT_UNTIL || ca !== SHOP_CLOSE_AT) { SHOP_SUPPORT_UNTIL = su; SHOP_CLOSE_AT = ca; closeBannerRender(); if (document.body.classList.contains('st-open')) openSettings(); } } const sg = !!(snap.exists && snap.data().sigDesign); if (sg !== SHOP_SIG) { SHOP_SIG = sg; if (typeof catDesignRender === 'function') catDesignRender(); } const pl = snap.exists ? (snap.data().plan || 'trial') : 'trial'; if (pl !== SHOP_PLAN) { SHOP_PLAN = pl; applyRoleChrome(); if (currentTab === 'promo') { promoEnter(); render(); } } }, () => {}); } catch (e) { /* 없음 */ }
     _booted = true;
     lockMsg('');
     document.getElementById('lock-screen').style.display = 'none';
@@ -2919,7 +3219,7 @@ async function openImportModal() {
   _imp = null;
   const fresh = rolls.length === 0 && shipmentLog.length === 0 && customerList.length === 0;
   ov.innerHTML = `<div class="sm-box">
-    <h3>엑셀로 세팅</h3>
+    <h3>엑셀로 장부 넣기</h3>
     <div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.6;">${fresh ? '지금 쓰던 재고·거래처·미수금을 엑셀 한 파일로 한 번에 넣습니다.' : '처음 세팅 때 빠뜨린 거래처·미수금·품목·원가를 엑셀로 <b>추가</b>할 수 있습니다.'}<br>
       이미 장부에 있는 건 <b>절대 바뀌지 않고</b>, 새 것만 들어갑니다. 재고·미출고이월은 첫 세팅 때만 넣을 수 있습니다.</div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;">
@@ -3138,6 +3438,7 @@ async function openStaffModal() {
   try {
     const snap = await shopCol('members').get();
     snap.forEach(d => list.push({ uid: d.id, ...d.data() }));
+    _gsStaffN = list.filter(m => m.role !== 'owner').length;
   } catch (e) { ov.innerHTML = '<div class="sm-box">직원 목록을 못 불러왔습니다<br><button class="sm-btn gray" onclick="staffModalClose()">닫기</button></div>'; return; }
   const order = { owner: 0, manager: 1, staff: 2 };
   list.sort((a, b) => (b.active === true) - (a.active === true) || order[a.role] - order[b.role] || String(a.name).localeCompare(String(b.name)));
@@ -4595,6 +4896,31 @@ function toggleCostMore(open) {
   document.getElementById('c-more').style.display = open ? '' : 'none';
   document.getElementById('c-more-btn').style.display = open ? 'none' : '';
 }
+// ===== 단가 미입력 출고 =====
+// 샘플·반품·불량·추가금·선수금·이월 미수금이 아닌데 매출이 0원인 출고 = 단가를 깜빡한 건 (매출·미수금에서 빠져 있음)
+function isNoPriceEntry(e) {
+  return !!e && !(Number(e.saleAmount) > 0) && !e.isSample && !e.isPrepay && !e.isReturn && !e.isDefect && !e.isFee && !e.manualClose && e.item !== '이월 미수금' && Number(e.yardsShipped || e.amount || 0) > 0;
+}
+async function noPriceMarkFree(id) {
+  const e = shipmentLog.find(x => x.id === id); if (!e || !isNoPriceEntry(e)) return;
+  if (getPaidAmount(e) > 0 || Number(e.discount) > 0) { showToast('입금·공제가 있는 건은 단가 입력으로 정리해 주세요'); return; }
+  if (!(await uiConfirm(`${e.customer || ''} ${e.item} ${e.color || ''} 출고를 무상(샘플)으로 처리하시겠습니까?\n매출·미수금은 그대로 0원이며, 목록에서 빠집니다.`))) return;
+  e.isSample = true; // 매출 0원·입금 없음인 건만 → 잔액은 하나도 안 바뀜 (입금 화면의 「샘플 제공」과 같은 표시)
+  await persistShipmentLog();
+  render(); openNoPriceModal(); showToast('무상 출고로 처리했습니다');
+}
+function noPriceList() { return shipmentLog.filter(isNoPriceEntry).sort((a, b) => String(b.date).localeCompare(String(a.date))); }
+function openNoPriceModal() {
+  let ov = document.getElementById('noPriceModal');
+  if (!ov) { ov = document.createElement('div'); ov.id = 'noPriceModal'; ov.className = 'sm-ov'; document.body.appendChild(ov); ov.addEventListener('mousedown', e => { if (e.target === ov) ov.remove(); }); }
+  const L = noPriceList();
+  const rows = L.length ? L.map(e => `<div class="np-row"><div style="min-width:0;"><b>${esc(e.customer || '(거래처 미입력)')}</b> <span style="color:var(--muted);font-size:12px;">${esc(e.date)}</span><div style="font-size:12px;color:#555;">${esc(e.item)} ${esc(e.color || '')} · ${esc(String(e.amount ?? e.yardsShipped))}${esc(e.unit || 'y')}${e.note ? ` · ${esc(e.note)}` : ''}</div></div><div style="display:flex;gap:4px;flex:none;">${getPaidAmount(e) > 0 || Number(e.discount) > 0 ? '' : `<button type="button" class="np-go np-free" onclick="noPriceMarkFree(${e.id})">무상</button>`}<button type="button" class="np-go" onclick="document.getElementById('noPriceModal').remove(); openSaleEditModal(${e.id})">단가 입력</button></div></div>`).join('')
+    : '<div style="color:var(--muted);font-size:13px;padding:10px 0;">단가 미입력 출고가 없습니다</div>';
+  ov.innerHTML = `<div class="sm-box rx-box"><div class="rx-top"><h3>단가 미입력 출고 ${L.length}건</h3><button type="button" class="rx-close" onclick="document.getElementById('noPriceModal').remove()">✕</button></div>
+    <div class="rx-help">단가 없이 출고되어 매출·미수금에 0원으로 잡힌 건입니다. 단가를 입력하면 매출과 미수금에 반영됩니다. 값을 받지 않는 출고는 「무상」을 눌러 주세요.</div>
+    <div style="max-height:55vh;overflow:auto;">${rows}</div>
+    <div class="rx-acts"><button type="button" class="ui-btn ui-btn-main" onclick="document.getElementById('noPriceModal').remove()">닫기</button></div></div>`;
+}
 function openFeatureModal() {
   if (!isOwner()) { showToast('기능 설정은 대표님만 바꿀 수 있습니다'); return; }
   let ov = document.getElementById('featureModal');
@@ -4603,7 +4929,7 @@ function openFeatureModal() {
     const on = featureOn(f.k); const blocked = f.need && !featureOn(f.need);
     return `<label class="ft-row${blocked ? ' off' : ''}"><div><b>${esc(f.name)}</b><small>${esc(f.desc)}${blocked ? ' (해외 원단을 먼저 켜 주세요)' : ''}</small></div><input type="checkbox" class="ft-sw" ${on ? 'checked' : ''} ${blocked ? 'disabled' : ''} onchange="setFeature('${f.k}', this.checked)"></label>`;
   }).join('');
-  ov.innerHTML = `<div class="sm-box rx-box"><div class="rx-top"><h3>기능 설정</h3><button type="button" class="rx-close" onclick="document.getElementById('featureModal').remove()">✕</button></div>
+  ov.innerHTML = `<div class="sm-box rx-box"><div class="rx-top"><h3>기능 켜기/끄기</h3><button type="button" class="rx-close" onclick="document.getElementById('featureModal').remove()">✕</button></div>
     <div class="rx-help">필요한 기능만 사용하면 화면이 단순해집니다. 기능을 꺼도 입력된 값은 삭제되지 않으며 원가 계산에 그대로 반영됩니다.</div>${rows}
     <div class="ft-row" onclick="document.getElementById('featureModal').remove(); openPermModal()" style="cursor:pointer;"><div><b>권한 설정</b><small>원가·입금·리포트 등 매니저·직원이 쓸 영역 (지금: ${esc((PERM_PRESETS[permPresetOf(permOf())] || { name: '직접 고름' }).name)})</small></div><span style="color:var(--primary-dark);font-weight:700;">열기 ›</span></div>
     <div class="rx-acts"><button type="button" class="ui-btn ui-btn-main" onclick="document.getElementById('featureModal').remove()">닫기</button></div></div>`;
@@ -4629,10 +4955,10 @@ function maybeOnboard() {
   window._ob = { overseas: null, process: null, costMgr: null };
   const q = (key, title, note, a, b) => `<div class="rx-l" style="margin-top:16px;">${title}</div><div class="rx-types"><button type="button" class="rx-type" data-k="${key}" data-v="0" onclick="obPick(this)">${a}</button><button type="button" class="rx-type" data-k="${key}" data-v="1" onclick="obPick(this)">${b}</button></div><div class="rx-note" style="margin:6px 0 0;">${note}</div>`;
   ov.innerHTML = `<div class="sm-box rx-box"><div class="rx-top"><h3>초기 설정</h3></div>
-    <div class="rx-help">거래 방식에 맞춰 필요한 기능만 사용하도록 설정합니다. 설정은 계정 메뉴의 「기능 설정」에서 언제든 변경할 수 있습니다.</div>
+    <div class="rx-help">거래 방식에 맞춰 필요한 기능만 사용하도록 설정합니다. ⚙ 설정 > 기능 켜기/끄기에서 언제든 변경할 수 있습니다.</div>
     ${q('overseas', '원단 매입', '해외 수입을 포함하면 환율·발주처 통화·운임 정산 기능을 사용합니다.', '국내 매입', '해외 수입 포함')}
     ${q('process', '후가공 (기모·워싱 등)', '외주 가공을 선택하면 가공비·로스율 관리 기능을 사용합니다.', '사용 안 함', '외주 가공')}
-    ${q('costMgr', '매니저 권한', '「대표와 같게」는 매니저도 원가·리포트까지 봅니다. 영역별로는 계정 메뉴의 「권한 설정」에서 바꿀 수 있습니다. 직원은 재고·발주·이월장부만 씁니다.', '기본 (원가·리포트 빼고)', '대표와 같게')}
+    ${q('costMgr', '매니저 권한', '「대표와 같게」는 매니저도 원가·리포트까지 봅니다. 영역별로는 ⚙ 설정 > 권한 설정에서 바꿀 수 있습니다. 직원은 재고·발주·이월장부만 씁니다.', '기본 (원가·리포트 빼고)', '대표와 같게')}
     <div class="rx-acts"><button type="button" class="ui-btn ui-btn-sub" onclick="obSkip()">나중에</button><button type="button" class="ui-btn ui-btn-main" id="ob-go" disabled onclick="obSave()">설정 완료</button></div></div>`;
 }
 function obPick(btn) {
@@ -4642,7 +4968,7 @@ function obPick(btn) {
 }
 function obSkip() { // 나중에: 이번 접속 동안만 닫음 (설정 안 했으니 다음에 열면 다시 물어봄). 기능은 쓰는 만큼 자동으로 켜짐
   const ov = document.getElementById('onboardModal'); if (ov) ov.remove();
-  showToast('계정 메뉴의 「기능 설정」에서 언제든 설정할 수 있습니다');
+  showToast('⚙ 설정 > 기능 켜기/끄기에서 언제든 바꿀 수 있습니다');
 }
 async function obSave() {
   const o = window._ob; const before = settings.features;
@@ -5236,7 +5562,7 @@ function clDescribe(docId, added, removed, changed) {
   if (more > 0) lines.push(`${label} 외 ${more}건`);
   return lines;
 }
-const CL_SETTING = { payPeople: '직원 수당', perms: '권한 설정', costMgr: '매니저 원가 보기', invDeleted: '재고 삭제 표시', catDesign: '홍보 이미지 디자인', shareLinks: '거래처 링크', shareGroups: '거래처 묶음', shareMsg: '보내기 문구', fabricInfo: '원단 정보', reqOff: '고객 페이지 요청 버튼', rate: '환율(위안)', yard: '야드환산', ship: '예상 운임', fx: '외화 환율', fxFeePct: '송금 수수료', suppliers: '발주처', processes: '가공비', processingTypes: '가공비', colorProcess: '컬러별 가공', features: '기능 설정', freightBatches: '운임 정산', bizName: '가게 정보', bizOwner: '가게 정보', bizNumber: '가게 정보', bizAddress: '가게 정보' };
+const CL_SETTING = { gsHidden: '시작하기 숨김', payPeople: '직원 수당', perms: '권한 설정', costMgr: '매니저 원가 보기', invDeleted: '재고 삭제 표시', catDesign: '홍보 이미지 디자인', shareLinks: '거래처 링크', shareGroups: '거래처 묶음', shareMsg: '보내기 문구', fabricInfo: '원단 정보', reqOff: '고객 페이지 요청 버튼', rate: '환율(위안)', yard: '야드환산', ship: '예상 운임', fx: '외화 환율', fxFeePct: '송금 수수료', suppliers: '발주처', processes: '가공비', processingTypes: '가공비', colorProcess: '컬러별 가공', features: '기능 설정', freightBatches: '운임 정산', bizName: '가게 정보', bizOwner: '가게 정보', bizNumber: '가게 정보', bizAddress: '가게 정보' };
 function clDiffSettings(b, a) {
   const keys = new Set([...Object.keys(b || {}), ...Object.keys(a || {})]); const out = new Set(); const lines = [];
   for (const k of keys) {
@@ -5679,6 +6005,61 @@ function todayGoChinaOrder(item, color) {
 let _tdArrAll = false; // 홈 도착 예정 발주: 3건만 / 전부
 function todayArrToggle() { _tdArrAll = !_tdArrAll; render(); }
 function todayGoArrivals() { _tdArrAll = true; render(); setTimeout(() => { const el = document.getElementById('td-arr'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 30); }
+// ===== 처음 쓰는 가게 「시작하기」 (홈 맨 위, 대표만) =====
+// 단계는 데이터를 보고 자동으로 체크 (따로 누를 필요 없음). 다 끝나거나 「나중에 하기」를 누르면 사라짐
+// 이미 쓰던 가게(매출 20건 이상)는 안 보임
+let _gsStaffN = null, _gsStaffAsked = false;
+function gsSteps() {
+  const S = settings || {};
+  const hasData = rolls.length > 0 || shipmentLog.length > 0 || orders.length > 0;
+  return [
+    { k: 'biz', t: '가게 정보 입력', d: '명세서에 들어갈 상호·계좌', done: !!(S.bizOwner || S.bizNumber || S.bizAddress || S.bankInfo), btn: '입력', fn: 'openBizInfoModal()' },
+    { k: 'feat', t: '기능 선택', d: '해외 수입·후가공 사용 여부', done: !!(S.features && typeof S.features === 'object') || hasData, btn: '선택', fn: 'openFeatureModal()' },
+    { k: 'import', t: '기존 장부 옮기기', d: '엑셀로 거래처·미수금·재고 한 번에', done: hasData, btn: '엑셀로 넣기', fn: 'openImportModal()' },
+    { k: 'cost', t: '품번·원가 등록', d: '원가가 있어야 순이익이 계산됩니다', done: costs.length > 0, btn: '원가 등록', fn: "switchTab('cost'); openAddModal()" },
+    { k: 'staff', t: '직원 초대', d: '매니저·직원 계정 만들기', opt: true, done: (_gsStaffN || 0) > 0, btn: '초대', fn: 'openStaffModal()' },
+  ];
+}
+function gsVisible() {
+  if (!isOwner() || !settings || settings.gsHidden) return false;
+  if (useFirebase && !(shipmentLogFirstLoadDone && costsFirstLoadDone && settingsFirstLoadDone && rollsFirstLoadDone)) return false;
+  if (shipmentLog.length >= 20) return false; // 이미 쓰던 가게
+  return gsSteps().some(x => !x.done);
+}
+function gsCardHtml() {
+  if (!gsVisible()) return '';
+  if (!_gsStaffAsked && useFirebase) { // 직원 수는 한 번만 확인 (대표만 읽을 수 있음)
+    _gsStaffAsked = true;
+    shopCol('members').get().then(snap => { let n = 0; snap.forEach(d => { const m = d.data() || {}; if (m.role !== 'owner') n++; }); _gsStaffN = n; if (currentTab === 'today') render(); }).catch(() => {});
+  }
+  const st = gsSteps(), req = st.filter(x => !x.opt), doneN = st.filter(x => x.done).length;
+  const ready = req.every(x => x.done);
+  const firstTodo = st.find(x => !x.done);
+  return `<div class="gs-card"><div class="gs-h"><h3>${ready ? '준비 완료' : '시작하기'}</h3>${ready ? '<button type="button" class="gs-close" onclick="gsHide()">닫기</button>' : ''}</div>
+    <div class="gs-lead">${ready ? '필수 단계를 모두 마쳤습니다. 직원 초대는 필요할 때 해 주세요.' : `${st.length}단계만 마치면 바로 장부를 쓸 수 있습니다.`}</div>
+    <div class="gs-bar"><i style="width:${Math.round(doneN / st.length * 100)}%"></i></div><div class="gs-prog">${doneN} / ${st.length} 완료</div>
+    ${st.map(x => `<div class="gs-st${x.done ? ' done' : ''}"><span class="gs-ck">${x.done ? '✓' : ''}</span><span class="gs-tx">${esc(x.t)}${x.opt ? ' <em>선택</em>' : ''}<small>${esc(x.d)}</small></span>${x.done ? '' : `<button type="button" class="gs-go${x === firstTodo ? '' : ' sub'}" onclick="${x.fn.replace(/"/g, '&quot;')}">${esc(x.btn)}</button>`}</div>`).join('')}
+    <div class="gs-later"><a href="guide.html" target="_blank" rel="noopener">사용 안내 보기</a>${ready ? '' : '<span onclick="gsHide()">나중에 하기</span>'}</div></div>`;
+}
+async function gsHide() {
+  settings = { ...settings, gsHidden: true };
+  render();
+  await persistSettings();
+}
+// 빈 탭 안내: 데이터가 아예 없을 때만 (검색·필터로 결과가 없을 땐 기존 "해당 조건의 … 없습니다")
+function emptyGuideHtml(kind) {
+  const own = isOwner();
+  const G = {
+    inv: ['▦', '등록된 재고가 없습니다', '입고를 등록하면 품번 → 컬러 → 절 단위로<br>재고가 쌓이고, 출고할 때 자동으로 빠집니다.', [['+ 입고 등록', 'openAddModal()', 1], own && ['엑셀로 넣기', 'openImportModal()']], '<b>원단 한 절 = 한 줄</b><br>같은 컬러라도 탕(염색 차수)이 다르면 따로 등록됩니다.'],
+    cost: ['₩', '등록된 원가가 없습니다', '품번별 매입 단가를 등록하면<br>재고·매출에 원가와 순이익이 자동 계산됩니다.', [['+ 원가 등록', 'openAddModal()', 1], own && ['엑셀로 넣기', 'openImportModal()']], ''],
+    order: ['✎', '등록된 주문이 없습니다', '거래처 주문을 등록해 두고 나눠서 출고하면<br>남은 수량이 이월되고, 매출·미수금에 자동 반영됩니다.', [['+ 주문 등록', 'openAddModal()', 1]], '<b>순서</b>&nbsp; 주문 등록 → 출고 처리 → 매출·수금에서 입금 처리'],
+    sales: ['↗', '등록된 매출이 없습니다', '이월장부에서 출고 처리하면 여기에 쌓입니다.<br>주문 없이 바로 나간 건은 직접 입력해 주세요.', [['+ 새 매출', "openSaleAddModal('')", 1], can('carry') && ['이월장부로', "switchTab('order')"]], own ? '기존 거래처 <b>미수금</b>은 ⚙ 설정 › 엑셀로 장부 넣기에서 한 번에 옮길 수 있습니다.' : ''],
+    china: ['⇄', '발주 기록이 없습니다', '발주를 등록하면 도착 예정일별로 모아 보고,<br>도착하면 「입고 처리」로 재고에 바로 넣을 수 있습니다.', [['+ 발주 등록', 'openAddModal()', 1]], ''],
+  }[kind];
+  if (!G) return '';
+  const [ic, h, p, btns, tip] = G;
+  return `<div class="eg"><div class="eg-ic">${ic}</div><h4>${h}</h4><p>${p}</p><div class="eg-btns">${btns.filter(Boolean).map(([t, f, main]) => `<button type="button" class="${main ? 'eg-b1' : 'eg-b2'}" onclick="${f.replace(/"/g, '&quot;')}">${t}</button>`).join('')}</div>${tip ? `<div class="eg-tip">${tip}</div>` : ''}</div>`;
+}
 function renderToday() {
   if (salesAdminUnlocked) ensureShipmentLogArchivedCacheLoaded(); // 오늘 매출/입금에 정리된 기록이 섞여 있을 수 있어서 보관함도 불러둠 (한 번 받으면 이후엔 바로 씀)
   const list = document.getElementById('list');
@@ -5700,6 +6081,7 @@ function renderToday() {
 
   // 1) 맨 위: 오늘 출고 (직원도 봄) · 오늘 매출 · 오늘 입금 (대표·매니저만)
   const m = money ? getTodayMoney() : null;
+  const _gs = gsCardHtml(); // 처음 쓰는 가게: 시작하기 (대표만)
   L += `<div class="td-strip">
     <div style="${tile}"><div style="${muted}">오늘 출고</div><div class="td-big">${s.shipCount}건</div><div style="${muted}">${s.shipQty.toLocaleString()}y</div></div>
     ${money ? `<div style="${tile}"><div style="${muted}">오늘 매출</div><div class="td-big">${Math.round(m.sales).toLocaleString()}원</div><div style="${muted}">세금 별도</div></div>
@@ -5722,6 +6104,7 @@ function renderToday() {
   ];
   const scAsk = scAskCount(); if (scAsk) todo.push({ k: 'scask', dot: 'var(--danger)', label: '재고 확인 요청', sub: '창고', n: scAsk, red: true, go: `showStockCheck('${scLatestAskDate() || ''}')` });
   if (money) todo.push({ k: 'pay', dot: 'var(--danger)', label: '수금 한 달 넘음', n: oldN, red: true, go: 'todayGoUnpaid()' });
+  if (money) { const np = noPriceList().length; if (np) todo.push({ k: 'noprice', dot: '#c77d1a', label: '단가 미입력 출고', n: np, red: true, go: 'openNoPriceModal()' }); } // 있을 때만 줄을 보여줌
   if (money && isPremium()) todo.push({ k: 'req', dot: '#7a5bb0', label: '손님 요청', n: rqOpenCount(), go: "switchTab('promo'); promoSeg('req')" });
   L += `<div style="${card}" class="td-todo">${head('오늘 할 일')}`;
   for (const t of todo) L += `<div class="td-row${t.n ? '' : ' zero'}" data-k="${t.k}" onclick="${t.go}"><i style="background:${t.dot}"></i><span>${t.label}${t.sub ? ` <small>${t.sub}</small>` : ''}</span><b class="${t.red && t.n ? 'red' : ''}">${t.n}</b><em>›</em></div>`;
@@ -5776,7 +6159,7 @@ function renderToday() {
   } else {
     R += `<div style="${card} display:flex; align-items:center; justify-content:space-between; gap:10px;"><div style="${muted}">매출·입금·수금은 대표님과 매니저만 볼 수 있습니다</div><button onclick="unlockTodayAdmin()" style="flex:none; border:1px solid var(--border); background:#fff; color:var(--text); border-radius:8px; padding:8px 12px; font-size:13px; font-weight:700;">관리자 정보 보기</button></div>`;
   }
-  const html = `<div class="td-wrap"><div class="td-l">${L}</div><div class="td-r">${R}</div></div>`;
+  const html = `${_gs}<div class="td-wrap"><div class="td-l">${L}</div><div class="td-r">${R}</div></div>`;
   list.innerHTML = html;
 }
 function sanitizeRollsInMemory() {
@@ -5788,7 +6171,7 @@ function sanitizeRollsInMemory() {
     if (typeof r.qty === 'string') { const q = parseFloat(r.qty); r.qty = isNaN(q) ? 0 : q; }
   }
 }
-function render() { const r = _renderMain(); setTimeout(updateSelBar, 60); setTimeout(maybeOnboard, 400); return r; }
+function render() { const r = _renderMain(); if (document.body.classList.contains('st-open')) { const pg = document.getElementById('settingsPage'); const y = pg ? pg.scrollTop : 0; openSettings(); if (pg) pg.scrollTop = y; } setTimeout(updateSelBar, 60); setTimeout(maybeOnboard, 400); return r; }
 function _renderMain() {
   document.body.classList.toggle('no-cost', !canSeeCost()); document.body.classList.toggle('no-sales', !canSeeSales());
   for (const k of ['stock', 'order', 'carry', 'promo', 'pay', 'del', 'link', 'report']) document.body.classList.toggle('no-' + k, !can(k)); // 다른 기기에서 권한을 바꿔도 바로 반영
@@ -5801,6 +6184,7 @@ function _renderMain() {
   sanitizeRollsInMemory();
   updateItemNameList();
   document.body.classList.toggle('sc-mode', currentTab === 'inv' && inventorySpecialView === 'stockCheck');
+  document.body.classList.toggle('lg-list', ['inv', 'cost', 'china', 'order', 'sales'].includes(currentTab) && !inventorySpecialView && !salesSpecialView); // PC에서 카드 목록 2칸
   if (currentTab === 'today') renderToday();
   else if (currentTab === 'inv') renderInv();
   else if (currentTab === 'cost') renderCost();
@@ -6119,7 +6503,7 @@ let invSeasonView = {}; // 품목별 보기 상태: {품목키: 'S/S' | 'F/W'} (
 
 function renderChips() {
   const source = currentTab === 'inv' ? rolls : costs;
-  const cats = Array.from(new Set(source.map(r => r.cat))).sort();
+  const cats = Array.from(new Set(source.map(r => r.cat || '미분류'))).sort((a, b) => (a === '미분류') - (b === '미분류') || String(a).localeCompare(String(b), 'ko')); // 분류가 비어 있는 품목은 「미분류」로 묶음 (예전엔 빈 칩이 생기고 눌러도 안 걸러짐)
   const row = document.getElementById('chipRow');
   row.innerHTML = '';
   const allChip = document.createElement('div');
@@ -6469,7 +6853,7 @@ function renderInv() {
   const defectiveQty = rolls.reduce((s, r) => s + (r.defective ? r.qty : 0), 0);
   const items = new Set(rolls.map(r => r.item)).size;
   const realRollCount = rolls.filter(r => r.qty > 0).length; // 재고가 0인 자리표시 롤은 "진짜 롤"로 안 세야 정확함
-  document.getElementById('stats').innerHTML = `<span>품번 ${items}종</span><span>총 ${realRollCount}절</span><span>총 마수 ${totalQty.toLocaleString()}y</span>${defectiveQty > 0 ? `<span style="color:#ffb3a7;">불량 ${defectiveQty.toLocaleString()}y</span>` : ''}<span>스왓치정보 ${swatchInfo.length}건</span>`;
+  document.getElementById('stats').innerHTML = `<span>품번 ${items}종</span><span>총 ${realRollCount}절</span><span>총 마수 ${totalQty.toLocaleString()}y</span>${defectiveQty > 0 ? `<span style="color:#ffb3a7;">불량 ${defectiveQty.toLocaleString()}y</span>` : ''}`;
   renderChips();
 
   let groups = buildGroups(); // 컬러 단위 (cat,item,color,rolls[])
@@ -6490,7 +6874,7 @@ function renderInv() {
       haveNorm.add(nk);
     }
   }
-  if (activeCat !== null) groups = groups.filter(g => g.cat === activeCat);
+  if (activeCat !== null) groups = groups.filter(g => (g.cat || '미분류') === activeCat);
   if (searchTerm.trim()) {
     const t = searchTerm.trim();
     // 품목 이름에 검색어가 들어간 품목이 하나라도 있으면 그 품목들만 보여줌 ("코코" 품목을 찾는데 다른 품목의 "코코" 컬러가 같이 뜨지 않게).
@@ -6542,7 +6926,7 @@ function renderInv() {
   const list = document.getElementById('list');
   list.innerHTML = '';
   renderLowStockAlerts(list);
-  if (itemGroups.length === 0) { list.insertAdjacentHTML('beforeend', '<div class="empty">해당 조건의 재고가 없습니다</div>'); return; }
+  if (itemGroups.length === 0) { list.insertAdjacentHTML('beforeend', rolls.length === 0 && !searchTerm.trim() ? emptyGuideHtml('inv') : '<div class="empty">해당 조건의 재고가 없습니다</div>'); return; }
   const carryIdx = buildCarryoverIndex();
   const pendingOfColor = (item, color) => { // {list, viaBase} - 가공 컬러는 자기 이름으로 발주가 없을 때만 무지 발주를 대신 보여줌 (알림과 같은 규칙)
     let list = pendIdx.pendingMap.get(pendIdx.normKey(`${item}|${color}`)) || [];
@@ -6578,7 +6962,7 @@ function renderInv() {
         <div class="info">
           <div class="name">${esc(ig.item)}${itemChina ? ` <span style="font-weight:400;font-size:12px;color:var(--muted);">#${esc(itemChina)}</span>` : ''}${storePriceViewHtml(ig.item)}</div>
           ${mixMap.get(normalizeNameForMatch(ig.item)) ? `<div class="sub" style="font-size:11px; color:#8a8a8a; margin-top:1px;">혼용률 ${esc(mixMap.get(normalizeNameForMatch(ig.item)))}</div>` : ''}
-          <div class="sub">분류 ${esc(ig.cat || '미분류')} · 컬러 ${seasonView ? `${seasonView} ${viewColors.length}종` : `${ig.colors.length}종`}${itemCarry ? ` · <span class="carry-chip">이월 ${fmtCarry(itemCarry)}</span>` : ''}</div>
+          <div class="sub">${catIsAuto(ig.item, ig.cat) ? '' : `분류 ${esc(ig.cat)} · `}컬러 ${seasonView ? `${seasonView} ${viewColors.length}종` : `${ig.colors.length}종`}${itemCarry ? ` · <span class="carry-chip">이월 ${fmtCarry(itemCarry)}</span>` : ''}</div>
           <div style="margin-top:4px;">${moreBtn([['스왓치 일괄수정', `openSwatchBulkModal(${JSON.stringify(ig.cat)}, ${JSON.stringify(ig.item)})`], ['품목 이름 수정', `renameInventoryItem(${JSON.stringify(ig.item)})`], ['이 품목 전체 삭제', `deleteAllRollsForItem(${JSON.stringify(ig.item)})`, 1]], '관리')}</div>
         </div>
         <div class="total">
@@ -6606,7 +6990,7 @@ function renderInv() {
       const carry = carryIdx.byColor.get(normalizeNameForMatch(g.item) + '|' + normalizeNameForMatch(g.color)) || null;
       const pend = g._pend || pendingOfColor(g.item, g.color);
       const cdiv = document.createElement('div');
-      cdiv.className = 'color-card';
+      cdiv.className = 'color-card' + (total <= 0 && defectiveTotal <= 0 && !pend.list.length ? ' cc-empty' : ''); // 재고 없는 컬러는 흐리게 (스왓치 순서는 그대로 유지)
       cdiv.innerHTML = `
         <div class="group-head" onclick="event.stopPropagation(); toggleGroup('${escAttr(ck)}')">
           ${hasSpring
@@ -6617,10 +7001,9 @@ function renderInv() {
             <div class="sub">${total > 0 ? `${normalRolls.length}절` : '재고 없음'}${carry ? ` · <span class="carry-chip">이월 ${fmtCarry(carry)}</span>` : ''}${defectiveTotal > 0 ? ` · <span style="color:var(--danger);font-weight:700;">불량 ${defectiveTotal.toLocaleString()}y</span>` : ''}</div>
             ${pend.list.length > 0 ? `<div style="font-size:11px; color:#2f6b46; font-weight:600; margin-top:1px; line-height:1.35; word-break:keep-all; overflow-wrap:anywhere;">${fmtPending(pend)}</div>` : ''}
             ${canSeeCost() && normalRolls.length ? (() => { const c = invCostRange(normalRolls, g.item, g.color); return c ? `<div class="inv-cost-line${c.stdOnly ? ' std' : ''}${c.low ? ' warn' : ''}">${esc(invCostText(c))}</div>` : ''; })() : ''}
-            <div style="margin-top:4px; display:flex; gap:4px; flex-wrap:wrap;">
-              <button onclick="event.stopPropagation(); openSwatchEditModal('${escAttr(g.cat)}','${escAttr(g.item)}','${escAttr(g.color)}')" style="border:none;background:var(--b-sub);color:var(--muted);border-radius:6px;padding:3px 8px;font-size:11px;">스왓치·중국품번 수정</button>
-              <button class="btn-key" onclick="event.stopPropagation(); openRollAddModalFor('${escAttr(g.item)}', '${escAttr(g.color)}')" style="border:none;background:var(--b-ok);color:#2f6b46;border-radius:6px;padding:3px 8px;font-size:11px;">입고</button>
-              <button onclick="event.stopPropagation(); deleteAllRollsForColor('${escAttr(g.item)}', '${escAttr(g.color)}')" style="border:none;background:var(--b-danger-soft);color:var(--danger);border-radius:6px;padding:3px 8px;font-size:11px;">컬러 전체 삭제</button>
+            <div style="margin-top:4px; display:flex; gap:4px; flex-wrap:wrap; align-items:center;">
+              <button class="btn-key" onclick="event.stopPropagation(); openRollAddModalFor('${escAttr(g.item)}', '${escAttr(g.color)}')" style="border:none;background:var(--b-ok);color:#2f6b46;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:600;">입고</button>
+              ${moreBtn([['스왓치·중국품번 수정', `openSwatchEditModal(${JSON.stringify(g.cat)}, ${JSON.stringify(g.item)}, ${JSON.stringify(g.color)})`], ['컬러 전체 삭제', `deleteAllRollsForColor(${JSON.stringify(g.item)}, ${JSON.stringify(g.color)})`, 1]])}
             </div>
           </div>
           <div class="total">
@@ -6691,12 +7074,8 @@ function renderInv() {
                   <div>절 <span class="yd">${r.qty}y</span>${r.inDate ? `<span style="font-size:11px;color:var(--muted);margin-left:6px;">${esc(r.inDate)} 입고</span>` : ''}${r.rollNote ? `<div style="margin-top:3px;display:inline-block;background:#e8f0fb;color:var(--primary-dark);font-weight:600;border-radius:5px;padding:2px 7px;font-size:12px;">${esc(r.rollNote)}</div>` : ''}${(canSeeCost() && r.costPerY != null && !isTangCostUniform(tangRolls)) ? `<div class="inv-cost">이 절 ${Math.round(r.costPerY).toLocaleString()}원</div>` : ''}</div>
                 </div>
                 <div class="btns">
-                  <button class="btn-out btn-key" onclick="event.stopPropagation(); openRollAddModalFor('${escAttr(r.item)}', '${escAttr(r.color)}')">입고</button>
                   <button class="btn-out" onclick="event.stopPropagation(); openOutModal(${r.id})">출고</button>
-                  <button class="btn-out" style="background:var(--b-info);color:var(--primary-dark);" onclick="event.stopPropagation(); openRollNoteModal(${r.id})">메모</button>
-                  <button class="btn-out" style="background:var(--b-sub);color:var(--text);" onclick="event.stopPropagation(); openRollEditModal(${r.id})">수정</button>
-                  <button class="btn-out btn-danger" onclick="event.stopPropagation(); markRollDefective(${r.id})">불량</button>
-                  <button class="btn-del" onclick="event.stopPropagation(); deleteRoll(${r.id})">삭제</button>
+                  ${moreBtn([['메모', `openRollNoteModal(${r.id})`], ['수정', `openRollEditModal(${r.id})`], ['불량으로 표시', `markRollDefective(${r.id})`], ['삭제', `deleteRoll(${r.id})`, 1]])}
                 </div>`;
             }
             rollsDiv.appendChild(rr);
@@ -6985,14 +7364,14 @@ function addColorBlock(colorVal) {
     </div>
     <div class="f-block-stock-info hidden" style="font-size:12px; color:var(--primary-dark); background:#eef3f8; border-radius:8px; padding:6px 8px; margin-top:6px;"></div>
     <div class="row2" style="margin-top:6px;">
-      <div><label style="font-size:12px;">중국품번 (선택 - 공장 다르면 다르게)</label><input type="text" class="f-block-chinacode" placeholder="예: A-1234"></div>
+      <div><label style="font-size:12px;">중국품번 (선택)</label><input type="text" class="f-block-chinacode" placeholder="예: A-1234"></div>
       <div><label style="font-size:12px;">스왓치 순번 (선택)</label><input type="number" min="1" class="f-block-swatch" placeholder="예: 8"></div>
     </div>
     <div class="f-block-form-wrap" style="display:none; margin-top:6px;"><label style="font-size:12px;">단가</label><select class="f-block-form"><option value="">발주대로 (발주 없으면 절 단가)</option><option value="roll">절 단가</option><option value="cut">컷 단가</option></select></div>
-    <div class="cost-ui" style="margin-top:6px;"><label style="font-size:12px;">입고 원가 (y당 · 대표만 보임)</label>
+    <div class="cost-ui" style="margin-top:6px;"><label style="font-size:12px;">입고 원가 (원/y)</label>
       <div style="display:flex; gap:6px; align-items:center;"><input type="number" step="1" min="0" class="f-block-cost" placeholder="비우면 원가표 기준" style="flex:1;" oninput="blockCostHint(this)"><button type="button" onclick="openCostCalcModal(document.getElementById('f-item').value.trim(), this.closest('.f-color-block').querySelector('.f-block-color').value.trim(), { targetEl: this.closest('div').querySelector('.f-block-cost') })" style="border:none;background:var(--b-sub);color:#555;border-radius:8px;padding:8px 10px;font-size:12px;flex:none;">원가 계산</button></div>
       <div class="f-block-cost-hint" style="font-size:11.5px; color:var(--muted); margin-top:3px;">이 컬러의 모든 절에 들어갑니다. 해외 원단은 비워 두면 운임 정산까지 자동 반영됩니다.</div></div>
-    <label style="font-size:12px; margin-top:6px;">탕별 마수 (한 번에 여러 탕 입고 가능)</label>
+    <label style="font-size:12px; margin-top:6px;">탕별 마수</label>
     <div class="f-block-rolls"></div>
     <button onclick="addRollRowToBlock(this)" style="border:none;background:var(--b-info);color:var(--primary-dark);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:600;margin-top:6px;">+ 탕 추가</button>
   `;
@@ -7794,10 +8173,34 @@ function moreBtn(items, label, dd) {
   if (dd) return `<button type="button" class="more-btn dd" data-menu="${String(JSON.stringify(items)).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')}" onclick="event.stopPropagation(); openMoreMenu(this)">${esc(label)} ▾</button>`;
   return `<button type="button" class="more-btn" data-menu="${String(JSON.stringify(items)).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')}" onclick="event.stopPropagation(); openMoreMenu(this)">${label ? esc(label) + ' ' : ''}⋯</button>`;
 }
+// 권한 CSS(body.no-del [onclick*="deleteRoll("] 등)를 그대로 써서, 같은 코드를 가진 버튼이 지금 숨겨지는지 확인
+function moreHiddenByPerm(code) {
+  if (!/\bno-/.test(document.body.className)) return false;
+  const t = document.createElement('button'); t.setAttribute('onclick', code); t.style.position = 'absolute'; t.style.left = '-9999px';
+  document.body.appendChild(t); const hid = getComputedStyle(t).display === 'none'; t.remove(); return hid;
+}
+// 분류가 품번 첫 글자(0-9, ㄱ-ㅎ)로 자동으로 정해진 경우엔 화면에 「분류」를 따로 안 보여줌
+function catIsAuto(item, cat) {
+  if (cat == null || cat === '') return true;
+  const ch = String(item || '').trim().charAt(0); if (!ch) return false;
+  if (ch === cat || ch.toUpperCase() === String(cat).toUpperCase()) return true;
+  const code = ch.charCodeAt(0) - 0xAC00;
+  if (code >= 0 && code < 11172) { const cho = 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ'.charAt(Math.floor(code / 588)); const single = { 'ㄲ': 'ㄱ', 'ㄸ': 'ㄷ', 'ㅃ': 'ㅂ', 'ㅆ': 'ㅅ', 'ㅉ': 'ㅈ' }[cho] || cho; return cat === cho || cat === single; }
+  return false;
+}
+// 발주 상태 배지: 입고완료(초록) · 도착 지남(빨강) · 대기(회색). 대기중 목록에선 정상 대기 배지는 생략
+function chinaBadge(o, isReceived, arrival) {
+  const st = (bg, c, t) => `<div style="font-size:11px; font-weight:700; padding:3px 8px; border-radius:6px; background:${bg}; color:${c};">${t}</div>`;
+  if (isReceived) return st('#eaf3ec', '#2f6b46', '입고완료');
+  if (arrival && String(arrival) < todayStr()) return st('#fdecea', '#c0392b', '도착 지남'); // 날짜는 'YY.MM.DD' 문자열이라 그대로 비교
+  return chinaOrderFilter === 'waiting' ? '' : st('var(--b-sub)', '#666', '대기');
+}
 function openMoreMenu(btn) {
   const had = document.querySelector('.more-pop'); if (had) { had.remove(); if (had._btn === btn) return; }
   let items = []; try { items = JSON.parse(btn.dataset.menu || '[]'); } catch (e) { return; }
   const pop = document.createElement('div'); pop.className = 'more-pop'; pop._btn = btn;
+  items = items.filter(([, code]) => !moreHiddenByPerm(code)); // 권한으로 숨긴 버튼은 ⋯ 메뉴 안에서도 숨김
+  if (!items.length) return;
   items.forEach(([label, code, danger]) => {
     const b = document.createElement('button'); b.type = 'button'; b.textContent = label; if (danger) b.className = 'danger';
     b.onclick = (e) => { e.stopPropagation(); pop.remove(); try { (new Function(code))(); } catch (err) { console.error(err); } };
@@ -7988,7 +8391,7 @@ function renderCost() {
 
   // 컬러별 원가(override)는 목록에 따로 안 보여주고, 그 품목 펼쳤을 때만 나오게 함
   let list2 = costs.filter(c => !c.color);
-  if (activeCat !== null) list2 = list2.filter(c => c.cat === activeCat);
+  if (activeCat !== null) list2 = list2.filter(c => (c.cat || '미분류') === activeCat);
   if (searchTerm.trim()) {
     const t = searchTerm.trim();
     list2 = list2.filter(c => matchesSearchWords(t, c.item, c.mix));
@@ -8001,22 +8404,15 @@ function renderCost() {
   ptBtn.textContent = '가공비 관리 (기모·워싱 등)';
   if (!featureOn('process')) ptBtn.style.display = 'none';
   ptBtn.style.cssText = 'border:none;background:var(--b-warn);color:#a15c1e;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;margin-bottom:10px;margin-right:6px;';
-  ptBtn.onclick = openProcessModal;
+  ptBtn.onclick = openProcessModal; ptBtn.style.display = 'none'; // 설정 > 거래 기준으로 옮김
   if (featureOn('process')) list.appendChild(ptBtn);
   const spBtn = document.createElement('button');
   spBtn.textContent = '발주처 관리';
   spBtn.style.cssText = 'border:none;background:var(--b-info);color:var(--primary-dark);border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;margin-bottom:10px;';
   spBtn.onclick = openSupplierModal;
-  list.appendChild(spBtn);
-  if (isOwner()) { const fb = document.createElement('button'); fb.textContent = '기능 설정'; fb.style.cssText = 'border:none;background:var(--b-sub);color:#555;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;margin-bottom:10px;margin-left:6px;'; fb.onclick = openFeatureModal; list.appendChild(fb); }
-  if (featureOn('freight') && getSuppliers().some(s => s.kind === 'overseas' || (s.currency && s.currency !== 'KRW'))) {
-    const frBtn = document.createElement('button');
-    frBtn.textContent = '운임 정산';
-    frBtn.style.cssText = 'border:none;background:var(--b-warn);color:#a15c1e;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;margin-bottom:10px;margin-left:6px;';
-    frBtn.onclick = () => openFreightModal();
-    list.appendChild(frBtn);
-  }
-  if (list2.length === 0) { list.insertAdjacentHTML('beforeend', '<div class="empty">해당 조건의 원가 데이터가 없습니다</div>'); return; }
+  // 발주처 관리는 설정 > 거래 기준으로 옮김
+  // 「운임 정산」은 발주 탭, 「기능 설정」은 ⚙ 설정 화면에 있어서 원가 탭에서는 뺌 (같은 버튼이 두 곳에 있으면 헷갈림)
+  if (list2.length === 0) { list.insertAdjacentHTML('beforeend', costs.length === 0 && !searchTerm.trim() ? emptyGuideHtml('cost') : '<div class="empty">해당 조건의 원가 데이터가 없습니다</div>'); return; }
 
   for (const c of list2) {
     const won = Math.round(finalCost(c));
@@ -8051,15 +8447,14 @@ function renderCost() {
     if (colorsForItem.length > 0) { div.style.cursor = 'pointer'; div.onclick = () => toggleGroup(gk); }
     div.innerHTML = `
       <div>
-        <div class="name">${esc(c.item)}${storePriceChipHtml(c.item)}${colorsForItem.length > 0 ? ` <span style="font-size:11px; color:var(--muted); font-weight:400;">${isOpen ? '(컬러별 접기 ▲)' : '(눌러서 컬러별 보기 ▼)'}</span>` : ''}</div>
+        <div class="name">${esc(c.item)}${storePriceChipHtml(c.item)}${colorsForItem.length > 0 ? ` <span style="font-size:11px; color:var(--muted); font-weight:400;">컬러 ${colorsForItem.length} ${isOpen ? '▲' : '▼'}</span>` : ''}</div>
         ${c.mix ? `<div class="sub" style="font-size:11px; color:#8a8a8a; margin-top:1px;">혼용률 ${esc(c.mix)}</div>` : ''}
-        <div class="sub">분류 ${esc(c.cat)} · ${esc(costPriceText(c))}${c.weight ? ` · 중량 ${esc(c.weight)}g/y` : ''}</div>
+        <div class="sub">${catIsAuto(c.item, c.cat) ? '' : `분류 ${esc(c.cat)} · `}${esc(costPriceText(c))}${c.weight ? ` · 중량 ${esc(c.weight)}g/y` : ''}</div>
         ${c.type === 'domestic' ? '<div class="sub" style="color:#2f6b46;">환율 미적용 (적혀있는 금액 그대로)</div>' : ''}
         ${overridesForItem.length > 0 ? `<div class="sub" style="color:#a15c1e;">가공비 추가된 컬러 ${overridesForItem.length}개</div>` : ''}
         <div class="btns">
           <button class="btn-out" onclick="event.stopPropagation(); openCostEditModal(${c.id})">수정</button>
-          <button class="btn-out" onclick="event.stopPropagation(); renameInventoryItem('${escAttr(c.item)}')">이름변경</button>
-          <button class="btn-del" onclick="event.stopPropagation(); deleteCost(${c.id})">삭제</button>
+          ${moreBtn([['이름 변경', `renameInventoryItem(${JSON.stringify(c.item)})`], ['삭제', `deleteCost(${c.id})`, 1]])}
         </div>
       </div>
       <div class="price">
@@ -8664,6 +9059,7 @@ function renderOrders() {
   document.getElementById('orderTools').classList.remove('hidden');
   document.getElementById('orderGroupToggleBtn').textContent = orderGroupMode === 'customer' ? '품목별로 보기' : '거래처별로 보기';
   document.getElementById('order-day-picker').value = orderDayFilter ? toDateInputValue(orderDayFilter) : '';
+  { const on = !!orderDayFilter; const a = document.getElementById('orderDayOn'), b = document.getElementById('orderDayOff'); if (a) a.style.display = on ? 'flex' : 'none'; if (b) b.style.display = on ? 'none' : ''; } // 날짜를 안 골랐을 땐 빈 날짜칸 대신 「등록일로 보기」만
   autoFixStuckOrders();
 
   const activeCount = orders.filter(o => !o.done).length;
@@ -8689,7 +9085,7 @@ function renderOrders() {
     list2 = list2.filter(o => String(o.customer).toLowerCase().includes(t) || String(o.item).toLowerCase().includes(t));
   }
   if (!orderDayFilter && !searchTerm.trim()) list.insertAdjacentHTML('beforeend', dueBarHtml());
-  if (list2.length === 0) { list.insertAdjacentHTML('beforeend', '<div class="empty">해당 조건의 주문이 없습니다</div>'); return; }
+  if (list2.length === 0) { list.insertAdjacentHTML('beforeend', orders.length === 0 && !searchTerm.trim() ? emptyGuideHtml('order') : '<div class="empty">해당 조건의 주문이 없습니다</div>'); return; }
 
   if (orderGroupMode === 'customer') {
     renderOrdersByCustomer(list2);
@@ -9792,6 +10188,25 @@ async function confirmPaymentModal(mode) {
   showToast(msg);
 }
 
+function salesPickBarRender() {
+  const el = document.getElementById('salesPickBar'); if (!el) return;
+  document.body.classList.toggle('sales-pick', salesPickMode);
+  const L = (t, f) => `<span onclick="${f}" style="text-decoration:underline; cursor:pointer;">${t}</span>`;
+  el.innerHTML = salesPickMode
+    ? `<b style="color:var(--primary-dark);">인쇄할 거래처를 선택해 주세요</b>${L('전체 선택', 'toggleAllMainFlags(true)')}${L('전체 해제', 'toggleAllMainFlags(false)')}${L('닫기', 'salesPickToggle()')}`
+    : L('명세서 여러 곳 인쇄', 'salesPickToggle()');
+}
+function salesPickToggle() {
+  salesPickMode = !salesPickMode;
+  if (!salesPickMode) { printSelectedIds.clear(); }
+  render(); setTimeout(updateSelBar, 0);
+}
+// 매출 탭 날짜별 묶음 접기/펼치기 (기본: 가장 최근 날짜만 펼침)
+function salesDayToggle(period, nowOpen) {
+  openGroups.delete('sday:' + period); openGroups.delete('sday-x:' + period);
+  openGroups.add((nowOpen ? 'sday-x:' : 'sday:') + period);
+  render();
+}
 function toggleAllMainFlags(checked) {
   setTimeout(updateSelBar, 0);
   // 선택인쇄용 체크는 이 화면에서만 기억하면 되는 거라, 서버 저장 없이 바로 처리 (느려질 일도, 껐다 켜면 남아있을 일도 없음)
@@ -9815,7 +10230,7 @@ function toggleMainFlag(entryIds, checked) {
 function updateSelBar() {
   const on = currentTab === 'sales' ? new Set([...document.querySelectorAll('.main-flag-checkbox:checked')].map(c => c.dataset.customer)).size : 0;
   let bar = document.getElementById('selBar');
-  if (!on) { if (bar) bar.remove(); const f = document.querySelector('.fab'); if (f) f.style.visibility = ''; return; }
+  if (!on || !salesPickMode) { if (bar) bar.remove(); const f = document.querySelector('.fab'); if (f) f.style.visibility = ''; return; }
   if (!bar) { bar = document.createElement('div'); bar.id = 'selBar'; bar.className = 'sel-bar'; document.body.appendChild(bar); }
   bar.innerHTML = `<span>${on}곳 선택</span><button class="go" onclick="printSelectedMainStatements()">명세서 인쇄</button><button class="x" onclick="toggleAllMainFlags(false)">선택 해제</button>`;
   const f = document.querySelector('.fab'); if (f) f.style.visibility = 'hidden';
@@ -12695,7 +13110,7 @@ function renderCustomerLedgerView() {
     </div>
     <div style="display:flex; gap:6px; align-items:center; margin-bottom:8px;">
       <input id="ledger-start" type="date" style="flex:1 1 0; min-width:0; padding:7px 6px; font-size:12px;">
-      <span style="flex:none; font-size:12px; color:var(--muted);">~</span>
+      <span style="flex:none; font-size:12px; color:var(--muted);">-</span>
       <input id="ledger-end" type="date" style="flex:1 1 0; min-width:0; padding:7px 6px; font-size:12px;">
       <button onclick="ledgerCustomer=document.getElementById('ledger-customer').value.trim(); ledgerStartDate=document.getElementById('ledger-start').value; ledgerEndDate=document.getElementById('ledger-end').value; renderCustomerLedgerTable();" style="flex:none; border:none;background:var(--b-info);color:var(--primary-dark);border-radius:7px;padding:7px 12px;font-size:12px;font-weight:600;">조회</button>
     </div>
@@ -16079,7 +16494,7 @@ function renderSales() {
   }
 
   if (sales.length === 0) {
-    if (emptyCustomerMatches.length === 0) list.innerHTML = '<div class="empty">매출 기록이 없습니다 (출고 시 판매단가를 입력하면 여기 기록됩니다)</div>';
+    if (emptyCustomerMatches.length === 0) list.innerHTML = shipmentLog.length === 0 && !searchTerm.trim() ? emptyGuideHtml('sales') : '<div class="empty">이 기간 매출이 없습니다</div>';
     return;
   }
 
@@ -16092,15 +16507,43 @@ function renderSales() {
   const periods = Array.from(byPeriod.keys()).sort((a, b) => b.localeCompare(a));
 
   const allPayments = [];
+  const _payCust = searchTerm.trim() ? new Set(sales.map(e => e.customer || '(거래처 미입력)')) : null; // 검색 중이면 찾은 거래처의 입금만 (예전엔 그날 전체 입금이 보였음)
   for (const e of shipmentLog) {
+    if (_payCust && !_payCust.has(e.customer || '(거래처 미입력)')) continue;
     for (const p of (e.payments || [])) allPayments.push(p);
   }
   function paymentsInPeriod(period) {
     return allPayments.filter(p => p.date === period);
   }
 
+  salesPickBarRender();
+  // 맨 위 「기간 합계」 - 아래 날짜별 줄과 똑같은 계산을 더한 것 (표시만, 금액 계산은 안 바뀜)
+  if (periods.length > 1) {
+    let tSales = 0, tProfit = 0, tCount = 0, tCash = 0, tOnline = 0;
+    for (const period of periods) {
+      const pe = byPeriod.get(period);
+      tSales += pe.reduce((s, e) => s + (e.item !== '이월 미수금' ? (e.saleAmount || 0) : 0), 0) - pe.reduce((s, e) => s + ((e.isReturn || e.isDefect) ? (e.deductAmount || 0) : 0), 0);
+      tProfit += pe.reduce((s, e) => s + (e._profit != null ? e._profit : 0), 0);
+      tCount += pe.length;
+      const pays = paymentsInPeriod(period);
+      tCash += pays.filter(p => (p.method || 'cash') === 'cash').reduce((s, p) => s + p.amount, 0);
+      tOnline += pays.filter(p => p.method === 'online').reduce((s, p) => s + p.amount, 0);
+    }
+    const md = (d) => String(d || '').slice(3).replace('.', '/');
+    const rangeLabel = salesDayFilter ? `${md(salesDayFilter)}${salesDayFilterEnd && salesDayFilterEnd !== salesDayFilter ? '-' + md(salesDayFilterEnd) : ''}` : '전체 기간';
+    const tMargin = tSales > 0 ? Math.round((tProfit / tSales) * 1000) / 10 : null;
+    const cell = (k, v, sub) => `<div style="flex:1;min-width:0;"><div style="font-size:11px;color:var(--muted);">${k}</div><div style="font-size:15px;font-weight:800;color:var(--text);">${v}</div>${sub ? `<div style="font-size:11px;color:var(--muted);">${sub}</div>` : ''}</div>`;
+    const tot = document.createElement('div');
+    tot.className = 'sales-total';
+    tot.innerHTML = `<div style="font-size:12px;font-weight:700;color:var(--primary-dark);margin-bottom:8px;">${esc(rangeLabel)} 합계 · ${tCount}건 · ${periods.length}일</div>
+      <div class="st-grid"><div class="st-main" style="margin-bottom:8px;"><div style="font-size:11px;color:var(--muted);">매출</div><div style="font-size:22px;font-weight:800;color:var(--text);">${tSales.toLocaleString()}원</div></div>
+      <div class="st-rest" style="display:flex;gap:10px;border-top:1px solid var(--border);padding-top:8px;">${canSeeCost() ? cell('순이익', tProfit.toLocaleString() + '원', tMargin != null ? `마진율 ${tMargin}%` : '') : ''}${cell('입금', (tCash + tOnline).toLocaleString() + '원', `현금 ${tCash.toLocaleString()} · 온라인 ${tOnline.toLocaleString()}`)}</div></div>`;
+    list.appendChild(tot);
+  }
+
   for (const period of periods) {
     const periodEntries = byPeriod.get(period);
+    const dayOpen = salesPickMode || periods.length === 1 || !!searchTerm.trim() || openGroups.has('sday:' + period) || (!openGroups.has('sday-x:' + period) && period === periods[0]);
     const periodGross = periodEntries.reduce((s, e) => s + (e.item !== '이월 미수금' ? (e.saleAmount || 0) : 0), 0);
     const periodReturnDefect = periodEntries.reduce((s, e) => s + ((e.isReturn || e.isDefect) ? (e.deductAmount || 0) : 0), 0);
     const periodSales = periodGross - periodReturnDefect;
@@ -16111,10 +16554,14 @@ function renderSales() {
     const cashTotal = pays.filter(p => (p.method || 'cash') === 'cash').reduce((s, p) => s + p.amount, 0);
     const onlineTotal = pays.filter(p => p.method === 'online').reduce((s, p) => s + p.amount, 0);
     const banner = document.createElement('div');
-    banner.className = 'factory-divider';
+    banner.className = 'factory-divider sales-day' + (dayOpen ? ' open' : '');
     banner.style.background = 'var(--primary-dark)';
-    banner.textContent = `${label} 매출 ${periodSales.toLocaleString()}원${canSeeCost() ? ` · 순이익 ${periodProfit.toLocaleString()}원${periodMargin != null ? ` (마진율 ${periodMargin}%)` : ''}` : ''} (${periodEntries.length}건)${(cashTotal > 0 || onlineTotal > 0) ? ` · 입금 현금 ${cashTotal.toLocaleString()}원 / 온라인 ${onlineTotal.toLocaleString()}원` : ''}`;
+    if (!(salesPickMode || periods.length === 1 || searchTerm.trim())) { banner.style.cursor = 'pointer'; banner.onclick = () => salesDayToggle(period, dayOpen); banner.dataset.arrow = dayOpen ? '▲' : '▼'; }
+    const _dw = (() => { const m = String(period).match(/^(\d{2})\.(\d{2})\.(\d{2})$/); if (!m) return ''; const d = new Date(2000 + +m[1], +m[2] - 1, +m[3]); return '일월화수목금토'[d.getDay()]; })();
+    const _dl = /^\d{2}\.\d{2}\.\d{2}$/.test(String(period)) ? `${String(period).slice(3).replace('.', '/')}${_dw ? `(${_dw})` : ''}` : label;
+    banner.innerHTML = `<div>${esc(_dl)} · 매출 ${periodSales.toLocaleString()}원 · ${periodEntries.length}건</div><div class="sd-sub">${canSeeCost() ? `순이익 ${periodProfit.toLocaleString()}원${periodMargin != null ? ` (${periodMargin}%)` : ''}` : ''}${(cashTotal > 0 || onlineTotal > 0) ? `${canSeeCost() ? ' · ' : ''}입금 ${(cashTotal + onlineTotal).toLocaleString()}원` : ''}</div>`;
     list.appendChild(banner);
+    if (!dayOpen) continue; // 접힌 날짜는 합계 줄만
 
     const custGroups = new Map();
     for (const e of periodEntries) {
@@ -16152,7 +16599,9 @@ function renderSales() {
         <div class="group-head" onclick="toggleGroup('${escAttr(custGroupKey)}')">
           <div class="info">
             <div class="name" style="display:flex;align-items:center;gap:8px;"><input type="checkbox" class="main-flag-checkbox" data-customer="${escAttr(k)}" data-ids="${entries.map(e => e.id).join(',')}" data-start="${escAttr(entries.reduce((a, e) => a < e.date ? a : e.date, entries[0].date))}" data-end="${escAttr(entries.reduce((a, e) => a > e.date ? a : e.date, entries[0].date))}" ${isMainGroup ? 'checked' : ''} onclick="event.stopPropagation()" onchange="toggleMainFlag([${entries.map(e => e.id).join(',')}], this.checked)" style="width:18px;height:18px;margin:0;flex:none;cursor:pointer;" title="선택 인쇄에 넣기"><span>${esc(k)}</span></div>
-            <div class="sub">${entries.length}건 · 매출 ${custTotal.toLocaleString()}원${canSeeCost() ? ` · 순이익 ${custProfit.toLocaleString()}원` : ''}</div>
+            <div class="sub">${(() => { const smp = entries.filter(e => e.isSample).length, np = entries.filter(isNoPriceEntry).length, n = entries.length - smp; // 샘플은 따로 세고, 매출이 없으면 "매출 0원" 대신 「샘플 N건」
+              const main = n - np > 0 ? `${n}건 · 매출 ${custTotal.toLocaleString()}원${canSeeCost() ? ` · 순이익 ${custProfit.toLocaleString()}원` : ''}` : '';
+              return [main, smp ? `샘플 ${smp}건` : '', np ? `<span style="color:#c0392b;font-weight:700;">단가 미입력 ${np}건</span>` : ''].filter(Boolean).join(' · '); })()}</div>
             <div class="sales-acts" onclick="event.stopPropagation();">
               <button onclick="showCustomerLedger('${escAttr(k)}')" style="border:none;background:var(--b-info);color:#3d4f6b;border-radius:6px;padding:5px 10px;font-size:12px;font-weight:600;">원장</button>
               ${(() => { const ds = new Set(entries.map(e => e.date)); return ds.size === 1 && entries.some(e => e.item !== '이월 미수금') ? dayStmtBtns(k, entries[0].date, 0) : ''; })()}
@@ -16288,6 +16737,7 @@ function renderChinaOrders() {
   document.getElementById('invTools').classList.add('hidden');
   document.getElementById('salesTools').classList.add('hidden');
   document.getElementById('orderTools').classList.add('hidden');
+  document.getElementById('chipRow').innerHTML = ''; // 다른 탭(재고 분류·이월장부 진행중/완료)의 칩이 남아 있지 않게 - 발주 탭에선 안 쓰임
 
   const list = document.getElementById('list');
   list.innerHTML = '';
@@ -16323,7 +16773,7 @@ function renderChinaOrders() {
     spBtn.textContent = '발주처 관리';
     spBtn.style.cssText = 'flex:none; border:none; background:var(--b-info); color:var(--primary-dark); border-radius:20px; padding:6px 14px; font-size:12px; font-weight:600;';
     spBtn.onclick = openSupplierModal;
-    chipRow.appendChild(spBtn);
+    // 「발주처 관리」는 설정 > 거래 기준으로 옮김 (발주처가 하나도 없을 땐 위쪽 안내에서 바로 등록)
     if (featureOn('freight') && getSuppliers().some(s => s.kind === 'overseas' || (s.currency && s.currency !== 'KRW'))) {
       const frBtn = document.createElement('button');
       frBtn.textContent = '운임 정산';
@@ -16346,6 +16796,7 @@ function renderChinaOrders() {
   if (chinaOrderFilter !== 'all') filtered = filtered.filter(o => o.status === chinaOrderFilter);
 
   if (filtered.length === 0) {
+    if (chinaOrders.length === 0 && !searchTerm.trim()) { list.insertAdjacentHTML('beforeend', emptyGuideHtml('china')); return; }
     const empty = document.createElement('div');
     empty.className = 'empty';
     empty.textContent = '발주 기록이 없습니다';
@@ -16422,7 +16873,7 @@ function renderChinaOrdersByArrival(filtered, t) {
   }
 }
 function buildChinaOrderCard(o) {
-  const card = document.createElement('div');
+  const card = document.createElement('div'); card.classList.add('cn-card');
   card.style.cssText = 'background:#fff; border-radius:10px; border:1px solid var(--border); padding:10px 14px; margin-bottom:8px; cursor:pointer;';
   card.onclick = () => openChinaOrderEditModal(o.id);
   const isReceived = o.status === 'received';
@@ -16435,7 +16886,7 @@ function buildChinaOrderCard(o) {
         <div style="font-size:11px; color:var(--muted); margin-top:2px;">${getSuppliers().length > 1 && supplierOfOrder(o) ? `${esc(supplierOfOrder(o).name)} · ` : ''}발주 ${esc(o.date)}${arrival ? ` · 도착 ${esc(formatChinaArrivalLabel(arrival))}` : ''}</div>
       </div>
       <div style="display:flex; align-items:center; gap:6px; flex:none; margin-left:8px;">
-        <div style="font-size:11px; font-weight:700; padding:3px 8px; border-radius:6px; background:${isReceived ? '#eaf3ec' : '#fdecea'}; color:${isReceived ? '#2f6b46' : '#c0392b'};">${isReceived ? '입고완료' : '대기중'}</div>
+        ${chinaBadge(o, isReceived, arrival)}
         <button onclick="event.stopPropagation(); ${isReceived ? `toggleChinaOrderStatus(${o.id})` : `openChinaReceiveModal(${o.id})`}" style="border:none;background:var(--b-sub);color:var(--text);border-radius:6px;padding:5px 8px;font-size:11px;">${isReceived ? '대기로' : '입고처리'}</button>
       </div>
     </div>
@@ -16489,7 +16940,7 @@ function renderChinaOrdersByItem(filtered) {
               <div style="font-size:11px; color:var(--muted); margin-top:2px;">${o.chinaCode ? `(${esc(o.chinaCode)}) · ` : ''}발주 ${esc(o.date)}${arrival ? ` · 도착 ${esc(formatChinaArrivalLabel(arrival))}` : ''}</div>
             </div>
             <div style="display:flex; align-items:center; gap:6px; flex:none; margin-left:8px;">
-              <div style="font-size:11px; font-weight:700; padding:3px 8px; border-radius:6px; background:${isReceived ? '#eaf3ec' : '#fdecea'}; color:${isReceived ? '#2f6b46' : '#c0392b'};">${isReceived ? '입고완료' : '대기중'}</div>
+              ${chinaBadge(o, isReceived, arrival)}
               <button onclick="event.stopPropagation(); ${isReceived ? `toggleChinaOrderStatus(${o.id})` : `openChinaReceiveModal(${o.id})`}" style="border:none;background:var(--b-sub);color:var(--text);border-radius:6px;padding:5px 8px;font-size:11px;">${isReceived ? '대기로' : '입고처리'}</button>
             </div>
           </div>
@@ -17000,7 +17451,8 @@ function renderCustomerBuckets(list2) {
     groupDiv.innerHTML = `
       <div class="group-head" onclick="toggleGroup('${escAttr(k)}')">
         <div class="info">
-          <div class="name">${esc(cust)} <button onclick="event.stopPropagation();openOrderAddModal('${cust === '(거래처 미입력)' ? '' : escAttr(cust)}')" style="border:none;background:var(--b-ok);color:#2f6b46;border-radius:6px;padding:3px 9px;font-size:11px;font-weight:700;margin-left:6px;">+ 주문</button> ${cust === '(거래처 미입력)' ? '' : `<button onclick="event.stopPropagation();openRetX(${escAttr(JSON.stringify(cust)).replace(/"/g, '&quot;')}, 'return')" style="border:none;background:var(--b-warn);color:#a15c1e;border-radius:6px;padding:3px 9px;font-size:11px;font-weight:700;margin-left:6px;">반품·불량</button> `}<button onclick="event.stopPropagation();printPreShipmentSelected('${escAttr(cust)}')" style="border:none;background:var(--b-info);color:var(--primary-dark);border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600;margin-left:6px;">선수금 명세서 (선택 건)</button> ${pendingCount > 0 ? `<button onclick="event.stopPropagation();openCustomerShipList('${escAttr(cust)}')" style="border:none;background:var(--b-ok);color:#2f6b46;border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600;margin-left:6px;">출고 처리</button>` : ''}</div>
+          <div class="name">${esc(cust)} <button onclick="event.stopPropagation();openOrderAddModal('${cust === '(거래처 미입력)' ? '' : escAttr(cust)}')" style="border:none;background:var(--b-ok);color:#2f6b46;border-radius:6px;padding:3px 9px;font-size:11px;font-weight:700;margin-left:6px;">+ 주문</button>${pendingCount > 0 ? ` <button onclick="event.stopPropagation();openCustomerShipList('${escAttr(cust)}')" style="border:none;background:var(--b-info);color:var(--primary-dark);border-radius:6px;padding:3px 9px;font-size:11px;font-weight:700;margin-left:4px;">출고 처리</button>` : ''} ${moreBtn([...(cust === '(거래처 미입력)' ? [] : [['반품·불량', `openRetX(${JSON.stringify(cust)}, 'return')`]]), ['선수금 명세서 (선택한 주문)', `printPreShipmentSelected(${JSON.stringify(cust)})`]])}</div>
+
           <div class="sub">전체 ${items.length}건 · 진행중 ${pendingCount}건${remainLabel ? ` · ${remainLabel} 남음` : ` · ${qtyLabel}`}</div>
         </div>
         <div class="total"><div class="cnt">${isOpen ? '접기 ▲' : '펼치기 ▼'}</div></div>
@@ -17663,7 +18115,7 @@ function openOrderReceiveModal(id) {
       </div>
     `;
     }).join('');
-    document.getElementById('or-rolls-label').textContent = '절별 이번에 나갈 양 (자동 채움을 누른 뒤 고쳐도 됩니다)';
+    document.getElementById('or-rolls-label').textContent = '절별 출고량';
     document.getElementById('or-new-tang-list').innerHTML = '';
     rollsWrap.classList.remove('hidden');
     manualWrap.classList.add('hidden');
@@ -17684,11 +18136,11 @@ function onPriceModeChange() {
   const label = document.getElementById('or-price-label');
   const input = document.getElementById('or-price');
   if (mode === 'total') {
-    label.textContent = '총 판매금액(원) — 야드·단가 상관없이 실제 받은 총액';
+    label.textContent = '총 판매금액 (원)';
     input.placeholder = '예: 10000';
   } else {
-    label.textContent = '판매단가 — 매출로 잡을 때만 입력 (아니면 빈칸)';
-    input.placeholder = '예: 3500';
+    label.textContent = '판매단가';
+    input.placeholder = '예: 3500 · 비우면 「단가 미입력」으로 남습니다';
   }
 }
 function onSampleModeChange() {
@@ -19278,7 +19730,8 @@ function spsRefreshAmounts() {
   const foot = document.getElementById('sps-foot');
   foot.innerHTML = rows.length === 0 ? '' : `<div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:13px;"><span style="color:var(--muted);">선택 ${n}건 · ${spsNum(yards)}y</span><span style="font-weight:800;font-size:15px;">${withTax ? `${total.toLocaleString()} + 세액 ${tax.toLocaleString()} = ${(total + tax).toLocaleString()}원` : `샘플 가액 ${total.toLocaleString()}원`}</span></div>${missing > 0 ? `<div style="font-size:11px;color:#c0392b;margin-top:4px;">단가 미입력 ${missing}건 — 입력하면 재고 탭 품목의 매장판가로도 저장됩니다</div>` : ''}`;
   const btn = document.getElementById('sps-print-btn');
-  btn.textContent = `인쇄 (${n}건)`; btn.disabled = n === 0; btn.style.opacity = n === 0 ? '.5' : '';
+  btn.dataset.menu = JSON.stringify([['인쇄', 'printSampleStmt()'], [kakaoLbl(), "printSampleStmt('share')"]]); // 인쇄와 카톡용 이미지를 한 버튼으로
+  btn.textContent = `출력 (${n}건) ▾`; btn.disabled = n === 0; btn.style.opacity = n === 0 ? '.5' : '';
 }
 function spsBankLines(bank) { // "○○은행 123-456-7890 (예금주: 홍길동)" -> ["○○은행 123-456-7890", "홍길동"]
   const t = String(bank || '').trim();
@@ -19385,12 +19838,19 @@ const SPS_CSS_RULES = [
   ['.info b', 'font-weight:800;'],
   ['.info .nt', 'margin-top:3px;padding-top:3px;border-top:1px solid #ccc;font-size:6.8px;color:#444;line-height:1.4;'],
 ];
-function spsCss() {
-  return '@page{size:A4 portrait;margin:0}' + SPS_CSS_RULES.map(([sel, decl]) => {
-    if (sel === '') return `#printArea .sps-sheet{${decl}}`;
-    if (sel.startsWith('+')) return `#printArea .sps-sheet ${sel}{${decl}}`;
-    return sel.split(',').map(x => `#printArea .sps-sheet ${x.trim()}`).join(',') + `{${decl}}`;
+function spsCss(root) {
+  root = root || '#printArea';
+  return (root === '#printArea' ? '@page{size:A4 portrait;margin:0}' : '') + SPS_CSS_RULES.map(([sel, decl]) => {
+    if (sel === '') return `${root} .sps-sheet{${decl}}`;
+    if (sel.startsWith('+')) return `${root} .sps-sheet ${sel}{${decl}}`;
+    return sel.split(',').map(x => `${root} .sps-sheet ${x.trim()}`).join(',') + `{${decl}}`;
   }).join('');
+}
+// 카톡용 이미지: 인쇄물과 같은 칸(105×148mm)을 한 장에 한 칸씩 - 거래처별로 따로 보내기 좋게
+function spsBuildImages(rowsByCustomer, today, withTax) {
+  const slips = spsGroupSlips(rowsByCustomer);
+  return `<style>${spsCss('#shotRoot')}#shotRoot .sps-sheet.sps-one{width:105mm;height:148.3mm;grid-template-columns:105mm;grid-template-rows:148.3mm;}</style>`
+    + slips.map(sl => `<div class="sps-sheet sps-one stm-img-page">${spsSlipHtml(sl, today, withTax)}</div>`).join('');
 }
 function spsBuildSheets(rowsByCustomer, startSlot, today, withTax) {
   const slips = spsGroupSlips(rowsByCustomer);
@@ -19403,11 +19863,11 @@ function spsBuildSheets(rowsByCustomer, startSlot, today, withTax) {
   }
   return `<style>${spsCss()}</style>${sheets.join('')}`;
 }
-async function printSampleStmt() {
+async function printSampleStmt(mode) { // mode 없음 = 종이 인쇄, 'share' = 카톡용 이미지 (단가 저장 방식은 같음)
   const rows = spsRows().filter(r => r.tab === spsTab && spsIsOn(r));
-  if (rows.length === 0) { showToast('인쇄할 샘플을 체크해 주세요'); return; }
+  if (rows.length === 0) { showToast('출력할 샘플을 체크해 주세요'); return; }
   const missing = rows.filter(r => !(spsPriceOf(r.o) > 0));
-  if (missing.length > 0 && !(await uiConfirm(`단가가 없는 ${missing.length}건은 단가·금액 칸이 비어서 인쇄됩니다.\n그래도 인쇄하시겠습니까?`))) return;
+  if (missing.length > 0 && !(await uiConfirm(`단가가 없는 ${missing.length}건은 단가·금액 칸이 비어서 ${mode ? '이미지로 만들어' : '인쇄'}집니다.\n그래도 ${mode ? '만드' : '인쇄하'}시겠습니까?`))) return;
   // 매장판가가 없던 품목에 이 화면에서 단가를 넣었으면 그 품목의 매장판가로 저장하고, 인쇄한 단가는 건별로 기억해둠 (나중에 다시 뽑아도 같은 단가)
   const newStore = {};
   for (const r of rows) {
@@ -19428,8 +19888,20 @@ async function printSampleStmt() {
   }
   await persistOrders();
   const byCust = spsGroupByCustomer(rows);
+  const withTax = document.getElementById('sps-tax').checked;
+  if (mode) {
+    showToast('샘플 내역서 이미지를 만드는 중입니다...');
+    const cust = byCust.size === 1 ? [...byCust.keys()][0] : '';
+    let files;
+    try { files = await renderStatementImages(spsBuildImages(byCust, todayStr(), withTax), cust, '샘플내역서', 397, { fast: true }); }
+    catch (e) { showToast('이미지를 만들지 못했습니다 (인터넷 연결을 확인해 주세요)'); return; }
+    renderSampleStmt(); render();
+    openShotModal(files, cust, '샘플 내역서');
+    if (isMobileDevice()) await shareShotFiles();
+    return;
+  }
   const startSlot = Math.min(4, Math.max(1, parseInt(document.getElementById('sps-slot').value) || 1));
-  document.getElementById('printArea').innerHTML = spsBuildSheets(byCust, startSlot, todayStr(), document.getElementById('sps-tax').checked);
+  document.getElementById('printArea').innerHTML = spsBuildSheets(byCust, startSlot, todayStr(), withTax);
   setTimeout(() => window.print(), 100);
   renderSampleStmt();
   render();
