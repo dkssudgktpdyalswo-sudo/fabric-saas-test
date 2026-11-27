@@ -131,6 +131,8 @@ async function runAll() {
     await expectDenied('32. 프리미엄 아닌 가게가 고객 페이지 올리기', () => D(A, SA, 'public', 'pubIndex').set({ data: '{}' }));
     await expectOk('33. 프리미엄 아니어도 장부 링크 올리기', () => D(A, SA, 'public', 'ledger_rt' + rnd).set({ data: '{}' }));
     await expectOk('34. 장부 링크는 로그인 없이 열림', () => anonPub('ledger_rt' + rnd));
+    await expectDenied('34-1. 로그인 없이 공개 공간 목록 조회 (장부 링크 주소 모으기)', () => firebase.app('anon' + rnd).firestore().collection('shops').doc(SA).collection('public').get());
+    await expectDenied('34-2. 다른 가게 대표가 공개 공간 목록 조회', () => B.db.collection('shops').doc(SA).collection('public').get());
     await expectDenied('35. 운영자도 이상한 구독값은 못 넣음', () => ADM.db.collection('shops').doc(SA).update({ plan: 'gold' }));
     await expectOk('36. 운영자가 A 가게 프리미엄 켜기', () => ADM.db.collection('shops').doc(SA).update({ plan: 'premium', planAt: new Date().toISOString() }));
     await expectOk('37. 프리미엄 가게는 고객 페이지 올리기 됨', () => D(A, SA, 'public', 'pubIndex').set({ data: '{}' }));

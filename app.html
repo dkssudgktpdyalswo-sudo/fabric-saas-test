@@ -6050,6 +6050,17 @@ function getTodaySummary() {
 // deductAmount는 부가세까지 합친 총액(미수금·원장·명세서 차감용). 부가세 없는 기록/예전 기록은 둘이 같음.
 function rdQtyText(e) { return e.amountOnly ? (e.item === '금액 공제' ? '' : '금액 공제') : `${Math.abs(e.amount)}${e.unit || 'y'}`; } // 반품·불량 수량 표시 (금액으로 뺀 불량은 수량 없음)
 function returnSupplyOf(e) { return e.deductSupply != null ? e.deductSupply : (e.deductAmount || 0); }
+function returnProfitImpact(e) { // 반품·불량이 순이익에서 빠지는 금액 (매출 화면·리포트 같은 기준, 직원 수당 계산과는 무관)
+  if (!(e.isReturn || e.isDefect) || e.deductAmount == null) return 0;
+  const sup = returnSupplyOf(e);
+  if (e.isDefect) return -sup; // 불량 공제: 돈만 깎아 줌 → 깎아 준 공급가 전부
+  // 반품: 원단이 재고로 돌아오니 「돌려준 공급가 − 돌아온 원단 원가」만 빠짐 (원가는 원래 출고 건 기준, 모르면 원가표)
+  const src = e.fromSaleId != null ? (shipmentLog.find(x => x.id === e.fromSaleId) || (typeof shipmentLogArchivedCache !== 'undefined' ? shipmentLogArchivedCache.find(x => x.id === e.fromSaleId) : null)) : null;
+  let c = null; try { c = getCostPerYardForEntry(src || { item: e.item, color: e.color, date: e.date }); } catch (_) { c = null; }
+  const y = Math.abs(e.yardsShipped || 0);
+  if (c == null || !(y > 0)) return -sup;
+  return -(sup - Math.round(c * y));
+}
 function returnTaxOf(e) { return e.deductTax || 0; }
 function getTodayMoney() {
   // 관리자 전용 - 월간 리포트와 같은 기준(공급가액 - 공제 + 추가금, 반품/불량 차감)으로 오늘 매출/입금을 셈
@@ -11974,12 +11985,21 @@ function ledgerNewToken() {
   const abc = 'abcdefghjkmnpqrstuvwxyz23456789', r = new Uint32Array(26); crypto.getRandomValues(r);
   return Array.from(r, v => abc[v % abc.length]).join('');
 }
-function ledgerUrl(token) { try { return new URL('ledger.html?shop=' + SHOP_ID + '&t=' + token, location.href).href; } catch (e) { return 'ledger.html?shop=' + SHOP_ID + '&t=' + token; } }
+function ledgerUrl(token, c) { const k = c ? ledgerKeyOf(c) : '', tail = k ? '#k=' + k : ''; try { return new URL('ledger.html?shop=' + SHOP_ID + '&t=' + token, location.href).href + tail; } catch (e) { return 'ledger.html?shop=' + SHOP_ID + '&t=' + token + tail; } } // 링크만 방식이면 # 뒤에 열쇠
 async function ledgerHash(str) {
   try { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str)); return Array.from(new Uint8Array(b), x => x.toString(16).padStart(2, '0')).join(''); }
   catch (e) { return 'x' + pubStockHash(str); }
 }
 function ledgerPinOf(c) { const p = settings && settings.ledgerPins && settings.ledgerPins[c]; return (typeof p === 'string' && /^\d{6}$/.test(p)) ? p : ''; } // 거래처별 6자리 비밀번호 (없으면 예전 공통 비밀번호 방식)
+function ledgerKeyOf(c) { const k = settings && settings.ledgerKeys && settings.ledgerKeys[c]; return (typeof k === 'string' && /^[A-Za-z0-9_-]{43}$/.test(k)) ? k : ''; } // 링크만으로 여는 방식의 열쇠 (링크 # 뒤에만 들어가서 서버로 안 감)
+function ledgerNewKey() { const b = crypto.getRandomValues(new Uint8Array(32)); return _b64(b).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
+function ledgerModeOf(c) { return ledgerKeyOf(c) ? 'key' : (ledgerPinOf(c) ? 'pin' : 'legacy'); }
+async function ledgerEncryptKey(plain, k) {
+  const raw = Uint8Array.from(atob(k.replace(/-/g, '+').replace(/_/g, '/') + '='), ch => ch.charCodeAt(0));
+  const key = await crypto.subtle.importKey('raw', raw, { name: 'AES-GCM' }, false, ['encrypt']), iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(plain));
+  return { v: 3, i: _b64(iv), c: _b64(ct) };
+}
 function ledgerNewPin() { const r = new Uint32Array(6); crypto.getRandomValues(r); return Array.from(r, v => String(v % 10)).join(''); }
 const _ledgerKeys = {};
 function _b64(buf) { const u = new Uint8Array(buf); let t = ''; for (let i = 0; i < u.length; i += 8192) t += String.fromCharCode.apply(null, u.subarray(i, i + 8192)); return btoa(t); }
@@ -12026,11 +12046,12 @@ async function ledgerBuild(customer, token) {
 }
 async function ledgerPublish(customer) {
   const token = ledgerLinks()[customer]; if (!token) return false;
-  const snap = await ledgerBuild(customer, token), pin = ledgerPinOf(customer);
-  const h = pubStockHash(JSON.stringify(snap) + '|' + pin);
+  const snap = await ledgerBuild(customer, token), pin = ledgerPinOf(customer), lk = ledgerKeyOf(customer);
+  const h = pubStockHash(JSON.stringify(snap) + '|' + pin + '|' + lk);
   if (_ledgerHashes[token] === h) return false;
   snap.asOf = new Date().toISOString();
-  if (pin) { delete snap.pin; await pubCol().doc('ledger_' + token).set({ stamp: SCHEMA_STAMP, kind: 'ledgerSnap', enc: await ledgerEncrypt(JSON.stringify(snap), token, pin) }); } // 비밀번호 없이는 내용을 못 읽게 암호화해서 올림
+  if (lk) { delete snap.pin; await pubCol().doc('ledger_' + token).set({ stamp: SCHEMA_STAMP, kind: 'ledgerSnap', enc: await ledgerEncryptKey(JSON.stringify(snap), lk) }); } // 링크만 방식: 링크 # 뒤 열쇠가 있어야 풀림 (서버·운영자는 못 읽음)
+  else if (pin) { delete snap.pin; await pubCol().doc('ledger_' + token).set({ stamp: SCHEMA_STAMP, kind: 'ledgerSnap', enc: await ledgerEncrypt(JSON.stringify(snap), token, pin) }); } // 비밀번호 없이는 내용을 못 읽게 암호화해서 올림
   else await pubCol().doc('ledger_' + token).set({ stamp: SCHEMA_STAMP, kind: 'ledgerSnap', data: JSON.stringify(snap) }); // 예전 링크(공통 비밀번호) 방식
   _ledgerHashes[token] = h;
   return true;
@@ -12282,30 +12303,37 @@ function openLedgerLinkModal(customer) {
 function closeLedgerLinkModal() { document.getElementById('ledgerLinkModal').classList.remove('open'); }
 function renderLedgerLinkModal() {
   const c = _ledgerModalCustomer, token = ledgerLinks()[c], box = document.getElementById('ll-body');
-  const bs = 'border:none; border-radius:8px; padding:10px 12px; font-size:13px; font-weight:700;';
-  const pin = token ? ledgerPinOf(c) : '';
+  const bs = 'border:none; border-radius:8px; padding:10px 12px; font-size:13px; font-weight:700; cursor:pointer;';
   const sec = 'margin-top:14px; padding-top:12px; border-top:1px solid var(--border);';
-  box.innerHTML = `<div style="font-size:15px; font-weight:800; margin-bottom:8px;">${esc(c)}</div>`
-    + (token
-      ? `<input id="ll-url" type="text" readonly value="${esc(ledgerUrl(token))}" style="width:100%; box-sizing:border-box; font-size:12px; padding:9px; border:1px solid var(--border); border-radius:8px;" onclick="this.select()">
-         <div style="display:flex; gap:6px; margin-top:8px;"><button type="button" onclick="ledgerCopy()" style="${bs} flex:1; background:var(--primary); color:#fff;">링크 복사</button><button type="button" onclick="window.open(document.getElementById('ll-url').value,'_blank')" style="${bs} flex:1; background:var(--b-sub); color:#444;">열어보기</button></div>
-         <div style="display:flex; gap:6px; margin-top:6px; white-space:nowrap;"><button type="button" onclick="ledgerRefreshNow()" style="${bs} flex:1; background:var(--b-sub); color:#444;">지금 갱신</button><button type="button" onclick="ledgerRegen()" style="${bs} flex:1.3; background:var(--b-sub); color:#444;">링크 다시 만들기</button><button type="button" onclick="ledgerOff()" style="${bs} flex:1; background:var(--b-danger-soft); color:#8a2f1d;">링크 끄기</button></div>
-         <div style="${sec}"><div style="font-size:13.5px; font-weight:800;">이 거래처 비밀번호</div>`
-        + (pin
-          ? `<div style="font-size:12px; color:var(--muted); margin-top:3px;">이 비밀번호가 없으면 링크를 열어도 내용이 보이지 않습니다.</div>
-             <div style="display:flex; align-items:center; gap:8px; margin-top:10px;"><div id="ll-pinv" style="flex:1; border:1px solid var(--border); background:#faf8f4; border-radius:10px; padding:10px 14px; font-size:22px; font-weight:800; letter-spacing:6px;">${pin.slice(0, 3)} ${pin.slice(3)}</div><button type="button" onclick="ledgerPinReset()" style="${bs} background:var(--b-sub); color:#444; white-space:nowrap;">새로 만들기</button><button type="button" onclick="ledgerCopyPin()" style="${bs} background:var(--b-sub); color:#444;">복사</button></div>`
-          : `<div style="font-size:12px; color:var(--muted); margin-top:3px; line-height:1.5;">아직 예전 방식입니다 (모든 거래처 공통 비밀번호 ${esc(ledgerPin())}). 비밀번호를 만들면 이 거래처 전용 번호가 생기고 장부 내용이 암호화됩니다.</div>
-             <button type="button" onclick="ledgerPinReset()" style="${bs} width:100%; margin-top:10px; background:var(--primary); color:#fff;">비밀번호 만들기</button>`)
-        + `</div>
-         <div style="${sec}"><div style="font-size:13.5px; font-weight:800;">거래처에 보낼 문구</div><div style="font-size:12px; color:var(--muted); margin-top:3px;">이대로 복사해서 카톡에 붙여 넣어 주세요.</div>
-           <div id="ll-msg" style="margin-top:10px; background:#fbf7e6; border:1px solid #efe5b8; border-radius:12px; padding:12px 14px; font-size:13.5px; line-height:1.65; white-space:pre-line; word-break:break-all;">${esc(ledgerMsgText(c))}</div>
-           <button type="button" onclick="ledgerCopyMsg()" style="${bs} width:100%; margin-top:8px; background:var(--primary); color:#fff;">문구 복사</button>`
-        + (pin ? `<div style="margin-top:10px; background:#f6ece9; border-radius:10px; padding:9px 12px; font-size:12px; color:#a2402f; line-height:1.5;">비밀번호를 새로 만들면 거래처가 예전 비밀번호로는 열 수 없습니다. 새 비밀번호를 다시 알려줘야 합니다.</div>` : '')
-        + `</div>`
-      : `<button type="button" onclick="ledgerCreate()" style="${bs} width:100%; background:var(--primary); color:#fff;">장부 링크 만들기</button>`)
-    + (token ? ledgerMemoHtml(c) : '');
+  const mode = token ? ledgerModeOf(c) : '', pin = mode === 'pin' ? ledgerPinOf(c) : '';
+  if (!token) {
+    box.innerHTML = `<div style="font-size:15px; font-weight:800; margin-bottom:6px;">${esc(c)}</div>
+      <div style="font-size:12.5px; color:var(--muted); line-height:1.6; margin-bottom:10px;">거래처가 자기 미수금·출고·입금·주문 진행을 휴대폰으로 보는 링크입니다. 비밀번호 없이 링크만 누르면 열리고, 내용은 암호화돼서 저장됩니다.</div>
+      <button type="button" onclick="ledgerCreate()" style="${bs} width:100%; background:var(--primary); color:#fff;">장부 링크 만들기</button>`;
+    return;
+  }
+  const modeBox = mode === 'key'
+    ? `<div style="font-size:13.5px; font-weight:800;">여는 방법: 링크만</div>
+       <div style="font-size:12px; color:var(--muted); margin-top:3px; line-height:1.55;">비밀번호 없이 링크를 누르면 바로 열립니다. 링크 끝의 열쇠는 서버로 가지 않아서 운영자도 내용을 볼 수 없습니다. 링크가 다른 사람에게 넘어갔으면 「링크 다시 만들기」를 눌러 주세요.</div>
+       <button type="button" onclick="ledgerSetMode('pin')" style="${bs} width:100%; margin-top:10px; background:var(--b-sub); color:#444;">비밀번호도 걸기</button>`
+    : mode === 'pin'
+    ? `<div style="font-size:13.5px; font-weight:800;">여는 방법: 링크 + 비밀번호</div>
+       <div style="font-size:12px; color:var(--muted); margin-top:3px;">이 비밀번호가 없으면 링크를 열어도 내용이 보이지 않습니다.</div>
+       <div style="display:flex; align-items:center; gap:8px; margin-top:10px;"><div style="flex:1; border:1px solid var(--border); background:#faf8f4; border-radius:10px; padding:10px 14px; font-size:22px; font-weight:800; letter-spacing:6px;">${pin.slice(0, 3)} ${pin.slice(3)}</div><button type="button" onclick="ledgerCopyPin()" style="${bs} background:var(--b-sub); color:#444;">복사</button></div>
+       <div style="display:flex; gap:6px; margin-top:6px;"><button type="button" onclick="ledgerPinReset()" style="${bs} flex:1; background:var(--b-sub); color:#444;">비밀번호 새로</button><button type="button" onclick="ledgerSetMode('key')" style="${bs} flex:1; background:var(--b-sub); color:#444;">비밀번호 없이 링크만</button></div>`
+    : `<div style="font-size:13.5px; font-weight:800;">여는 방법: 예전 방식</div>
+       <div style="font-size:12px; color:var(--muted); margin-top:3px; line-height:1.5;">모든 거래처 공통 비밀번호(${esc(ledgerPin())})이고 내용이 암호화돼 있지 않습니다. 새 방식으로 바꿔 주세요.</div>
+       <div style="display:flex; gap:6px; margin-top:10px;"><button type="button" onclick="ledgerSetMode('key')" style="${bs} flex:1; background:var(--primary); color:#fff;">링크만으로 바꾸기</button><button type="button" onclick="ledgerSetMode('pin')" style="${bs} flex:1; background:var(--b-sub); color:#444;">전용 비밀번호로</button></div>`;
+  box.innerHTML = `<div style="font-size:15px; font-weight:800; margin-bottom:8px;">${esc(c)}</div>
+    <div style="${sec.replace('margin-top:14px; padding-top:12px; border-top:1px solid var(--border);', '')}"><div style="font-size:13.5px; font-weight:800;">거래처에 보낼 문구</div><div style="font-size:12px; color:var(--muted); margin-top:3px;">복사해서 카톡에 붙여 넣어 주세요.</div>
+      <div id="ll-msg" style="margin-top:8px; background:var(--b-sub); border-radius:12px; padding:12px 14px; font-size:13.5px; line-height:1.65; white-space:pre-line; word-break:break-all;">${esc(ledgerMsgText(c))}</div>
+      <div style="display:flex; gap:6px; margin-top:8px;"><button type="button" onclick="ledgerCopyMsg()" style="${bs} flex:2; background:var(--primary); color:#fff;">문구 복사</button><button type="button" onclick="ledgerCopy()" style="${bs} flex:1; background:var(--b-sub); color:#444;">링크만 복사</button><button type="button" onclick="window.open(document.getElementById('ll-url').value,'_blank')" style="${bs} flex:1; background:var(--b-sub); color:#444;">열어보기</button></div>
+      <input id="ll-url" type="hidden" value="${esc(ledgerUrl(token, c))}"></div>
+    <div style="${sec}">${modeBox}</div>
+    <div style="${sec} display:flex; gap:6px; white-space:nowrap;"><button type="button" onclick="ledgerRefreshNow()" style="${bs} flex:1; background:var(--b-sub); color:#444;">지금 갱신</button><button type="button" onclick="ledgerRegen()" style="${bs} flex:1.3; background:var(--b-sub); color:#444;">링크 다시 만들기</button><button type="button" onclick="ledgerOff()" style="${bs} flex:1; background:var(--b-danger-soft); color:#8a2f1d;">링크 끄기</button></div>`
+    + ledgerMemoHtml(c);
 }
-function ledgerMsgText(c) { const t = ledgerLinks()[c]; return `${c} - ${shopDisplayName()} 장부 링크입니다.\n${ledgerUrl(t)}\n\n비밀번호는 ${ledgerPinOf(c) || ledgerPin()} 입니다.`; }
+function ledgerMsgText(c) { const t = ledgerLinks()[c], m = ledgerModeOf(c); return m === 'key' ? `${c} - ${shopDisplayName()} 장부 링크입니다.\n누르면 바로 열립니다 (미수금·출고·입금·주문 진행).\n${ledgerUrl(t, c)}` : `${c} - ${shopDisplayName()} 장부 링크입니다.\n${ledgerUrl(t, c)}\n\n비밀번호는 ${ledgerPinOf(c) || ledgerPin()} 입니다.`; }
 function ledgerClip(txt, okMsg) { const ok = () => showToast(okMsg); if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(ok, () => uiCopyBox(txt)); else uiCopyBox(txt); }
 function ledgerCopyMsg() { ledgerClip(ledgerMsgText(_ledgerModalCustomer), '문구를 복사했습니다'); }
 function ledgerCopyPin() { const p = ledgerPinOf(_ledgerModalCustomer); if (p) ledgerClip(p, '비밀번호 복사 완료'); }
@@ -12336,8 +12364,8 @@ async function ledgerMemoSave(id, el) {
   if (!ok) { if (prev) o.cmemo = prev; else delete o.cmemo; el.value = prev; showToast('저장하지 못했습니다 (인터넷 연결을 확인해 주세요)'); return; }
   el.value = v; showToast(v ? '메모를 저장했습니다' : '메모를 지웠습니다');
 }
-async function ledgerSaveLinks(links, msg, pins) {
-  const before = settings; settings = { ...settings, ledgerLinks: links, ...(pins ? { ledgerPins: pins } : {}) };
+async function ledgerSaveLinks(links, msg, pins, keys) {
+  const before = settings; settings = { ...settings, ledgerLinks: links, ...(pins ? { ledgerPins: pins } : {}), ...(keys ? { ledgerKeys: keys } : {}) };
   let ok = false; try { ok = await persistSettings(); } catch (e) { ok = false; }
   if (!ok) { settings = before; showToast('저장하지 못했습니다 (인터넷 연결을 확인해 주세요)'); return false; }
   if (msg) showToast(msg);
@@ -12345,7 +12373,8 @@ async function ledgerSaveLinks(links, msg, pins) {
 }
 async function ledgerCreate() {
   const c = _ledgerModalCustomer; if (!c || ledgerLinks()[c]) return;
-  if (!(await ledgerSaveLinks({ ...ledgerLinks(), [c]: ledgerNewToken() }, null, { ...(settings.ledgerPins || {}), [c]: ledgerNewPin() }))) return;
+  const pins = { ...(settings.ledgerPins || {}) }; delete pins[c]; // 새 링크는 기본으로 「링크만」 (비밀번호 없이 바로 열림)
+  if (!(await ledgerSaveLinks({ ...ledgerLinks(), [c]: ledgerNewToken() }, null, pins, { ...(settings.ledgerKeys || {}), [c]: ledgerNewKey() }))) return;
   try { await ledgerPublish(c); showToast('장부 링크 생성 완료'); } catch (e) { showToast('링크는 만들었지만 장부를 올리지 못했습니다 - "지금 갱신"을 눌러 주세요'); }
   renderLedgerLinkModal();
 }
@@ -12353,12 +12382,25 @@ function ledgerCopy() {
   const u = document.getElementById('ll-url').value, ok = () => showToast('링크 복사 완료');
   if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(u).then(ok, () => uiCopyBox(u, '링크를 복사해 주세요')); else uiCopyBox(u, '링크를 복사해 주세요');
 }
+async function ledgerSetMode(mode) { // 'key' = 링크만 / 'pin' = 비밀번호도
+  const c = _ledgerModalCustomer, token = ledgerLinks()[c]; if (!token) return;
+  const msg = mode === 'pin' ? `"${c}" 장부에 비밀번호를 거시겠습니까?\n거래처에 새 링크와 6자리 비밀번호를 다시 보내야 합니다. 지금 링크로는 비밀번호를 물어봅니다.` : `"${c}" 장부를 비밀번호 없이 링크만으로 열리게 바꾸시겠습니까?\n거래처에 새 링크를 다시 보내야 합니다. 예전 링크·비밀번호로는 안 열립니다.`;
+  if (!(await uiConfirm(msg))) return;
+  const pins = { ...(settings.ledgerPins || {}) }, keys = { ...(settings.ledgerKeys || {}) };
+  if (mode === 'pin') { pins[c] = ledgerNewPin(); delete keys[c]; } else { keys[c] = ledgerNewKey(); delete pins[c]; }
+  if (!(await ledgerSaveLinks(ledgerLinks(), null, pins, keys))) return;
+  delete _ledgerHashes[token];
+  try { await ledgerPublish(c); showToast(mode === 'pin' ? '비밀번호를 걸었습니다 - 새 문구를 보내 주세요' : '링크만으로 열리게 바꿨습니다 - 새 링크를 보내 주세요'); } catch (e) { showToast('바꿨지만 장부를 올리지 못했습니다 - 「지금 갱신」을 눌러 주세요'); }
+  renderLedgerLinkModal();
+}
 async function ledgerRefreshNow() { const t = ledgerLinks()[_ledgerModalCustomer]; if (t) delete _ledgerHashes[t]; await ledgerSyncAll(true); }
 async function ledgerDeleteDoc(token) { try { await pubCol().doc('ledger_' + token).delete(); } catch (e) { /* 이미 없으면 그대로 */ } delete _ledgerHashes[token]; }
 async function ledgerRegen() {
   const c = _ledgerModalCustomer, old = ledgerLinks()[c]; if (!old) return;
   if (!(await uiConfirm(`"${c}" 장부 링크를 다시 만드시겠습니까?\n예전 링크는 바로 안 열리게 됩니다. 거래처에 새 링크를 다시 보내야 합니다.`))) return;
-  if (!(await ledgerSaveLinks({ ...ledgerLinks(), [c]: ledgerNewToken() }, null, { ...(settings.ledgerPins || {}), [c]: ledgerNewPin() }))) return;
+  const isPin = ledgerModeOf(c) === 'pin', pins = { ...(settings.ledgerPins || {}) }, keys = { ...(settings.ledgerKeys || {}) };
+  if (isPin) { pins[c] = ledgerNewPin(); delete keys[c]; } else { keys[c] = ledgerNewKey(); delete pins[c]; } // 쓰던 방식 그대로, 열쇠·비밀번호도 새로
+  if (!(await ledgerSaveLinks({ ...ledgerLinks(), [c]: ledgerNewToken() }, null, pins, keys))) return;
   await ledgerDeleteDoc(old);
   try { await ledgerPublish(c); showToast('새 링크를 만들었습니다'); } catch (e) { showToast('새 링크는 만들었지만 장부를 올리지 못했습니다 - "지금 갱신"을 눌러 주세요'); }
   renderLedgerLinkModal();
@@ -12368,7 +12410,8 @@ async function ledgerOff() {
   if (!(await uiConfirm(`"${c}" 장부 링크를 끄시겠습니까?\n서버의 장부도 지워지고 링크가 안 열립니다.`))) return;
   const rest = { ...ledgerLinks() }; delete rest[c];
   const restPins = { ...(settings.ledgerPins || {}) }; delete restPins[c];
-  if (!(await ledgerSaveLinks(rest, '링크를 껐습니다', restPins))) return;
+  const restKeys = { ...(settings.ledgerKeys || {}) }; delete restKeys[c];
+  if (!(await ledgerSaveLinks(rest, '링크를 껐습니다', restPins, restKeys))) return;
   await ledgerDeleteDoc(old);
   renderLedgerLinkModal();
 }
@@ -13109,7 +13152,7 @@ function renderPaymentLedgerView() {
   if (!collectPayFrom || !collectPayTo) [collectPayFrom, collectPayTo] = svRangePreset('m0');
   const page = document.getElementById('list');
   page.innerHTML = `${collectHead('paid')}${svRangeBar('pay', collectPayFrom, collectPayTo)}
-    <input class="sv-search" id="collect-search" placeholder="거래처·품번 찾기 (초성도 됩니다)" autocomplete="off" value="${svH(collectSearch)}" oninput="collectSearch=this.value; renderPaymentLedgerRows()">
+    <input class="sv-search" id="collect-search" placeholder="거래처 찾기 (초성도 됩니다)" autocomplete="off" value="${svH(collectSearch)}" oninput="collectSearch=this.value; renderPaymentLedgerRows()">
     <div id="pay-kpi"></div><div id="pay-rows"></div>`;
   renderPaymentLedgerRows();
 }
@@ -13124,18 +13167,24 @@ function renderPaymentLedgerRows() {
       payments.push({
         date: p.date, amount: p.amount, method: p.method || 'cash',
         entryId: e.id, idx,
-        customer: e.customer || '(거래처 없음)',
-        desc: e.item === '이월 미수금' ? '이월 미수금' : (e.isFee ? `추가금${e.note ? ` - ${e.note}` : ''}` : `${e.item} ${e.color || ''}`)
+        customer: e.customer || '(거래처 없음)', prepay: !!e.isPrepay
       });
     });
   }
   payments = payments.filter(p => String(p.date) >= collectPayFrom && String(p.date) <= collectPayTo);
-  if (String(collectSearch || '').trim()) payments = payments.filter(p => svMatch(p.customer, collectSearch) || svMatch(p.desc, collectSearch));
+  if (String(collectSearch || '').trim()) payments = payments.filter(p => svMatch(p.customer, collectSearch));
+  // 한 번 받은 돈이 출고 여러 건에 나뉘어 들어가 있어도, 같은 날·같은 거래처·같은 방법이면 한 번 받은 입금으로 봄 (원장과 같은 기준)
+  const payGroups = new Map();
+  for (const p of payments) {
+    const k = `${p.date}|${p.customer}|${p.method}|${p.prepay ? p.entryId : ''}`;
+    let g = payGroups.get(k); if (!g) payGroups.set(k, g = { date: p.date, customer: p.customer, method: p.method, prepay: p.prepay, amount: 0, refs: [] });
+    g.amount += p.amount; g.refs.push({ entryId: p.entryId, paymentIdx: p.idx });
+  }
 
   const totalCash = payments.filter(p => p.method === 'cash').reduce((s, p) => s + p.amount, 0);
   const totalOnline = payments.filter(p => p.method === 'online').reduce((s, p) => s + p.amount, 0);
   const kpi = document.getElementById('pay-kpi');
-  if (kpi) kpi.innerHTML = `<div class="sv-kpi k3"><div><small>입금 합계 · ${payments.length}건</small><b>${svN(totalCash + totalOnline)}원</b></div><div><small>현금</small><b>${svN(totalCash)}원</b></div><div><small>온라인</small><b>${svN(totalOnline)}원</b></div></div>`;
+  if (kpi) kpi.innerHTML = `<div class="sv-kpi k3"><div><small>입금 합계 · ${payGroups.size}번</small><b>${svN(totalCash + totalOnline)}원</b></div><div><small>현금</small><b>${svN(totalCash)}원</b></div><div><small>온라인</small><b>${svN(totalOnline)}원</b></div></div>`;
 
   if (payments.length === 0) { list.insertAdjacentHTML('beforeend', '<div class="empty">이 기간 입금 기록이 없습니다</div>'); return; }
 
@@ -13153,41 +13202,25 @@ function renderPaymentLedgerRows() {
   });
 
   const byDate = new Map();
-  for (const p of payments) {
-    if (!byDate.has(p.date)) byDate.set(p.date, []);
-    byDate.get(p.date).push(p);
-  }
+  for (const g of payGroups.values()) { if (!byDate.has(g.date)) byDate.set(g.date, []); byDate.get(g.date).push(g); }
   const dates = Array.from(byDate.keys()).sort((a, b) => b.localeCompare(a));
   const DOW = ['일', '월', '화', '수', '목', '금', '토'];
   let html = '';
   for (const date of dates) {
-    const dayPayments = byDate.get(date);
-    const dayCash = dayPayments.filter(p => p.method === 'cash').reduce((s, p) => s + p.amount, 0);
-    const dayOnline = dayPayments.filter(p => p.method === 'online').reduce((s, p) => s + p.amount, 0);
+    const gs = byDate.get(date).sort((a, b) => b.amount - a.amount);
+    const dayCash = gs.filter(g => g.method === 'cash').reduce((s, g) => s + g.amount, 0);
+    const dayOnline = gs.filter(g => g.method === 'online').reduce((s, g) => s + g.amount, 0);
     const dd = parseKDate(date);
     html += `<div class="sv-day"><b>${dd ? `${dd.getMonth() + 1}월 ${dd.getDate()}일 (${DOW[dd.getDay()]})` : esc(date)}${dd && dd.getFullYear() !== new Date().getFullYear() ? ` <small>${dd.getFullYear()}</small>` : ''}</b><span>${svN(dayCash + dayOnline)}원<small>${dayCash > 0 ? `현금 ${svMan(dayCash)}` : ''}${dayCash > 0 && dayOnline > 0 ? ' · ' : ''}${dayOnline > 0 ? `온라인 ${svMan(dayOnline)}` : ''}</small></span></div><div class="sv-card">`;
-    // 같은 날짜 안에서 거래처별로 합쳐서 보여줌
-    const byCustomer = new Map();
-    for (const p of dayPayments) {
-      if (!byCustomer.has(p.customer)) byCustomer.set(p.customer, []);
-      byCustomer.get(p.customer).push(p);
-    }
-    for (const [customer, list2] of byCustomer) {
-      const total = list2.reduce((s, p) => s + p.amount, 0);
-      const cash = list2.filter(p => p.method === 'cash').reduce((s, p) => s + p.amount, 0);
-      const online = list2.filter(p => p.method === 'online').reduce((s, p) => s + p.amount, 0);
-      const remaining = unpaidByCustomer.get(String(customer).trim()) || 0;
-      const gk = `paylog:${date}:${customer}`;
-      const isOpen = openGroups.has(gk);
-      html += `<div class="sv-row" style="cursor:pointer;" onclick="toggleGroup(${svA(gk)})"><div class="n"><b>${esc(customer)}</b><small>${cash > 0 ? '현금' : ''}${cash > 0 && online > 0 ? '·' : ''}${online > 0 ? '온라인' : ''}${list2.length > 1 ? ` ${list2.length}건` : ''} · ${remaining > 0 ? `<span style="color:var(--danger);">미수금 ${svN(remaining)}원 남음</span>` : '미수금 없음'}</small></div><span class="v" style="color:#1a7a4a;">${svN(total)}</span><span style="color:var(--muted);font-size:12px;">${isOpen ? '▴' : '▾'}</span></div>`;
-      if (isOpen) {
-        html += `<div class="rp-colors" style="padding-left:12px;">${list2.map(p => `<div onclick="quickEditPayment(${p.entryId}, ${p.idx})" style="cursor:pointer;"><span>${esc(p.desc)} · ${p.method === 'cash' ? '현금' : '온라인'}</span><span style="font-weight:600;">${svN(p.amount)}원 ›</span></div>`).join('')}<div style="border:none;"><span></span><span onclick="showCustomerLedger(${svA(customer)})" style="color:var(--primary);text-decoration:underline;cursor:pointer;">원장 보기</span></div></div>`;
-      }
+    for (const g of gs) {
+      const remaining = unpaidByCustomer.get(String(g.customer).trim()) || 0;
+      html += `<div class="sv-row" style="cursor:pointer;" onclick="editMergedPaymentGroup('${escJsonAttr(g.refs).replace(/'/g, "\\'")}')"><div class="n"><b>${esc(g.customer)}</b><small>${g.method === 'cash' ? '현금' : '온라인'}${g.prepay ? ' · 선수금' : ''} · ${remaining > 0 ? `<span style="color:var(--danger);">미수금 ${svN(remaining)}원 남음</span>` : '미수금 없음'}</small></div><span class="v" style="color:#1a7a4a;">${svN(g.amount)}</span><span style="color:var(--muted);">›</span></div>`;
     }
     html += '</div>';
   }
   list.innerHTML = html;
 }
+
 
 function renderCustomerLedgerView() {
   const list = document.getElementById('list');
@@ -16423,6 +16456,11 @@ async function renameCustomer(oldName) {
     showToast('해당 거래처를 찾을 수 없습니다'); return;
   }
   if (String(ledgerCustomer || '').trim() === t_old) ledgerCustomer = newName;
+  { // 거래처 장부 링크·비밀번호·열쇠도 새 이름으로 옮김 (예전엔 이름을 바꾸면 링크 설정이 끊겼음 - 링크 주소는 그대로)
+    let mv = false; const nx = {};
+    for (const f of ['ledgerLinks', 'ledgerPins', 'ledgerKeys']) { const m = settings[f]; if (m && typeof m === 'object' && m[t_old] != null && m[newName] == null) { const o = { ...m }; o[newName] = o[t_old]; delete o[t_old]; nx[f] = o; mv = true; } }
+    if (mv) { settings = { ...settings, ...nx }; try { await persistSettings(); } catch (e) { console.error(e); } }
+  }
 
   await persistOrders();
   await persistShipmentLog();
@@ -16832,7 +16870,7 @@ function rpSummaryCompute(P, all) {
     if (e.item === '이월 미수금') continue;
     const c = inP(e.date), pv = inPv(e.date); if (!c && !pv) continue;
     if (e.isReturn || e.isDefect) {
-      if (e.deductAmount != null) { const v = returnSupplyOf(e); if (c) { ret += v; profit -= v; if (P.year) { const m = bm(String(e.date).slice(0, 5)); m.sale -= v; m.profit -= v; } } else { prevSale -= v; prevProfit -= v; } }
+      if (e.deductAmount != null) { const v = returnSupplyOf(e), pi = returnProfitImpact(e); if (c) { ret += v; profit += pi; if (P.year) { const m = bm(String(e.date).slice(0, 5)); m.sale -= v; m.profit += pi; } } else { prevSale -= v; prevProfit += pi; } }
       continue;
     }
     if (e.saleAmount == null) continue;
@@ -16913,7 +16951,7 @@ async function renderCustomerRankingView() {
     if (!e.customer || e.item === '이월 미수금') continue;
     const k = String(e.customer).trim(), d = String(e.date);
     const c = d.slice(0, P.len) === P.key, pv = d.slice(0, P.len) === P.prevKey;
-    if (e.isReturn || e.isDefect) { if (e.deductAmount != null && (c || pv)) { const r = get(c ? cur : prev, k), v = returnSupplyOf(e); r.sale -= v; r.profit -= v; } continue; }
+    if (e.isReturn || e.isDefect) { if (e.deductAmount != null && (c || pv)) { const r = get(c ? cur : prev, k); r.sale -= returnSupplyOf(e); r.profit += returnProfitImpact(e); } continue; }
     if (e.saleAmount == null) continue;
     if (c || pv) { const r = get(c ? cur : prev, k); r.sale += rpRev(e); r.profit += rpProf(e); if (!e.isFee && e.yardsShipped > 0) r.y += e.yardsShipped; }
     if (!monthsWith.has(k)) monthsWith.set(k, new Set()); monthsWith.get(k).add(d.slice(0, 5));
@@ -17191,7 +17229,12 @@ function renderSales() {
 
   const allPayments = [];
   const _payCust = searchTerm.trim() ? new Set(sales.map(e => e.customer || '(거래처 미입력)')) : null; // 검색 중이면 찾은 거래처의 입금만 (예전엔 그날 전체 입금이 보였음)
-  for (const e of shipmentLog) {
+  // 다 받아서 보관함으로 넘어간 출고에 들어온 입금도 그날 입금에 잡히게 보관함까지 같이 봄 (예전엔 빠져서 리포트·수금 화면보다 입금이 적게 나왔음)
+  ensureShipmentLogArchivedCacheLoaded();
+  const _payIds = new Set();
+  const _paySrc = [];
+  for (const e of shipmentLog.concat(shipmentLogArchivedCache, salesDayArchivedCache || [])) { if (_payIds.has(e.id)) continue; _payIds.add(e.id); _paySrc.push(e); }
+  for (const e of _paySrc) {
     if (_payCust && !_payCust.has(e.customer || '(거래처 미입력)')) continue;
     for (const p of (e.payments || [])) allPayments.push(p);
   }
@@ -17202,24 +17245,28 @@ function renderSales() {
   salesPickBarRender();
   // 맨 위 「기간 합계」 - 아래 날짜별 줄과 똑같은 계산을 더한 것 (표시만, 금액 계산은 안 바뀜)
   if (periods.length > 1) {
-    let tSales = 0, tProfit = 0, tCount = 0, tCash = 0, tOnline = 0;
+    let tSales = 0, tProfit = 0, tCount = 0, tCash = 0, tOnline = 0, tSupply = 0;
     for (const period of periods) {
       const pe = byPeriod.get(period);
       tSales += pe.reduce((s, e) => s + (e.item !== '이월 미수금' ? (e.saleAmount || 0) : 0), 0) - pe.reduce((s, e) => s + ((e.isReturn || e.isDefect) ? (e.deductAmount || 0) : 0), 0);
-      tProfit += pe.reduce((s, e) => s + (e._profit != null ? e._profit : 0), 0);
+      tProfit += pe.reduce((s, e) => s + ((e.isReturn || e.isDefect) ? returnProfitImpact(e) : (e._profit != null ? e._profit : 0)), 0);
+      tSupply += pe.reduce((s, e) => s + ((e.isReturn || e.isDefect) ? (e.deductAmount != null ? -returnSupplyOf(e) : 0) : (e.item !== '이월 미수금' && e.saleAmount != null ? rpRev(e) : 0)), 0);
       tCount += pe.length;
-      const pays = paymentsInPeriod(period);
-      tCash += pays.filter(p => (p.method || 'cash') === 'cash').reduce((s, p) => s + p.amount, 0);
-      tOnline += pays.filter(p => p.method === 'online').reduce((s, p) => s + p.amount, 0);
+    }
+    { // 입금은 출고가 없던 날(입금만 있던 날)까지 기간 전체로 셈
+      const pf = salesDayFilter, pt = salesDayFilterEnd || salesDayFilter;
+      const pays = allPayments.filter(p => !pf || (String(p.date) >= pf && String(p.date) <= pt));
+      tCash = pays.filter(p => (p.method || 'cash') === 'cash').reduce((s, p) => s + p.amount, 0);
+      tOnline = pays.filter(p => p.method === 'online').reduce((s, p) => s + p.amount, 0);
     }
     const md = (d) => String(d || '').slice(3).replace('.', '/');
     const rangeLabel = salesDayFilter ? `${md(salesDayFilter)}${salesDayFilterEnd && salesDayFilterEnd !== salesDayFilter ? '-' + md(salesDayFilterEnd) : ''}` : '전체 기간';
-    const tMargin = tSales > 0 ? Math.round((tProfit / tSales) * 1000) / 10 : null;
+    const tMargin = tSupply > 0 ? Math.round((tProfit / tSupply) * 1000) / 10 : null; // 마진율은 리포트처럼 세금 별도 금액 기준
     const cell = (k, v, sub) => `<div style="flex:1;min-width:0;"><div style="font-size:11px;color:var(--muted);">${k}</div><div style="font-size:15px;font-weight:800;color:var(--text);">${v}</div>${sub ? `<div style="font-size:11px;color:var(--muted);">${sub}</div>` : ''}</div>`;
     const tot = document.createElement('div');
     tot.className = 'sales-total';
     tot.innerHTML = `<div style="font-size:12px;font-weight:700;color:var(--primary-dark);margin-bottom:8px;">${esc(rangeLabel)} 합계 · ${tCount}건 · ${periods.length}일</div>
-      <div class="st-grid"><div class="st-main" style="margin-bottom:8px;"><div style="font-size:11px;color:var(--muted);">매출</div><div style="font-size:22px;font-weight:800;color:var(--text);">${tSales.toLocaleString()}원</div></div>
+      <div class="st-grid"><div class="st-main" style="margin-bottom:8px;"><div style="font-size:11px;color:var(--muted);">매출 · 부가세 포함</div><div style="font-size:22px;font-weight:800;color:var(--text);">${tSales.toLocaleString()}원</div><div style="font-size:11px;color:var(--muted);">세금 별도 ${Math.round(tSupply).toLocaleString()}원 (리포트 매출과 같은 기준)</div></div>
       <div class="st-rest" style="display:flex;gap:10px;border-top:1px solid var(--border);padding-top:8px;">${canSeeCost() ? cell('순이익', tProfit.toLocaleString() + '원', tMargin != null ? `마진율 ${tMargin}%` : '') : ''}${cell('입금', (tCash + tOnline).toLocaleString() + '원', `현금 ${tCash.toLocaleString()} · 온라인 ${tOnline.toLocaleString()}`)}</div></div>`;
     list.appendChild(tot);
   }
@@ -17230,8 +17277,9 @@ function renderSales() {
     const periodGross = periodEntries.reduce((s, e) => s + (e.item !== '이월 미수금' ? (e.saleAmount || 0) : 0), 0);
     const periodReturnDefect = periodEntries.reduce((s, e) => s + ((e.isReturn || e.isDefect) ? (e.deductAmount || 0) : 0), 0);
     const periodSales = periodGross - periodReturnDefect;
-    const periodProfit = periodEntries.reduce((s, e) => s + (e._profit != null ? e._profit : 0), 0);
-    const periodMargin = periodSales > 0 ? Math.round((periodProfit / periodSales) * 1000) / 10 : null;
+    const periodProfit = periodEntries.reduce((s, e) => s + ((e.isReturn || e.isDefect) ? returnProfitImpact(e) : (e._profit != null ? e._profit : 0)), 0);
+    const periodSupply = periodEntries.reduce((s, e) => s + ((e.isReturn || e.isDefect) ? (e.deductAmount != null ? -returnSupplyOf(e) : 0) : (e.item !== '이월 미수금' && e.saleAmount != null ? rpRev(e) : 0)), 0);
+    const periodMargin = periodSupply > 0 ? Math.round((periodProfit / periodSupply) * 1000) / 10 : null;
     const label = period;
     const pays = paymentsInPeriod(period);
     const cashTotal = pays.filter(p => (p.method || 'cash') === 'cash').reduce((s, p) => s + p.amount, 0);
@@ -17267,8 +17315,7 @@ function renderSales() {
       const custReturnDefect = entries.reduce((s, e) => s + ((e.isReturn || e.isDefect) ? (e.deductAmount || 0) : 0), 0);
       const custTotal = custGross - custReturnDefect;
       const custProfit = entries.reduce((s, e) => {
-        if (e.isDefect) return s - (e.deductAmount || 0);
-        if (e.isReturn) return s;
+        if (e.isReturn || e.isDefect) return s + returnProfitImpact(e); // 반품은 원가만큼은 재고로 돌아옴
         return s + (e._profit != null ? e._profit : 0);
       }, 0);
       const custUnpaid = custUnpaidMap.get(k); // 전체 흐름 누적계산 - 초과입금/미수금이 서로 상쇄되는 것까지 정확히 반영 (버튼 표시여부를 실제 입금처리 금액과 똑같은 기준으로 맞춤)

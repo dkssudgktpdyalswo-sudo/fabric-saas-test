@@ -43,6 +43,7 @@ button{font-family:inherit}
 .li .r{text-align:right;font-size:15px;font-weight:800;white-space:nowrap}.li .r.neg{color:#2f7a52}
 .mon{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 0}.mon .m{font-size:17px;font-weight:800}.mon .t{font-size:13px;color:var(--muted)}
 .pill{display:flex;gap:8px;padding:10px 14px 0}.pill button{font-size:13px;font-weight:700;padding:6px 14px;border-radius:16px;background:var(--line4);color:var(--muted);border:none}.pill button.on{background:var(--brand);color:#fff}
+.stmb{padding:10px 14px 2px}.stmb button{width:100%;border:1px solid var(--hair);background:#fff;color:var(--ink);border-radius:12px;padding:11px;font-size:14px;font-weight:700}
 .ft{font-size:12px;color:var(--muted);text-align:center;padding:14px 16px 0;line-height:1.6}
 .empty,.msg{text-align:center;color:var(--muted);font-size:15px;padding:64px 20px;line-height:1.7}
 .msg button{margin-top:14px;border:none;background:var(--brand);color:#fff;border-radius:10px;padding:11px 22px;font-size:15px;font-weight:700}
@@ -57,6 +58,7 @@ button{font-family:inherit}
 .pin2 .bx{position:relative;display:flex;gap:7px;justify-content:center}
 .pin2 .bx i{flex:1;max-width:44px;height:54px;border:1px solid var(--hair);border-radius:11px;background:#fff;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:22px;font-weight:800}
 .pin2 .bx i.on{border-color:var(--brand)}
+.pin2 .pw1{width:100%;box-sizing:border-box;font-size:22px;text-align:center;letter-spacing:6px;padding:12px;border:1px solid var(--hair);border-radius:12px;background:#fff;color:var(--ink);outline:none}
 .pin2 .bx input{position:absolute;inset:0;width:100%;height:100%;opacity:0;font-size:16px;border:0;padding:0}
 .pin2 button{width:100%;margin-top:16px;border:none;background:var(--brand);color:#fff;border-radius:12px;padding:14px;font-size:16px;font-weight:800}
 .pin2 button:disabled{opacity:.45}
@@ -127,6 +129,16 @@ const mmdd = d => String(d).slice(3);
 function toast(m) { const t = document.getElementById('toast'); t.textContent = m; t.classList.add('on'); setTimeout(() => t.classList.remove('on'), 1800); }
 function unb64(t) { const b = atob(t), u = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; }
 let ENC = null, PIN = '';
+const LKEY = (() => { const m = String(location.hash || '').match(/k=([A-Za-z0-9_-]{43})/); return m ? m[1] : ''; })(); // 링크만 방식: # 뒤 열쇠 (서버로 안 감)
+async function decryptWithKey(k) {
+  try {
+    const raw = Uint8Array.from(atob(k.replace(/-/g, '+').replace(/_/g, '/') + '='), ch => ch.charCodeAt(0));
+    const key = await crypto.subtle.importKey('raw', raw, { name: 'AES-GCM' }, false, ['decrypt']);
+    const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(ENC.i) }, key, unb64(ENC.c));
+    const o = JSON.parse(new TextDecoder().decode(pt));
+    return (o && Array.isArray(o.ev)) ? o : null;
+  } catch (e) { return null; }
+}
 async function decryptWith(pin) { // 비밀번호로 암호를 풀어 장부를 돌려줌 (틀리면 null)
   try {
     const te = new TextEncoder(), base = await crypto.subtle.importKey('raw', te.encode(pin), 'PBKDF2', false, ['deriveKey']);
@@ -141,7 +153,7 @@ async function sha(str) {
   catch (e) { return null; }
 }
 function head() {
-  const tabs = [['a', '출고내역'], ['c', '이월']];
+  const tabs = [['a', '출고·입금'], ['c', '주문 진행']]; // 손님 입장 말로 (예전: 출고내역 / 이월)
   return `<div class="top"><div class="brand">${logoHtml()}<span class="loc">${esc(snap.name)} 귀하</span></div><div class="tabs">${tabs.map(([k, n]) => `<button data-tab="${k}" class="${k === tab ? 'on' : ''}">${n}</button>`).join('')}</div></div>`;
 }
 function asOfText() { const d = new Date(snap.asOf); if (isNaN(d)) return ''; return `${d.getMonth() + 1}.${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')} 업데이트`; }
@@ -179,7 +191,7 @@ function viewA() {
   const outKeys = groups.filter(g => !g.isIn && !g.isCarry).map(g => g.k), allOpen = outKeys.length > 0 && outKeys.every(k => openDays.has(k));
   const rows = groups.map(g => {
     if (g.isCarry) return `<div class="row"><div><div class="a">이월 잔액</div><div class="b">${esc(mmdd(g.d))} 기준 · 예전부터 남아 있던 금액</div></div><div class="r">${won(g.a)}</div></div>`;
-    if (g.isIn) return `<div class="row"><div><div class="a">입금</div><div class="b">${esc(mmdd(g.d))} · ${esc(g.n.replace(/^입금\(?/, '').replace(/\)$/, '') || '입금')}</div></div><div class="r in">${won(g.a)}</div></div>`;
+    if (g.isIn) { const how = g.n.replace(/\s*\(\d+건\)$/, '').replace(/^(선수금 )?입금\(?/, '$1').replace(/\)$/, '').trim(); return `<div class="row"><div><div class="a">${/^선수금/.test(how) ? '선수금 입금' : '입금'}</div><div class="b">${esc(mmdd(g.d))} · ${esc(how.replace(/^선수금\s*/, '') || '입금')}</div></div><div class="r in">${won(-g.a)}</div></div>`; } // 가게 안에서 나눠 넣은 건수(89건 등)는 손님에게 안 보임, 입금은 + 금액으로
     const names = g.evs.filter(e => e.t === '매출').map(e => e.c ? '이월 미수금' : e.n), first = names[0] || '출고', more = names.length > 1 ? ` 외 ${names.length - 1}건` : '';
     const open = openDays.has(g.k);
     const head = `<div class="row x${open ? ' op' : ''}" data-day="${esc(g.k)}"><div><div class="a">출고</div><div class="b">${esc(mmdd(g.d))} · ${esc(first)}${more}</div></div><div class="r">${won(g.a)}<span class="chv">⌄</span></div></div>`;
@@ -190,7 +202,57 @@ function viewA() {
     }).join('')}</div>`;
   }).join('');
   const pl = pills('a').replace('</div>', outKeys.length ? `<button class="expall" data-expall="1">${allOpen ? '전체 접기' : '전체 펼치기'}</button></div>` : '</div>');
-  return `<div class="asof">${esc(asOfText())}</div><div class="hero">${hero}${formula}</div>${acct}<div class="mon" style="padding-top:18px"><span class="m">${esc(rangeTitle(ranges.a))}</span><span class="t">${sCarry ? `이월 ${won(sCarry)} · ` : ''}출고 ${won(sOut)} · 입금 ${won(sIn)}</span></div>${pl}${rows || '<div class="empty" style="padding:30px 0">내역이 없어요</div>'}<div class="ft">금액이 다르다면 ${askHtml()}</div>`;
+  return `<div class="asof">${esc(asOfText())}</div><div class="hero">${hero}${formula}</div>${acct}<div class="mon" style="padding-top:18px"><span class="m">${esc(rangeTitle(ranges.a))}</span><span class="t">${sCarry ? `이월 ${won(sCarry)} · ` : ''}출고 ${won(sOut)} · 입금 ${won(sIn)}</span></div>${pl}<div class="stmb"><button data-stm="1">${+stmMonth().slice(3)}월 거래명세서 저장</button></div>${rows || '<div class="empty" style="padding:30px 0">내역이 없어요</div>'}<div class="ft">금액이 다르다면 ${askHtml()}</div>`;
+}
+// 거래명세서 이미지: 손님이 자기 장부 정리용으로 바로 저장 (가게에 따로 요청 안 해도 됨)
+function stmMonth() { return ranges.a === 'prev' ? prevKey() : nowKey(); }
+function stmHtml(mk) {
+  const ev = (snap.ev || []).slice().sort((a, b) => String(a.d).localeCompare(String(b.d)));
+  let open = snap.opening || 0; const rows = [];
+  for (const e of ev) { const k = monthKey(e.d); if (k < mk) open += e.a; else if (k === mk) rows.push(e); }
+  open = r2(open);
+  let bal = open, sOut = 0, sMinus = 0, sIn = 0;
+  const td = 'padding:7px 6px;border-bottom:1px solid #e5e5e5;vertical-align:top;';
+  const n = v => Math.round(v).toLocaleString('ko-KR');
+  const body = rows.map(e => {
+    bal = r2(bal + e.a);
+    const isIn = e.t === '입금';
+    if (isIn) sIn += -e.a; else if (e.a >= 0) sOut += e.a; else sMinus += -e.a;
+    const what = e.c ? '이월 잔액' : (isIn ? String(e.n || '입금').replace(/\s*\(\d+건\)$/, '') : (e.t === '매출' ? e.n : `${e.t} · ${e.n}`));
+    return `<tr><td style="${td}white-space:nowrap;">${esc(mmdd(e.d))}</td><td style="${td}">${esc(what)}${e.q && !isIn ? `<div style="color:#777;font-size:12px;">${esc(e.q)}</div>` : ''}</td><td style="${td}text-align:right;white-space:nowrap;">${isIn ? '' : n(e.a)}</td><td style="${td}text-align:right;white-space:nowrap;color:#1f6b45;">${isIn ? n(-e.a) : ''}</td><td style="${td}text-align:right;white-space:nowrap;">${n(bal)}</td></tr>`;
+  }).join('');
+  // 이번 달이면 끝 잔액이 가게 장부 잔액과 같은지 확인 (다르면 잔액 칸 없이 보여서 헷갈리는 숫자 방지)
+  const okBal = mk !== nowKey() || snap.credit > 0 || Math.abs(bal - snap.balance) < 0.5;
+  const th = 'padding:8px 6px;border-bottom:2px solid #111;font-size:12.5px;';
+  const [y, m] = ['20' + mk.slice(0, 2), +mk.slice(3)];
+  const html = `<div style="width:720px;box-sizing:border-box;background:#fff;color:#111;padding:30px 32px;font-family:-apple-system,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif;font-size:13.5px;line-height:1.45;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #111;padding-bottom:10px;"><div><div style="font-size:26px;font-weight:800;letter-spacing:2px;">거래명세서</div><div style="font-size:14px;color:#555;margin-top:2px;">${y}년 ${m}월</div></div><div style="text-align:right;"><div style="font-size:17px;font-weight:800;">${esc(BRAND.name)}</div>${BRAND.tel ? `<div style="color:#555;">${esc(BRAND.tel)}</div>` : ''}</div></div>
+    <div style="margin:14px 0 10px;font-size:18px;"><b>${esc(snap.name)}</b> 귀하</div>
+    <table style="width:100%;border-collapse:collapse;"><thead><tr><th style="${th}text-align:left;width:52px;">날짜</th><th style="${th}text-align:left;">내용</th><th style="${th}text-align:right;width:100px;">금액</th><th style="${th}text-align:right;width:100px;">입금</th>${okBal ? `<th style="${th}text-align:right;width:110px;">잔액</th>` : ''}</tr></thead><tbody>
+    ${okBal ? `<tr><td style="${td}"></td><td style="${td}color:#555;">전월 잔액</td><td style="${td}"></td><td style="${td}"></td><td style="${td}text-align:right;">${n(open)}</td></tr>` : ''}
+    ${(okBal ? body : body.replace(/<td style="[^"]*">[^<]*<\/td><\/tr>/g, '</tr>')) || `<tr><td colspan="5" style="${td}text-align:center;color:#777;">이 달 거래가 없습니다</td></tr>`}
+    </tbody></table>
+    <div style="display:flex;justify-content:flex-end;gap:22px;margin-top:12px;font-size:14px;"><span>출고 <b>${n(sOut)}원</b></span>${sMinus ? `<span>공제·반품 <b>-${n(sMinus)}원</b></span>` : ''}<span>입금 <b style="color:#1f6b45;">${n(sIn)}원</b></span>${okBal ? `<span>${bal < 0 ? '선수금' : '잔액'} <b>${n(Math.abs(bal))}원</b></span>` : ''}</div>
+    ${snap.acct ? `<div style="margin-top:16px;padding:10px 12px;background:#f5f5f3;border-radius:8px;">입금계좌 <b>${esc(snap.acct)}</b></div>` : ''}
+    <div style="margin-top:12px;color:#888;font-size:11.5px;">${esc(asOfText())} 기준</div></div>`;
+  return html;
+}
+let _h2c = null;
+function loadH2C() { if (window.html2canvas) return Promise.resolve(); if (_h2c) return _h2c; return (_h2c = new Promise((ok, no) => { const sc = document.createElement('script'); sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'; sc.onload = () => ok(); sc.onerror = () => { _h2c = null; no(new Error('h2c')); }; document.head.appendChild(sc); })); }
+async function saveStatement() {
+  const mk = stmMonth(), host = document.createElement('div');
+  host.style.cssText = 'position:fixed;left:-10000px;top:0;'; host.innerHTML = stmHtml(mk); document.body.appendChild(host);
+  toast('명세서를 만드는 중...');
+  try {
+    await loadH2C();
+    const cv = await window.html2canvas(host.firstElementChild, { scale: 2, backgroundColor: '#ffffff' });
+    const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+    const fname = `${snap.name}_${'20' + mk.replace('.', '-')}_거래명세서.png`;
+    const file = new File([blob], fname, { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { try { await navigator.share({ files: [file], title: fname }); } catch (e) { /* 공유 창 닫음 */ } }
+    else { const u = URL.createObjectURL(blob), a = document.createElement('a'); a.href = u; a.download = fname; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 4000); toast('명세서를 저장했어요'); }
+  } catch (e) { toast('명세서를 만들지 못했어요. 잠시 후 다시 해 주세요'); }
+  finally { host.remove(); }
 }
 function qty(n, u) { return `${r2(n).toLocaleString('ko-KR')}${u}`; }
 // 이월 달력: 메모에 적힌 날짜를 읽어서 달력에 올림 (날짜를 못 읽으면 '날짜 없는 건')
@@ -238,7 +300,7 @@ function ddShow(o) { const t = todayD(); return /^\d{4}-\d{2}-\d{2}$/.test(o.dd 
 function viewC() {
   const r = ranges.c;
   const act = (snap.active || []).filter(o => inRange(o.d || '', r));
-  const st = o => ({ wait: ['대기', 'wait'], partial: ['부분출고', ''], received_full: ['입고완료', 'ok'] }[o.s] || ['대기', 'wait']);
+  const st = o => ({ wait: ['대기', 'wait'], partial: ['부분출고', ''], received_full: ['출고 완료', 'ok'] }[o.s] || ['대기', 'wait']);
   const shipTxt = o => {
     const s = (o.sh || []);
     if (s.length) return `<div class="sh">${s.map(x => `${esc(mmdd(x.d))} ${esc(x.q)}`).join(' · ')}</div>`;
@@ -246,7 +308,7 @@ function viewC() {
   };
   const line = o => {
     const remain = o.q > o.r ? o.q - o.r : 0, [lb, cl] = st(o);
-    return `<div class="li"><div><div class="a">${esc(o.i)} ${esc(o.c)}</div>${o.q > 0 ? `<div class="b">발주 ${qty(o.q, o.u)}</div>` : ''}${shipTxt(o)}${ddShow(o) ? `<div class="dd">${esc(ddLabel(o.dd))} 출고 예정</div>` : ''}${o.m ? `<div class="mm">${esc(o.m)}</div>` : ''}</div><div class="r">${remain > 0 ? qty(remain, o.u) : (o.q > 0 ? '전량 처리' : '-')}<span class="chip ${cl}" style="display:block;margin:4px 0 0 auto;width:fit-content">${lb}</span></div></div>`;
+    return `<div class="li"><div><div class="a">${esc(o.i)} ${esc(o.c)}</div>${o.q > 0 ? `<div class="b">주문 ${qty(o.q, o.u)}</div>` : ''}${shipTxt(o)}${ddShow(o) ? `<div class="dd">${esc(ddLabel(o.dd))} 출고 예정</div>` : ''}${o.m ? `<div class="mm">${esc(o.m)}</div>` : ''}</div><div class="r">${remain > 0 ? qty(remain, o.u) : (o.q > 0 ? '전량 처리' : '-')}<span class="chip ${cl}" style="display:block;margin:4px 0 0 auto;width:fit-content">${lb}</span></div></div>`;
   };
   const t0 = todayD(), shown = calSel ? act.filter(o => dueOf(o, t0) === calSel) : act;
   const byDay = new Map();
@@ -254,12 +316,13 @@ function viewC() {
   const days = Array.from(byDay.entries()).sort((x, y) => String(y[0]).localeCompare(String(x[0])));
   const selTxt = calSel ? `<div class="fl"><span>${+calSel.slice(5, 7)}.${+calSel.slice(8, 10)} 일정만 보는 중</span><b data-cd="${calSel}">✕</b></div>` : '';
   return `<div class="t2"><div class="lf"><div class="m">${esc(rangeTitle(r))}</div><div class="t">진행 중 ${act.length}건</div>${pills('c')}</div>${calMini(act)}</div>${selTxt}`
-    + (days.length ? days.map(([d, os]) => `<div class="day"><b>발주 ${esc(mmdd(d))}</b><span>${os.length}건</span></div><div class="card">${os.map(line).join('')}</div>`).join('') : `<div class="empty" style="padding:30px 0">${calSel ? '이 날은 예정이 없어요' : '진행 중인 건이 없어요'}</div>`)
-    + '<div class="ft">정확한 입고일은 ' + askHtml() + '</div>';
+    + (days.length ? days.map(([d, os]) => `<div class="day"><b>주문 ${esc(mmdd(d))}</b><span>${os.length}건</span></div><div class="card">${os.map(line).join('')}</div>`).join('') : `<div class="empty" style="padding:30px 0">${calSel ? '이 날은 예정이 없어요' : '진행 중인 건이 없어요'}</div>`)
+    + '<div class="ft">정확한 출고일은 ' + askHtml() + '</div>';
 }
 function render() {
   const barEl = document.getElementById('bar'); if (barEl) barEl.style.display = (state === 'pin2' || state === 'pin') ? 'none' : '';
   if (state === 'load') { app.innerHTML = '<div class="empty">불러오는 중...</div>'; return; }
+  if (state === 'nokey') { app.innerHTML = '<div class="msg">링크가 잘려서 열 수 없어요.<br>받은 링크 전체를 다시 눌러 주시거나<br>가게에 새 링크를 요청해 주세요.</div>'; return; }
   if (state === 'none') { app.innerHTML = '<div class="msg">이 링크는 열리지 않아요.<br>담당자에게 새 링크를 요청해 주세요.</div>'; return; }
   if (state === 'err') { app.innerHTML = '<div class="msg">불러오지 못했어요.<br>잠시 후 다시 시도해주세요.<br><button id="retry">다시 불러오기</button></div>'; document.getElementById('retry').onclick = boot; return; }
   if (state === 'pin2') {
@@ -278,7 +341,7 @@ function render() {
     return;
   }
   if (state === 'pin') {
-    app.innerHTML = `<div class="pin">${logoHtml()}<div class="nm">${esc(snap.name)} 귀하</div><div class="ds">비밀번호를 입력해주세요</div><input id="pin" type="password" inputmode="numeric" autocomplete="off" autofocus><button id="go">확인</button><div class="er" id="er"></div></div>`;
+    app.innerHTML = `<div class="pin2">${logoHtml()}<div class="ds">${esc(snap.name)} 귀하<br>비밀번호를 입력해 주세요</div><input id="pin" class="pw1" type="password" inputmode="numeric" autocomplete="off" autofocus><button id="go">열기</button><div class="er" id="er"></div><div class="ft2">한 번 열면 저장됩니다</div></div>`;
     const go = async () => {
       const v = document.getElementById('pin').value.trim(); if (!v) return;
       const h = await sha(TOKEN + ':' + v);
@@ -296,6 +359,7 @@ document.addEventListener('click', e => {
   const cd = e.target.closest('[data-cd]'); if (cd) { calSel = (calSel === cd.dataset.cd) ? '' : cd.dataset.cd; render(); return; }
   const t = e.target.closest('[data-tab]'); if (t) { tab = t.dataset.tab; render(); window.scrollTo(0, 0); return; }
   const dy = e.target.closest('[data-day]'); if (dy) { const k = dy.dataset.day; if (openDays.has(k)) openDays.delete(k); else openDays.add(k); render(); return; }
+  if (e.target.closest('[data-stm]')) { saveStatement(); return; }
   if (e.target.closest('[data-expall]')) { const ks = Array.from(document.querySelectorAll('.row.x')).map(x => x.dataset.day); if (ks.every(k => openDays.has(k))) ks.forEach(k => openDays.delete(k)); else ks.forEach(k => openDays.add(k)); render(); return; }
   const r = e.target.closest('[data-range]'); if (r) { ranges[tab] = r.dataset.range; render(); return; }
   if (e.target.closest('[data-copy]') && snap && snap.acct) {
@@ -313,6 +377,12 @@ async function boot() {
     const d = await pubDocs().doc('ledger_' + TOKEN).get();
     if (!d.exists) { state = 'none'; render(); return; }
     const dd = d.data();
+    if (dd.enc && dd.enc.c && dd.enc.v === 3) { // 링크만 방식: 링크 # 뒤 열쇠로 바로 풂
+      ENC = dd.enc; snap = null;
+      const o = LKEY ? await decryptWithKey(LKEY) : null;
+      if (o) { snap = o; state = 'ok'; } else state = 'nokey';
+      render(); return;
+    }
     if (dd.enc && dd.enc.c) { // 비밀번호로 암호화된 장부
       ENC = dd.enc; snap = null;
       let sv = ''; try { sv = localStorage.getItem('lg2_' + TOKEN) || ''; } catch (e) { sv = ''; }
