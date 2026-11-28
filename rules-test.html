@@ -127,6 +127,9 @@ async function runAll() {
     await expectDenied('16-19. 직원S가 창고 출고 지우기', () => WQ(S).doc(wqId || 'x').delete());
     await expectOk('16-20. 직원S가 절째·샘플·메모 넣어 보내기', () => WQ(S).add(wq({ whole: [true, false], sample: true, memo: '끝단 얼룩' })));
     await expectDenied('16-21. 메모 60자 넘게', () => WQ(S).add(wq({ memo: 'ㄱ'.repeat(61) })));
+    await expectOk('16-22. 절·탕·실마수 고침까지 넣어 보내기', () => WQ(S).add(wq({ cuts: [23, 27], whole: [false, false], rolls: [11, 12], tangs: [1, 2], from: [60, 55], fixes: [{ r: 12, t: 2, s: 55, a: 54.5 }], v: 2 })));
+    await expectOk('16-23. 실마수 고치기만 보내기 (야드 없이)', () => WQ(S).add(wq({ cuts: [], fixes: [{ r: 12, t: 2, s: 55, a: 54 }], v: 2 })));
+    await expectDenied('16-24. 야드도 실마수도 없이 보내기', () => WQ(S).add(wq({ cuts: [] })));
     await expectDenied('17. 직원S가 직원 목록 보기', () => S.db.collection('shops').doc(SA).collection('members').get());
     await expectDenied('18. 직원S가 자기를 대표으로 바꾸기', () => D(S, SA, 'members', S.uid).update({ role: 'owner' }));
     await expectDenied('19. 직원S가 백업 삭제', () => D(S, SA, 'backups', 'x').delete());
