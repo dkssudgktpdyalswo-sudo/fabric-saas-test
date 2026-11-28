@@ -184,6 +184,11 @@
   .wh-kp button.g { background: var(--b-info); color: var(--primary-dark); font-size: 19px; }
   .wh-kp button:active, .wh-card:active, .wh-big:active { filter: brightness(.93); }
   .wh-row { display: flex; gap: 8px; } .wh-row .wh-big { flex: 1; }
+  .wh-seg { display: flex; gap: 6px; margin-bottom: 8px; } .wh-seg button { flex: 1; border: 2px solid #d9d4ca; background: #fff; color: #666; border-radius: 12px; font-size: 18px; font-weight: 700; padding: 11px 6px; font-family: inherit; }
+  .wh-seg button.on { border-color: var(--primary-dark); background: var(--primary-dark); color: #fff; }
+  .wh-cuts button small { font-size: 14px; font-weight: 700; color: var(--primary-dark); }
+  .wh-sample { display: block; width: 100%; border: 2px dashed #b9a6dc; background: #fff; color: #7a5bb0; border-radius: 12px; font-size: 18px; font-weight: 700; padding: 11px; margin-top: 4px; font-family: inherit; }
+  .wh-sample.on { border-style: solid; background: #7a5bb0; color: #fff; }
   .whq-it { border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
   .whq-it b { font-size: 15px; } .whq-c { font-size: 14px; margin-top: 3px; } .whq-m { font-size: 12px; color: var(--muted); margin-top: 2px; }
   .whq-a { display: flex; gap: 6px; margin-top: 8px; } .whq-a button { flex: 1; border: none; border-radius: 8px; padding: 9px; font-weight: 700; background: var(--b-sub); color: #444; } .whq-a button.p { background: var(--primary-dark); color: #fff; }
@@ -12442,12 +12447,17 @@ function whqEnsure() {
 }
 function whqAt(x) { return x && x.at && x.at.toMillis ? x.at.toMillis() : (x && x.atMs) || 0; }
 function whqSum(cuts) { return Math.round((cuts || []).reduce((s, v) => s + (Number(v) || 0), 0) * 100) / 100; }
-function whqCutsText(cuts) { const c = (cuts || []).map(Number).filter(v => v > 0); return `${c.join(' · ')} = ${whqSum(c).toLocaleString()}y (${c.length}절)`; }
+function whqCutsText(cuts, whole) { // 52 · 60(절째) = 112y (2절)
+  const c = (cuts || []).map(Number); const w = whole || [];
+  return `${c.map((v, i) => w[i] ? `${v}(절째)` : v).join(' · ')} = ${whqSum(c).toLocaleString()}y (${c.length}절)`;
+}
+function whqExtra(q) { return `${q.sample ? ' · 샘플' : ''}${q.memo ? ' · 메모: ' + q.memo : ''}`; }
 function whqTime(x) { const t = whqAt(x); if (!t) return '방금'; const d = new Date(t); const today = new Date().toDateString() === d.toDateString(); return `${today ? '' : `${d.getMonth() + 1}/${d.getDate()} `}${d.getHours() < 12 ? '오전' : '오후'} ${((d.getHours() + 11) % 12) + 1}:${String(d.getMinutes()).padStart(2, '0')}`; }
 async function whqAdd(rec) {
   const data = { by: (firebase.auth && firebase.auth().currentUser) ? firebase.auth().currentUser.uid : '', name: String((ME && ME.name) || '').slice(0, 30), orderId: rec.orderId == null ? null : String(rec.orderId),
     customer: String(rec.customer || '').slice(0, 40), item: String(rec.item || '').slice(0, 60), color: String(rec.color || '').slice(0, 60), unit: rec.unit === '절' ? '절' : 'y',
-    cuts: rec.cuts.slice(0, 200).map(v => Math.round(Number(v) * 100) / 100), status: 'sent', v: 1 };
+    cuts: rec.cuts.slice(0, 200).map(v => Math.round(Number(v) * 100) / 100), whole: (rec.whole || []).slice(0, 200).map(Boolean),
+    sample: !!rec.sample, memo: String(rec.memo || '').trim().slice(0, 60), status: 'sent', v: 1 };
   if (!useFirebase) { whqItems.push({ id: 'l' + Date.now().toString(36), ...data, atMs: Date.now() }); return true; }
   try { await shopCol('whq').add({ ...data, at: firebase.firestore.FieldValue.serverTimestamp() }); return true; }
   catch (e) { await uiAlert('보내지 못했습니다. 인터넷 연결을 확인하고 다시 눌러 주세요.\n' + errHint(e)); return false; }
@@ -12465,7 +12475,7 @@ function whqListOpen() {
   const rows = whqItems.map(q => {
     const o = q.orderId != null ? orders.find(x => String(x.id) === String(q.orderId)) : null;
     return `<div class="whq-it"><b>${esc(q.customer || '거래처 미정')} · ${esc(q.item)} ${esc(q.color || '')}</b>
-      <div class="whq-c">${esc(whqCutsText(q.cuts))}</div><div class="whq-m">${esc(q.name || '창고')} · ${esc(whqTime(q))}${q.orderId != null ? (o && !o.done ? '' : ' · <span style="color:var(--danger);">주문이 이미 끝남 → 매출로 넣기</span>') : ' · 주문 없이 자른 것'}</div>
+      <div class="whq-c">${esc(whqCutsText(q.cuts, q.whole))}${q.sample ? ' <b style="color:#7a5bb0;">샘플</b>' : ''}</div>${q.memo ? `<div class="whq-c" style="color:#4e3a78;">메모: ${esc(q.memo)}</div>` : ''}<div class="whq-m">${esc(q.name || '창고')} · ${esc(whqTime(q))}${q.orderId != null ? (o && !o.done ? '' : ' · <span style="color:var(--danger);">주문이 이미 끝남 → 매출로 넣기</span>') : ' · 주문 없이 자른 것'}</div>
       <div class="whq-a"><button type="button" onclick="whqVoid('${escAttr(q.id)}')">지우기</button><button type="button" class="p" onclick="document.getElementById('whqModal').remove(); whqProcess('${escAttr(q.id)}')">출고 처리</button></div></div>`;
   }).join('');
   ov.innerHTML = `<div class="sm-box rx-box" style="max-width:520px;"><div class="rx-top"><h3>창고에서 온 출고</h3><button type="button" class="rx-close" onclick="document.getElementById('whqModal').remove()">✕</button></div>
@@ -12476,7 +12486,7 @@ async function whqVoid(id) {
   if (!(await uiConfirm('이 창고 출고를 지울까요? (재고·매출은 원래부터 안 바뀌어 있습니다)', { ok: '지우기', danger: true }))) return;
   await whqMark(id, 'void'); render(); if (document.getElementById('whqModal')) whqListOpen();
 }
-function whqNoteHtml(q) { return `<div id="wh-note" style="font-size:13px;background:#efe9f7;color:#4e3a78;border-radius:8px;padding:8px 10px;margin:0 0 8px;font-weight:600;">창고 ${esc(q.name || '')} · ${esc(whqTime(q))}<br>${esc(whqCutsText(q.cuts))}</div>`; }
+function whqNoteHtml(q) { return `<div id="wh-note" style="font-size:13px;background:#efe9f7;color:#4e3a78;border-radius:8px;padding:8px 10px;margin:0 0 8px;font-weight:600;">창고 ${esc(q.name || '')} · ${esc(whqTime(q))}${q.sample ? ' · 샘플' : ''}<br>${esc(whqCutsText(q.cuts, q.whole))}${q.memo ? `<br>메모: ${esc(q.memo)}` : ''}</div>`; }
 function whqProcess(id) {
   const q = whqItems.find(x => x.id === id); if (!q) return;
   const cuts = (q.cuts || []).map(Number).filter(v => v > 0); const tot = whqSum(cuts);
@@ -12486,6 +12496,8 @@ function whqProcess(id) {
     if (!can('carry')) { permDeny('carry'); return; }
     switchTab('order'); openOrderReceiveModal(o.id); _whqPending = id;
     document.getElementById('or-desc').insertAdjacentHTML('afterend', whqNoteHtml(q));
+    if (q.sample) { document.getElementById('or-sample-mode').checked = true; onSampleModeChange(); }
+    if (q.memo) { const n = document.getElementById('or-note'); n.value = n.value ? `${n.value} · ${q.memo}` : q.memo; }
     if ((o.unit || 'y') === '절') {
       document.getElementById('or-jeol-count').value = cuts.length;
       const tangs = [...document.querySelectorAll('#or-jeol-tang-list input[data-roll-id]')];
@@ -12495,8 +12507,17 @@ function whqProcess(id) {
     } else {
       const ins = [...document.querySelectorAll('#or-rolls-list input[data-roll-id]')];
       if (!document.getElementById('or-rolls-wrap').classList.contains('hidden') && ins.length) {
-        let need = tot;
-        ins.forEach(inp => { const r = pendingReceiveRolls.find(x => x.rollId === parseInt(inp.dataset.rollId)); const take = Math.min(r ? r.qty : 0, Math.max(0, need)); inp.value = take > 0 ? take : 0; need = Math.round((need - take) * 100) / 100; });
+        // 절째로 나간 것은 마수가 가장 가까운 절 하나를 통째로 (3y 안), 나머지 컷은 앞 절부터
+        const w = q.whole || [], used = new Set(); let need = 0;
+        ins.forEach(inp => { inp.value = 0; });
+        cuts.forEach((v, i) => {
+          if (!w[i]) { need += v; return; }
+          let best = null;
+          ins.forEach(inp => { if (used.has(inp)) return; const r = pendingReceiveRolls.find(x => x.rollId === parseInt(inp.dataset.rollId)); if (!r) return; const dd = Math.abs(r.qty - v); if (dd <= 3 && (!best || dd < best.dd)) best = { inp, r, dd }; });
+          if (best) { used.add(best.inp); best.inp.value = best.r.qty; } else need += v;
+        });
+        need = Math.round(need * 100) / 100;
+        ins.forEach(inp => { if (used.has(inp)) return; const r = pendingReceiveRolls.find(x => x.rollId === parseInt(inp.dataset.rollId)); const take = Math.min(r ? r.qty : 0, Math.max(0, need)); inp.value = take > 0 ? Math.round(take * 100) / 100 : 0; need = Math.round((need - take) * 100) / 100; });
         updateOrderRollsTotal();
         if (need > 0.001) showToast(`재고에 적힌 것보다 ${need}y 더 잘랐습니다. 절별 출고량을 확인해 주세요`);
       } else document.getElementById('or-qty').value = tot;
@@ -12508,6 +12529,7 @@ function whqProcess(id) {
     document.getElementById('sale-edit-item').value = q.item || ''; document.getElementById('sale-edit-color').value = q.color || '';
     document.getElementById('sale-edit-yards').value = tot;
     document.getElementById('sale-edit-desc').insertAdjacentHTML('afterend', whqNoteHtml(q));
+    const memo = [q.sample ? '샘플' : '', q.memo || ''].filter(Boolean).join(' · '); if (memo) document.getElementById('sale-edit-note').value = memo;
   }
 }
 async function whqAfterSave(modalId) { // 출고 창·매출 창이 저장돼 닫혔으면 그 창고 건은 끝
@@ -12535,7 +12557,7 @@ function whRemain(o) { const r = (o.orderQty || 0) - (o.received || 0); return r
 function whOrderCard(o) {
   const sent = whqItems.filter(q => String(q.orderId) === String(o.id));
   const st = dueState(o);
-  return `<button type="button" class="wh-card${sent.length ? ' sent' : ''}" onclick="whStart('${escAttr(String(o.id))}')"><span class="c">${esc(o.customer || '')}${st === 'late' ? ' <i class="late">예정일 지남</i>' : st === 'today' ? ' <i>오늘</i>' : ''}</span><b>${esc(o.item || '')}${o.color ? ' · ' + esc(o.color) : ''}</b><span class="q">남은 것 ${whRemain(o).toLocaleString()}${esc(o.unit || 'y')}</span>${sent.length ? `<span class="s">보냄 · ${esc(whqCutsText(sent[sent.length - 1].cuts))} <i>매장 확인 대기</i></span>` : ''}</button>`;
+  return `<button type="button" class="wh-card${sent.length ? ' sent' : ''}" onclick="whStart('${escAttr(String(o.id))}')"><span class="c">${esc(o.customer || '')}${st === 'late' ? ' <i class="late">예정일 지남</i>' : st === 'today' ? ' <i>오늘</i>' : ''}</span><b>${esc(o.item || '')}${o.color ? ' · ' + esc(o.color) : ''}</b><span class="q">남은 것 ${whRemain(o).toLocaleString()}${esc(o.unit || 'y')}</span>${sent.length ? `<span class="s">보냄 · ${esc(whqCutsText(sent[sent.length - 1].cuts, sent[sent.length - 1].whole))} <i>매장 확인 대기</i></span>` : ''}</button>`;
 }
 function whRender() {
   if (!_wh.open) return;
@@ -12570,29 +12592,33 @@ function whRender() {
       <div class="wh-sec">다른 주문 찾기</div>
       <input id="wh-q" class="wh-search" placeholder="거래처 · 품번 · 컬러" value="${escAttr(_wh.q)}" oninput="_wh.q=this.value; whRender()">
       ${q ? (found.map(whOrderCard).join('') || '<div class="wh-empty">진행 중인 주문 중에 없습니다</div>') : ''}
-      ${mine.length ? `<div class="wh-sec">주문 없이 보낸 것 (매장 확인 대기)</div>${mine.map(x => `<div class="wh-card sent"><b>${esc(x.item)} · ${esc(x.color || '')}</b><span class="s">${esc(whqCutsText(x.cuts))}</span></div>`).join('')}` : ''}
+      ${mine.length ? `<div class="wh-sec">주문 없이 보낸 것 (매장 확인 대기)</div>${mine.map(x => `<div class="wh-card sent"><b>${esc(x.item)} · ${esc(x.color || '')}</b><span class="s">${esc(whqCutsText(x.cuts, x.whole))}</span></div>`).join('')}` : ''}
       <button type="button" class="wh-big sub" onclick="_wh.view='pick'; _wh.pq=''; whRender(); setTimeout(()=>{const i=document.getElementById('wh-pq'); if(i) i.focus();},50)">+ 주문 없이 자른 것</button>
     </div>`;
   if (focusQ) { const i = document.getElementById('wh-q'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }
 }
 function whStart(orderId) {
   const o = orders.find(x => String(x.id) === String(orderId)); if (!o) return;
-  _wh.ctx = { orderId: o.id, customer: o.customer || '', item: o.item || '', color: o.color || '', unit: o.unit || 'y', remainTxt: `${whRemain(o).toLocaleString()}${o.unit || 'y'}`, cuts: [], cur: '' };
+  _wh.ctx = { orderId: o.id, customer: o.customer || '', item: o.item || '', color: o.color || '', unit: o.unit || 'y', remainTxt: `${whRemain(o).toLocaleString()}${o.unit || 'y'}`, cuts: [], whole: [], cur: '', curWhole: (o.unit || 'y') === '절', sample: !!o.isSample, memo: '' };
   _wh.view = 'cut'; whRender();
 }
-function whStartFree(item, color) { _wh.ctx = { orderId: null, customer: '', item, color, unit: 'y', remainTxt: '', cuts: [], cur: '' }; _wh.view = 'cut'; whRender(); }
+function whStartFree(item, color) { _wh.ctx = { orderId: null, customer: '', item, color, unit: 'y', remainTxt: '', cuts: [], whole: [], cur: '', curWhole: false, sample: false, memo: '' }; _wh.view = 'cut'; whRender(); }
 function whRenderCut(p) {
-  const c = _wh.ctx; const sum = whqSum(c.cuts);
+  const c = _wh.ctx; const sum = whqSum(c.cuts); const fm = document.activeElement && document.activeElement.id === 'wh-memo';
   p.innerHTML = `<div class="wh-hd"><button type="button" class="wh-back" onclick="whCutBack()">‹ 뒤로</button><h1>${esc(c.item)}${c.color ? ' · ' + esc(c.color) : ''}</h1><p>${c.orderId != null ? `${esc(c.customer)} · 남은 것 ${esc(c.remainTxt)}` : '주문 없이 자른 것'}</p></div>
     <div class="wh-body">
       ${c.orderId == null ? `<input id="wh-cust" class="wh-search" placeholder="거래처 (아시면)" value="${escAttr(c.customer)}" oninput="_wh.ctx.customer=this.value">` : ''}
-      <div class="wh-lab">${c.cuts.length ? '지금까지 자른 것 (누르면 지움)' : '한 절씩 야드를 넣고 「다음 절」'}</div>
-      <div class="wh-cuts">${c.cuts.map((v, i) => `<button type="button" onclick="whCutDel(${i})">${v}y</button>`).join('')}</div>
+      <button type="button" class="wh-sample${c.sample ? ' on' : ''}" onclick="_wh.ctx.sample=!_wh.ctx.sample; whRender()">${c.sample ? '✓ ' : ''}샘플로 나감</button>
+      <div class="wh-lab">${c.cuts.length ? '지금까지 넣은 것 (누르면 지움)' : '한 절씩 야드를 넣고 「다음 절」'}</div>
+      <div class="wh-cuts">${c.cuts.map((v, i) => `<button type="button" onclick="whCutDel(${i})">${v}y${c.whole[i] ? '<small> 절째</small>' : ''}</button>`).join('')}</div>
       <div class="wh-lab">${c.cuts.length + 1}번째 절${c.cuts.length ? ` · 합계 ${sum.toLocaleString()}y` : ''}</div>
+      <div class="wh-seg"><button type="button" class="${c.curWhole ? '' : 'on'}" onclick="_wh.ctx.curWhole=false; whRender()">잘라서</button><button type="button" class="${c.curWhole ? 'on' : ''}" onclick="_wh.ctx.curWhole=true; whRender()">절째 (통으로)</button></div>
       <div class="wh-disp">${c.cur ? esc(c.cur) : '<span style="color:#bbb;">0</span>'}<small> y</small></div>
       <div class="wh-kp">${['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(k => `<button type="button" onclick="whKey('${k}')">${k}</button>`).join('')}<button type="button" class="g" onclick="whKey('del')">지우기</button><button type="button" onclick="whKey('0')">0</button><button type="button" class="g" onclick="whKey('.')">.</button></div>
       <div class="wh-row"><button type="button" class="wh-big sub" onclick="whNextCut()">다음 절</button><button type="button" class="wh-big" onclick="whSend()">매장으로 보내기</button></div>
+      <input id="wh-memo" class="wh-search" style="margin-top:12px;" maxlength="60" placeholder="메모 (선택) 예: 끝단 얼룩, 퀵으로 보냄" value="${escAttr(c.memo)}" oninput="_wh.ctx.memo=this.value">
     </div>`;
+  if (fm) { const i = document.getElementById('wh-memo'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }
 }
 function whKey(k) {
   const c = _wh.ctx; if (!c) return;
@@ -12601,14 +12627,14 @@ function whKey(k) {
   else if (c.cur.replace('.', '').length < 5) c.cur = (c.cur === '0' ? '' : c.cur) + k;
   whRender();
 }
-function whNextCut() { const c = _wh.ctx; const v = parseFloat(c.cur); if (!(v > 0)) { showToast('야드를 먼저 넣어 주세요'); return false; } c.cuts.push(Math.round(v * 100) / 100); c.cur = ''; whRender(); return true; }
-async function whCutDel(i) { const c = _wh.ctx; if (!(await uiConfirm(`${c.cuts[i]}y를 지울까요?`, { ok: '지우기' }))) return; c.cuts.splice(i, 1); whRender(); }
+function whNextCut() { const c = _wh.ctx; const v = parseFloat(c.cur); if (!(v > 0)) { showToast('야드를 먼저 넣어 주세요'); return false; } c.cuts.push(Math.round(v * 100) / 100); c.whole.push(!!c.curWhole); c.cur = ''; whRender(); return true; }
+async function whCutDel(i) { const c = _wh.ctx; if (!(await uiConfirm(`${c.cuts[i]}y를 지울까요?`, { ok: '지우기' }))) return; c.cuts.splice(i, 1); c.whole.splice(i, 1); whRender(); }
 async function whCutBack() { const c = _wh.ctx; if ((c.cuts.length || c.cur) && !(await uiConfirm('넣은 야드를 보내지 않고 나갈까요?', { ok: '나가기' }))) return; _wh.view = c.orderId == null ? 'pick' : 'list'; _wh.ctx = null; whRender(); }
 async function whSend() {
-  const c = _wh.ctx; if (c.cur && parseFloat(c.cur) > 0) { c.cuts.push(Math.round(parseFloat(c.cur) * 100) / 100); c.cur = ''; }
+  const c = _wh.ctx; if (c.cur && parseFloat(c.cur) > 0) { c.cuts.push(Math.round(parseFloat(c.cur) * 100) / 100); c.whole.push(!!c.curWhole); c.cur = ''; }
   if (!c.cuts.length) { showToast('자른 야드를 넣어 주세요'); return; }
   whRender();
-  if (!(await uiConfirm(`${c.customer ? c.customer + ' · ' : ''}${c.item} ${c.color}\n${whqCutsText(c.cuts)}\n매장으로 보낼까요?`, { ok: '보내기' }))) return;
+  if (!(await uiConfirm(`${c.customer ? c.customer + ' · ' : ''}${c.item} ${c.color}${c.sample ? ' · 샘플' : ''}\n${whqCutsText(c.cuts, c.whole)}${c.memo ? '\n메모: ' + c.memo.trim() : ''}\n매장으로 보낼까요?`, { ok: '보내기' }))) return;
   const ok = await whqAdd(c); if (!ok) return;
   showToast('매장으로 보냈습니다'); _wh.view = 'list'; _wh.ctx = null; _wh.q = ''; whRender();
 }
