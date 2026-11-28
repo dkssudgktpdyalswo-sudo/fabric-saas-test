@@ -1,6 +1,6 @@
 {
-  "name": "원단 장부",
-  "short_name": "원단 장부",
+  "name": "야드북",
+  "short_name": "야드북",
   "description": "원단 도매 재고·이월·매출·미수금 장부",
   "lang": "ko",
   "start_url": "./app.html",
