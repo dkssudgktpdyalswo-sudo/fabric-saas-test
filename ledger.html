@@ -153,7 +153,7 @@ async function sha(str) {
   catch (e) { return null; }
 }
 function head() {
-  const tabs = [['a', '출고·입금'], ['c', '주문 진행']]; // 손님 입장 말로 (예전: 출고내역 / 이월)
+  const tabs = [['a', '출고·입금'], ['c', '진행사항']]; // 손님 입장 말로 (예전: 출고내역 / 이월)
   return `<div class="top"><div class="brand">${logoHtml()}<span class="loc">${esc(snap.name)} 귀하</span></div><div class="tabs">${tabs.map(([k, n]) => `<button data-tab="${k}" class="${k === tab ? 'on' : ''}">${n}</button>`).join('')}</div></div>`;
 }
 function asOfText() { const d = new Date(snap.asOf); if (isNaN(d)) return ''; return `${d.getMonth() + 1}.${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')} 업데이트`; }

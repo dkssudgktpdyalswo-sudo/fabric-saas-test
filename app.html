@@ -63,6 +63,19 @@
   #lock-box .lg-google { background: #fff; color: #333; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; gap: 8px; }
   #lock-box .lg-or { font-size: 12px; color: var(--muted); margin: 16px 0 10px; border-top: 1px solid var(--border); padding-top: 12px; }
   #lock-box .lg-sub { background: none; color: var(--muted); font-weight: 400; margin-top: 6px; }
+  #lock-box .lg-alt { background: var(--b-sub); color: #444; margin-top: 8px; }
+  #lock-box .lg-seg { display: flex; background: var(--b-sub); border-radius: 10px; padding: 3px; margin-bottom: 14px; }
+  #lock-box .lg-seg button { flex: 1; background: none; color: #666; font-weight: 500; font-size: 14px; padding: 8px 0; margin: 0; border-radius: 8px; }
+  #lock-box .lg-seg button.on { background: #fff; color: var(--primary-dark); font-weight: 700; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  #lock-box .lg-note { font-size: 11.5px; color: var(--muted); margin: 8px 0 0; line-height: 1.5; }
+  #lock-box .lg-agree { display: flex; gap: 8px; align-items: flex-start; text-align: left; font-size: 12.5px; line-height: 1.5; margin: 2px 0 12px; color: var(--text); }
+  #lock-box .lg-agree input { width: 18px; height: 18px; flex: none; margin: 1px 0 0; padding: 0; }
+  #lock-box .lg-agree a { color: var(--primary); }
+  #lock-box .lg-prep { background: #f5f3ef; border-radius: 10px; padding: 12px 14px; margin: 0 0 12px; text-align: left; font-size: 12.5px; line-height: 1.55; }
+  #lock-box .lg-prep > b { font-size: 13.5px; display: block; margin-bottom: 4px; }
+  #lock-box .lg-prep .st { display: flex; gap: 8px; margin-top: 6px; }
+  #lock-box .lg-prep .st i { font-style: normal; width: 20px; height: 20px; border-radius: 50%; background: var(--b-info); color: var(--primary-dark); font-size: 11.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex: none; }
+  #lock-box .ok { color: #2f6b46; font-weight: 700; } #lock-box .bad { color: var(--danger); font-weight: 700; }
   #lock-box input { text-align: left; }
   .hdr-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
   .hdr-top h1 { margin: 0 !important; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -119,6 +132,61 @@
   @media (min-width: 900px) { .st-body { display: grid; grid-template-columns: 1fr 1fr; column-gap: 18px; align-items: start; padding-top: 8px; } .st-note { grid-column: 1 / -1; } .st-hdr { padding: 14px 24px 18px; } }
   .acct-menu button.out { color: var(--danger); border-top: 1px solid var(--border); border-radius: 0 0 8px 8px; margin-top: 4px; }
   body.no-cost .cost-ui, body.no-cost #tab-cost { display: none !important; }
+  .f-roll-row { margin-top: 6px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 8px; background: #fff; }
+  .frr-main { display: flex; gap: 6px; align-items: center; }
+  .frr-n { display: none; }
+  .modal .frr-tang, .frr-tang { display: flex; align-items: center; gap: 4px; margin: 0 !important; font-size: 12px; color: var(--muted); flex: none; }
+  .frr-tang input { width: 54px !important; padding: 8px 4px !important; text-align: center; }
+  .frr-main .f-roll-qty { flex: 1; min-width: 0; }
+  .frr-more, .frr-del { flex: none; width: 38px; height: 38px; border: none; border-radius: 8px; background: var(--b-sub); color: #555; font-size: 15px; padding: 0; }
+  .frr-more.on { background: var(--primary-dark); color: #fff; }
+  .frr-del { background: var(--b-danger-soft); color: var(--danger); font-size: 13px; }
+  .frr-tags:empty { display: none; }
+  .frr-tags { margin: 4px 0 0 2px; display: flex; flex-wrap: wrap; gap: 4px; }
+  .frr-tags span { font-size: 11.5px; color: var(--primary-dark); background: var(--b-info); border-radius: 5px; padding: 1px 6px; }
+  .f-roll-more { margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border); }
+  .frr-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-top: 8px; }
+  .f-block-sum { flex: none; font-size: 13px; font-weight: 700; color: var(--primary-dark); }
+  .frr-bulk { display: flex; gap: 6px; margin-top: 8px; align-items: center; }
+  .frr-bulk input { flex: 1; min-width: 0; padding: 8px !important; font-size: 13px !important; }
+  .frr-bulk button { flex: none; border: none; background: var(--b-sub); color: #444; border-radius: 8px; padding: 9px 10px; font-size: 12px; font-weight: 600; }
+  .frr-bulk .frr-add { background: var(--b-info); color: var(--primary-dark); }
+  .f-block-stock-info.warn { background: #fbeee6 !important; color: #a1441e !important; font-weight: 600; }
+  /* 창고 출고 화면: 큰 글씨 · 큰 버튼 */
+  body.wh-on { overflow: hidden; }
+  #wh-pane { position: fixed; inset: 0; z-index: 900; background: #f6f4f0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .wh-hd { background: var(--primary-dark); color: #fff; padding: 16px 18px 14px; position: sticky; top: 0; z-index: 2; }
+  .wh-hd h1 { margin: 2px 0 0; font-size: 25px; line-height: 1.25; word-break: keep-all; }
+  .wh-hd p { margin: 5px 0 0; font-size: 16px; opacity: .85; }
+  .wh-back { float: right; border: none; background: rgba(255,255,255,.16); color: #fff; font-size: 14px; font-weight: 600; border-radius: 8px; padding: 7px 11px; margin: -2px 0 0 8px; }
+  .wh-body { max-width: 560px; margin: 0 auto; padding: 10px 14px 40px; }
+  .wh-sec { font-size: 15px; color: #666; font-weight: 700; margin: 16px 4px 6px; }
+  .wh-card { display: block; width: 100%; text-align: left; background: #fff; border: 1px solid #e2ddd3; border-radius: 14px; padding: 14px 16px; margin: 0 0 10px; font-family: inherit; color: var(--text); }
+  .wh-card .c { display: block; font-size: 16px; color: #666; }
+  .wh-card .c i { font-style: normal; font-size: 13px; font-weight: 700; color: var(--primary-dark); background: var(--b-info); border-radius: 6px; padding: 2px 7px; margin-left: 4px; }
+  .wh-card .c i.late { color: var(--danger); background: var(--b-danger-soft); }
+  .wh-card b { display: block; font-size: 22px; font-weight: 800; margin: 3px 0; word-break: keep-all; }
+  .wh-card .q { display: block; font-size: 17px; font-weight: 700; color: var(--primary-dark); }
+  .wh-card .s { display: block; font-size: 15px; color: #4e7a5c; margin-top: 4px; }
+  .wh-card .s i { font-style: normal; font-size: 13px; font-weight: 700; background: #e6f2ea; border-radius: 6px; padding: 2px 7px; margin-left: 4px; }
+  .wh-card.sent { opacity: .72; }
+  .wh-empty { text-align: center; color: #888; font-size: 16px; line-height: 1.6; padding: 18px 8px; }
+  .wh-search { width: 100%; box-sizing: border-box; font-size: 18px !important; padding: 13px 14px !important; border: 2px solid #d9d4ca !important; border-radius: 12px !important; margin: 0 0 10px; background: #fff; }
+  .wh-big { display: block; width: 100%; border: none; border-radius: 14px; background: var(--primary-dark); color: #fff; font-size: 20px; font-weight: 800; padding: 17px 10px; margin-top: 12px; font-family: inherit; }
+  .wh-big.sub { background: var(--b-info); color: var(--primary-dark); }
+  .wh-lab { font-size: 15px; color: #666; margin: 12px 4px 6px; }
+  .wh-cuts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .wh-cuts button { background: #fff; border: 2px solid var(--primary-dark); border-radius: 12px; font-size: 21px; font-weight: 800; padding: 7px 13px; color: var(--text); font-family: inherit; }
+  .wh-disp { background: #fff; border: 3px solid var(--primary-dark); border-radius: 14px; font-size: 44px; font-weight: 800; text-align: right; padding: 8px 18px; line-height: 1.2; }
+  .wh-disp small { font-size: 22px; color: #888; }
+  .wh-kp { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+  .wh-kp button { background: #fff; border: 1px solid #d9d4ca; border-radius: 12px; font-size: 30px; font-weight: 600; padding: 12px 0; color: var(--text); font-family: inherit; }
+  .wh-kp button.g { background: var(--b-info); color: var(--primary-dark); font-size: 19px; }
+  .wh-kp button:active, .wh-card:active, .wh-big:active { filter: brightness(.93); }
+  .wh-row { display: flex; gap: 8px; } .wh-row .wh-big { flex: 1; }
+  .whq-it { border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
+  .whq-it b { font-size: 15px; } .whq-c { font-size: 14px; margin-top: 3px; } .whq-m { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .whq-a { display: flex; gap: 6px; margin-top: 8px; } .whq-a button { flex: 1; border: none; border-radius: 8px; padding: 9px; font-weight: 700; background: var(--b-sub); color: #444; } .whq-a button.p { background: var(--primary-dark); color: #fff; }
   body.no-sales #tab-sales, body.no-sales #tab-promo, body.no-sales .promo-only, body.no-premium .promo-only { display: none !important; }
   body.not-owner .owner-ui { display: none !important; }
   body.no-stock #tab-inv, body.no-order #tab-china, body.no-carry #tab-order, body.no-promo #tab-promo, body.no-promo .promo-only { display: none !important; }
@@ -142,6 +210,8 @@
   .sm-ov .sm-row .nm small { display: block; color: var(--muted); font-size: 12px; }
   .sm-ov select, .sm-ov input { padding: 8px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; }
   .sm-ov .sm-btn { border: none; border-radius: 8px; padding: 9px 12px; font-size: 13px; font-weight: 600; background: var(--primary); color: #fff; }
+  .sm-ov .sm-btn:disabled { opacity: .4; cursor: default; }
+  #lock-box a { color: var(--primary); }
   .sm-ov .sm-btn.gray { background: var(--b-sub); color: #444; }
   .sm-ov .sm-btn.red { background: var(--danger-bg); color: var(--danger); }
   .sm-ov table { border-collapse: collapse; width: 100%; font-size: 13px; }
@@ -246,6 +316,13 @@
   .rp-tbl th:nth-child(-n+2), .rp-tbl td:nth-child(-n+2) { text-align: left; cursor: default; }
   .rp-tbl td { padding: 9px 10px; border-bottom: 1px solid #f0ece5; text-align: right; white-space: nowrap; }
   .rp-tbl tbody tr { cursor: pointer; } .rp-tbl tbody tr:hover { background: #faf8f4; }
+  .imp-pv { width: 100%; border-collapse: collapse; font-size: 12.5px; } .imp-pv td { padding: 5px 8px; border-bottom: 1px solid #f0ece5; }
+  .imp-bad { background: #fdecea; color: var(--danger); border-radius: 5px; padding: 1px 6px; font-size: 11px; white-space: nowrap; }
+  .imp-det { border: 1px solid var(--border); border-radius: 8px; margin-top: 6px; background: #fff; } .imp-det summary { padding: 8px 10px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .imp-det > div { max-height: 200px; overflow: auto; padding: 0 10px 8px; font-size: 12.5px; line-height: 1.8; } .imp-det > div > div { border-bottom: 1px dashed #eee; }
+  .selall { display: flex; align-items: center; gap: 12px; font-size: 12px; color: var(--muted); margin: 6px 0; }
+  .selall button { border: none; background: none; padding: 2px 0; font-size: 12px; color: var(--primary); text-decoration: underline; cursor: pointer; font-weight: 600; }
+  .selall .cnt { margin-left: auto; }
   .more-pop { position: fixed; z-index: 2200; background: #fff; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,.18); padding: 5px; min-width: 170px; }
   .more-pop button { display: block; width: 100%; text-align: left; border: none; background: none; padding: 10px 12px; border-radius: 7px; font-size: 14px; color: var(--text); cursor: pointer; }
   .more-pop button:hover { background: var(--bg); }
@@ -437,6 +514,7 @@
   .roll-row .yd { font-weight: 700; }
   .roll-row .btns button { border: none; border-radius: 6px; padding: 5px 9px; font-size: 12px; margin-left: 5px; cursor: pointer; }
   .btn-out { background: #fce8d6; color: #a15c1e; }
+  .tang-head button { border: none; border-radius: 6px; padding: 5px 10px; font-size: 12px; font-weight: 600; cursor: pointer; } /* 탕 줄 원가·메모 버튼이 테두리 있는 기본 버튼 모양으로 보이던 것 */
   .btn-del { background: var(--danger-bg); color: var(--danger); }
 
   .cost-row {
@@ -519,8 +597,8 @@
   }
   @media (max-width: 480px) {
     .roll-row { flex-wrap: nowrap; row-gap: 6px; }
-    .roll-row .btns { flex: none; }
-    .roll-row .btns { flex: 1 1 100%; justify-content: flex-start; margin-top: 0; }
+    .roll-row .btns { flex: none; justify-content: flex-end; margin-top: 0; } /* 예전: 버튼 칸이 줄 전체를 차지해서 「절 / 75y」가 두 줄로 꺾이고 버튼이 가운데 떠 있었음 */
+    .roll-row > div:first-child { flex: 1; min-width: 0; }
   }
 
   /* 재고부족알림 칸 배치: 폰/태블릿은 1칸, 큰 화면은 2칸, 아주 넓은 화면은 3칸 (예전엔 폭에 맞춰 칸이 8-9개까지 늘어나서 보기 불편했음) */
@@ -748,6 +826,14 @@
   .cat-sum-row { display: flex; align-items: center; justify-content: space-between; background: #eef3f8; border-radius: 8px; padding: 8px 10px; font-size: 13px; margin-bottom: 6px; }
   .cat-sum-row a { color: var(--primary); font-weight: 600; font-size: 12px; }
   .cat-box { margin-top: 14px; padding: 10px 12px; background: #f7f5f0; border-radius: 10px; }
+  .cat-fold-h { display: none; }
+  #pub-block.pub-block-off { display: none !important; }
+  @media (max-width: 899px) {
+    #promoPane .cat-fold-h { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: var(--primary-dark); cursor: pointer; padding: 2px 0; }
+    #promoPane .cat-fold-h small { font-weight: 400; color: var(--muted); font-size: 11.5px; margin-left: 4px; }
+    #promoPane .cat-box.folded > :not(.cat-fold-h) { display: none !important; }
+    #promoPane .cat-box .cat-pc-only { display: none; }
+  }
   .cat-actbar { position: sticky; bottom: -1px; background: #fff; padding: 10px 0 6px; margin-top: 10px; border-top: 1px solid var(--border); z-index: 2; }
   .cat-more-btn { display: block; width: 100%; margin-top: 6px; border: none; background: none; color: var(--primary); font-size: 12px; font-weight: 600; padding: 6px 0; cursor: pointer; }
   #promoPane { padding: 0 16px 120px; max-width: 1120px; margin: 0 auto; }
@@ -865,20 +951,27 @@
   <div id="lock-box">
     <h2>원단 재고·장부</h2>
     <div id="login-pane">
-      <p>대표님은 구글로, 직원은 받은 아이디로 들어와 주세요</p>
-      <button class="lg-google" onclick="loginGoogle()"><b style="color:#4285f4;">G</b> 구글로 로그인 (대표)</button>
-      <div style="margin-top:8px;font-size:12px;"><a href="#" onclick="document.getElementById('owner-email-pane').style.display='';this.parentNode.style.display='none';return false;" style="color:var(--muted);">구글 계정이 없으면 이메일로 (대표)</a></div>
-      <div id="owner-email-pane" style="display:none;margin-top:8px;">
-        <input id="oe-email" type="email" placeholder="대표님 이메일 (네이버 메일 등)" autocapitalize="off" autocomplete="email">
-        <input id="oe-pw" type="password" placeholder="비밀번호 (6자 이상)" autocomplete="current-password">
-        <div style="display:flex;gap:6px;"><button onclick="ownerEmailLogin()" style="flex:1;">로그인</button><button onclick="ownerEmailSignup()" style="flex:1;background:#fff;color:var(--primary);border:1px solid var(--primary);">처음이면 가입</button></div>
-        <div style="margin-top:6px;font-size:12px;"><a href="#" onclick="ownerPwReset();return false;" style="color:var(--muted);">비밀번호를 잊었습니다</a></div>
+      <p>재고 · 이월 · 매출 · 미수금을 한 곳에서</p>
+      <div class="lg-seg"><button type="button" id="lg-t-owner" class="on" onclick="lgTab('owner')">대표</button><button type="button" id="lg-t-staff" onclick="lgTab('staff')">직원</button></div>
+      <div id="lg-owner">
+        <button class="lg-google" onclick="loginGoogle()"><b style="color:#4285f4;">G</b> 구글로 시작하기</button>
+        <button class="lg-alt" id="lg-email-btn" onclick="document.getElementById('owner-email-pane').style.display='';this.style.display='none';">이메일로 시작하기</button>
+        <div id="owner-email-pane" style="display:none;margin-top:8px;">
+          <input id="oe-email" type="email" placeholder="대표님 이메일 (네이버 메일 등)" autocapitalize="off" autocomplete="email">
+          <input id="oe-pw" type="password" placeholder="비밀번호 (6자 이상)" autocomplete="current-password">
+          <div style="display:flex;gap:6px;"><button onclick="ownerEmailLogin()" style="flex:1;">로그인</button><button onclick="ownerEmailSignup()" style="flex:1;background:#fff;color:var(--primary);border:1px solid var(--primary);">처음이면 가입</button></div>
+          <div style="margin-top:6px;font-size:12px;"><a href="#" onclick="ownerPwReset();return false;" style="color:var(--muted);">비밀번호를 잊었습니다</a></div>
+        </div>
+        <p class="lg-note">처음이면 가게 만들기로, 쓰던 분은 바로 장부로 들어갑니다</p>
       </div>
-      <div class="lg-or">직원 로그인</div>
-      <input id="lg-shop" placeholder="가게 코드" autocapitalize="off" autocorrect="off" spellcheck="false">
-      <input id="lg-id" placeholder="아이디" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="username">
-      <input id="pw-input" type="password" placeholder="비밀번호" autocomplete="current-password">
-      <button onclick="loginStaff()">직원 로그인</button>
+      <div id="lg-staff" style="display:none;">
+        <div id="lg-shop-line" class="lg-note" style="display:none;margin:-4px 0 10px;"></div>
+        <input id="lg-shop" placeholder="가게 코드 (대표님께 받은 코드)" autocapitalize="off" autocorrect="off" spellcheck="false">
+        <input id="lg-id" placeholder="아이디" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="username">
+        <input id="pw-input" type="password" placeholder="비밀번호" autocomplete="current-password" onkeydown="if(event.key==='Enter')loginStaff()">
+        <button onclick="loginStaff()">로그인</button>
+        <p class="lg-note">아이디가 없으면 대표님께 「직원 추가」를 부탁해 주세요</p>
+      </div>
     </div>
     <div id="verify-pane" style="display:none;">
       <p>본인 확인 메일을 보냈습니다.<br><b id="vf-email"></b></p>
@@ -888,16 +981,27 @@
       <button class="lg-sub" onclick="logout()">다른 계정으로 로그인</button>
     </div>
     <div id="newshop-pane" style="display:none;">
-      <p>이 구글 계정에 연결된 가게가 없습니다.<br>새 가게를 만드시겠습니까?</p>
-      <input id="ns-name" placeholder="가게 이름 (예: ○○섬유)">
-      <input id="ns-id" placeholder="가게 코드 (영문 소문자·숫자, 예: ossum)" autocapitalize="off" autocorrect="off" spellcheck="false">
-      <p style="margin:-4px 0 10px; text-align:left;">가게 코드는 직원 로그인과 거래처 링크에 들어가서 나중에 못 바꿉니다.</p>
-      <button onclick="createShop()">가게 만들기</button>
+      <p style="font-size:15px;color:var(--text);margin-bottom:4px;"><b>새 가게 만들기</b></p>
+      <p>한 번만 하면 됩니다</p>
+      <input id="ns-name" placeholder="가게 이름 (예: 가나섬유)">
+      <input id="ns-id" placeholder="가게 코드 (영문 소문자·숫자)" autocapitalize="off" autocorrect="off" spellcheck="false" oninput="nsCodeCheck()">
+      <p id="ns-code-msg" class="lg-note" style="margin:-4px 0 10px;text-align:left;">직원 로그인·거래처 링크 주소에 들어가서 나중에 못 바꿉니다</p>
+      <input id="ns-tel" type="tel" inputmode="tel" placeholder="대표님 연락처 (예: 010-1234-5678)" autocomplete="tel">
+      <p class="lg-note" style="margin:-4px 0 10px;text-align:left;">가입 승인되면 이 번호로 알려 드립니다</p>
+      <label class="lg-agree"><input type="checkbox" id="ns-agree"> <span><a href="terms.html" target="_blank" rel="noopener">이용약관</a>과 <a href="terms.html#privacy" target="_blank" rel="noopener">개인정보 처리방침</a>에 동의합니다 (필수)</span></label>
+      <button onclick="createShop()">가입 신청</button>
       <button class="lg-sub" onclick="logout()">다른 계정으로 로그인</button>
     </div>
     <div id="pending-pane" style="display:none;">
-      <p style="font-size:15px;"><b id="pd-title">가입 신청 완료</b></p>
+      <p style="font-size:15px;color:var(--text);margin-bottom:6px;"><b id="pd-title">가입 신청 완료</b></p>
       <p id="pd-desc" style="text-align:left;line-height:1.7;"></p>
+      <div id="pd-prep" class="lg-prep">
+        <b>기다리는 동안 준비해 두세요</b>
+        <div class="st"><i>1</i><span>지금 쓰는 장부(엑셀·노트·다른 프로그램)에서 <b>거래처별 미수금</b> 정리</span></div>
+        <div class="st"><i>2</i><span>재고가 정리돼 있으면 <b>품목·컬러·야드</b></span></div>
+        <div class="st"><i>3</i><span>쓰던 엑셀에서 그대로 복사해 붙여 넣을 수 있어서, 양식에 옮겨 적지 않아도 됩니다</span></div>
+        <button class="lg-alt" onclick="downloadImportTemplate()">엑셀 양식 내려받기 (선택)</button>
+      </div>
       <p id="pd-contact" style="text-align:left;"></p>
       <button onclick="location.reload()">상태 다시 확인</button>
       <button class="lg-sub" onclick="logout()">로그아웃</button>
@@ -929,7 +1033,7 @@
 </div>
 
 <div class="controls">
-  <input id="search" type="text" placeholder="품번(품목) 또는 칼라 검색">
+  <input id="search" type="text" placeholder="품번(품목) 또는 컬러 검색">
   <div class="chip-row" id="chipRow"></div>
   <div id="invTools" class="hidden" style="display:flex; gap:6px; margin-top:6px; flex-wrap:wrap;">
     <button id="sortToggleBtn" onclick="toggleSortMode()" style="border:none;background:var(--b-info);color:var(--primary-dark);border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;"></button>
@@ -978,7 +1082,7 @@
   <div id="pm-lock" class="hidden"></div>
   <div id="pm-main">
   <div id="pm-grace"></div>
-  <div class="pm-sum" id="pm-sum"></div>
+  <div class="pm-sum" id="pm-sum" style="display:none;"></div><!-- 숫자 카드 3개는 아래 탭과 겹쳐서 숨김 (사진 없는 품번 수는 「이미지 꾸미기 · 사진」 제목에) -->
   <div class="pm-seg"><button type="button" id="pm-seg-new" onclick="promoSeg('new')">신상/베스트</button><button type="button" id="pm-seg-stock" onclick="promoSeg('stock')">재고표</button><button type="button" id="pm-seg-share" onclick="promoSeg('share')">거래처</button><button type="button" id="pm-seg-req" onclick="promoSeg('req')">요청<span class="pm-badge hidden" id="pm-req-n"></span></button><button type="button" id="pm-seg-photo" onclick="promoSeg('photo')">사진·정보</button></div>
   <div id="pm-host"></div>
   <div id="pm-photo" class="hidden"></div>
@@ -1013,13 +1117,15 @@
 <!-- 출고 모달 -->
 <div class="modal-overlay" id="outModal">
   <div class="modal">
-    <h3>출고 처리</h3>
+    <h3>재고 빼기</h3>
     <p id="out-desc" style="font-size:13px;color:var(--muted);margin-top:-6px;"></p>
-    <label>출고할 마수(y)</label>
-    <input id="out-qty" type="number" placeholder="예: 20">
+    <div style="font-size:12.5px;color:var(--primary-dark);background:var(--b-info);border-radius:8px;padding:8px 10px;line-height:1.5;">매출 기록 없이 재고만 줄입니다 (샘플 컷 · 실측 차이 · 분실 등). 거래처에 나간 원단은 이월장부 「출고 처리」나 매출로 넣어야 미수금에 잡힙니다.</div>
+    <label>뺄 마수(y)</label>
+    <input id="out-qty" type="number" inputmode="decimal" placeholder="예: 20" onkeydown="if(event.key==='Enter'){event.preventDefault(); confirmOut()}">
+    <button type="button" id="out-to-sale" onclick="outToSale()" style="border:none;background:none;color:var(--primary-dark);font-size:13px;font-weight:600;text-decoration:underline;padding:10px 2px 0;">거래처에 판 원단이면 → 매출로 넣기</button>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeOutModal()">취소</button>
-      <button class="btn-save" onclick="confirmOut()">출고</button>
+      <button class="btn-save" onclick="confirmOut()">빼기</button>
     </div>
   </div>
 </div>
@@ -1223,11 +1329,19 @@
   <div class="modal">
     <h3>입고 처리</h3>
     <p id="china-receive-desc" style="font-size:13px;color:var(--muted);margin-top:-6px;"></p>
+    <div id="china-recv-main">
+      <button type="button" class="btn-save" onclick="chinaReceiveToStock()" style="width:100%;padding:14px;font-size:16px;margin-top:6px;">재고에 넣기</button>
+      <p style="font-size:12.5px;color:var(--muted);margin:8px 2px 0;line-height:1.5;">절별 마수를 넣으면 재고에 들어가고, 이 발주도 같이 완료됩니다. 덜 왔으면 남은 만큼 다시 대기로 남깁니다.</p>
+      <button type="button" onclick="chinaReceiveOnly()" style="border:none;background:none;color:var(--muted);font-size:13px;text-decoration:underline;padding:12px 2px 2px;">재고에 넣지 않고 완료만 표시</button>
+    </div>
+    <div id="china-recv-only" class="hidden">
+    <p style="font-size:12.5px;color:var(--muted);margin:0 2px 4px;">재고는 바뀌지 않습니다 (거래처로 바로 간 원단 등)</p>
     <label>이번에 실제로 입고된 수량</label>
     <input id="china-receive-qty" placeholder="예: 2절">
     <label>남은 수량 (이월)</label>
     <input id="china-receive-remain" placeholder="예: 1절">
-    <div class="modal-actions">
+    </div>
+    <div class="modal-actions" id="china-recv-actions">
       <button class="btn-cancel" onclick="closeChinaReceiveModal()">취소</button>
       <button class="btn-save" onclick="confirmChinaReceive()">확인</button>
     </div>
@@ -1323,7 +1437,7 @@
       <button type="button" onclick="openCustomerPicker('o-customer')" style="border:none;background:var(--b-info);color:#3d4f6b;border-radius:8px;padding:0 10px;height:38px;font-size:12px;flex:none;">목록</button>
     </div>
 
-    <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text);margin-top:10px;background:#fff3d6;padding:8px 10px;border-radius:8px;"><input type="checkbox" id="o-sample" style="width:auto;"> 샘플 주문 <span style="font-size:11px;color:#a15c1e;font-weight:500;">(샘플 내역서에 자동으로 모입니다)</span></label>
+    <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text);margin-top:10px;background:var(--b-sub);padding:8px 10px;border-radius:8px;"><input type="checkbox" id="o-sample" style="width:auto;"> 샘플 주문 <span style="font-size:11px;color:#a15c1e;font-weight:500;">(샘플 내역서에 자동으로 모입니다)</span></label>
 
     <div id="o-multi-wrap">
       <div id="o-multi-list"></div>
@@ -1336,7 +1450,7 @@
       <input id="o-factory" placeholder="예: 010-0000-0000 또는 매장" autocomplete="off" oninput="showFactorySuggestions(this)" onfocus="showFactorySuggestions(this)" onblur="hideItemSuggestionsDelayed()">
       <div class="row2">
         <div><label>품목</label><input id="o-item" placeholder="예: 피넛" autocomplete="off" oninput="showItemSuggestions(this)" onfocus="showItemSuggestions(this)" onblur="hideItemSuggestionsDelayed()"></div>
-        <div><label>칼라</label><input id="o-color" placeholder="예: 1번연베지" autocomplete="off" oninput="showColorSuggestions(this,'o-item')" onfocus="showColorSuggestions(this,'o-item')" onblur="hideItemSuggestionsDelayed()"></div>
+        <div><label>컬러</label><input id="o-color" placeholder="예: 1번연베지" autocomplete="off" oninput="showColorSuggestions(this,'o-item')" onfocus="showColorSuggestions(this,'o-item')" onblur="hideItemSuggestionsDelayed()"></div>
       </div>
       <div id="o-qty-wrap">
         <label>주문 수량</label>
@@ -1349,7 +1463,7 @@
       <label>단위</label>
       <select id="o-unit" onchange="onOrderEditUnitChanged()">
         <option value="y">y (야드)</option>
-        <option value="절">절 (1절 ≈ 50~60y)</option>
+        <option value="절">절 (1절 ≈ 50-60y)</option>
       </select>
       <div id="o-received-wrap" class="hidden">
         <label>출고된 양</label>
@@ -1416,7 +1530,7 @@
 
     <div id="or-preinvoice-notice" class="hidden" style="font-size:13px; color:#2f6b46; background:#eaf3ec; border-radius:8px; padding:8px 10px; margin-top:8px;">이미 선수금 명세서에서 매출이 잡혀있습니다. 이번엔 재고만 차감됩니다.</div>
 
-    <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text);margin-top:8px;background:#fff3d6;padding:8px 10px;border-radius:8px;"><input type="checkbox" id="or-sample-mode" onchange="onSampleModeChange()" style="width:auto;"> 샘플 제공</label>
+    <label style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text);margin-top:8px;background:var(--b-sub);padding:8px 10px;border-radius:8px;"><input type="checkbox" id="or-sample-mode" onchange="onSampleModeChange()" style="width:auto;"> 샘플 제공</label>
 
     <div id="or-price-section">
       <label>매출 입력 방식</label>
@@ -1473,7 +1587,7 @@
     <label id="ret-type-extra-label" style="display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text);margin-top:6px;"><input type="radio" name="ret-type" value="extra" style="width:auto;" onchange="onReturnTypeChange()"> 추가금 (운임비 등, 매출에 그대로 더해짐)</label>
     <label>거래처</label>
     <div style="display:flex; gap:6px; align-items:center;">
-      <input id="ret-customer" placeholder="예: 메이원" autocomplete="off" oninput="showCustomerSuggestions(this)" onfocus="showCustomerSuggestions(this)" onblur="hideItemSuggestionsDelayed()" style="flex:1;">
+      <input id="ret-customer" placeholder="예: 거래처 이름" autocomplete="off" oninput="showCustomerSuggestions(this)" onfocus="showCustomerSuggestions(this)" onblur="hideItemSuggestionsDelayed()" style="flex:1;">
       <button type="button" onclick="openCustomerPicker('ret-customer')" style="border:none;background:var(--b-info);color:#3d4f6b;border-radius:8px;padding:0 10px;height:38px;font-size:12px;flex:none;">목록</button>
     </div>
 
@@ -1537,8 +1651,9 @@
         <button type="button" id="cat-stock-clear" class="cat-mini gray" onclick="catClearItems()" style="display:none;">전체 비우기</button>
       </div>
     </div>
-    <div class="cat-box">
-      <div class="cat-sec-h" style="margin-top:0;"><span>이미지</span></div>
+    <div class="cat-box folded" id="cat-box">
+      <div class="cat-fold-h" onclick="catFoldToggle()"><span>이미지 꾸미기 · 사진 <small id="cat-fold-sum"></small></span><b id="cat-fold-arr">▾</b></div>
+      <div class="cat-sec-h cat-pc-only" style="margin-top:0;"><span>이미지</span></div>
       <label>제목</label>
       <input id="cat-title" type="text" style="width:100%;">
       <label>형식</label>
@@ -1573,13 +1688,13 @@
       <button type="button" class="cat-mini" onclick="openColorPhotoModal()" style="width:100%; margin-top:8px; padding:9px 4px;">컬러 사진 등록</button>
     </div>
     <div class="cat-actbar">
-      <div id="cat-count" style="font-size:12px; color:var(--primary-dark); font-weight:600; margin-bottom:6px;"></div>
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px;"><div id="cat-count" style="font-size:12px; color:var(--primary-dark); font-weight:600;"></div><a href="#" onclick="generateCatalog('preview');return false;" style="font-size:12px; color:var(--primary); flex:none;">미리보기</a></div>
       <div style="display:flex; gap:6px;">
-        <button type="button" onclick="generateCatalog('preview')" style="flex:1;border:none;background:var(--b-info);color:#3d4f6b;border-radius:8px;padding:10px 4px;font-size:13px;font-weight:600;">미리보기</button>
-        <button type="button" onclick="generateCatalog('share')" style="flex:1;border:none;background:var(--primary);color:#fff;border-radius:8px;padding:10px 4px;font-size:13px;font-weight:700;"><span class="kakao-lbl">카톡으로 보내기</span></button>
+        <button type="button" onclick="generateCatalog('share')" style="flex:1;border:none;background:var(--b-info);color:var(--primary-dark);border-radius:8px;padding:11px 4px;font-size:13.5px;font-weight:700;"><span class="kakao-lbl">카톡으로 보내기</span></button>
+        <button type="button" id="pub-go-btn" data-menu="[[&quot;#고객 페이지에 올리기&quot;],[&quot;신상 입고&quot;,&quot;pubGo('new')&quot;],[&quot;Best · F/W&quot;,&quot;pubGo('best_fw')&quot;],[&quot;Best · S/S&quot;,&quot;pubGo('best_ss')&quot;],[&quot;#관리&quot;],[&quot;올라간 목록 · 링크 관리&quot;,&quot;openPubModal()&quot;]]" onclick="event.stopPropagation(); openMoreMenu(this)" style="flex:1;border:none;background:var(--primary);color:#fff;border-radius:8px;padding:11px 4px;font-size:13.5px;font-weight:700;">고객 페이지에 올리기 ▾</button>
       </div>
     </div>
-    <div id="pub-block" style="margin-top:14px; padding-top:6px; border-top:1px solid var(--border);">
+    <div id="pub-block" class="pub-block-off"><!-- 고객 페이지 올리기는 아래 고정 줄의 「고객 페이지에 올리기 ▾」로 옮김 (예전: 화면 맨 아래) -->
       <label style="margin-top:6px;">고객 페이지 올리기 (카톡 채널 메뉴 링크)</label>
       <div style="display:flex; gap:6px;">
         <select id="pub-sec" style="flex:1;">
@@ -1830,8 +1945,8 @@
     </div>
     <label>빠른 선택</label>
     <div style="display:flex; gap:6px; flex-wrap:wrap;">
-      <button onclick="setStatementPreset('first-half')" style="border:none;background:var(--b-sub);border-radius:8px;padding:6px 10px;font-size:12px;">이번달 1~15일(보름)</button>
-      <button onclick="setStatementPreset('second-half')" style="border:none;background:var(--b-sub);border-radius:8px;padding:6px 10px;font-size:12px;">이번달 16~말일</button>
+      <button onclick="setStatementPreset('first-half')" style="border:none;background:var(--b-sub);border-radius:8px;padding:6px 10px;font-size:12px;">이번달 1-15일</button>
+      <button onclick="setStatementPreset('second-half')" style="border:none;background:var(--b-sub);border-radius:8px;padding:6px 10px;font-size:12px;">이번달 16일-말일</button>
       <button onclick="setStatementPreset('this-month')" style="border:none;background:var(--b-sub);border-radius:8px;padding:6px 10px;font-size:12px;">이번달 전체</button>
       <button onclick="setStatementPreset('last-month')" style="border:none;background:var(--b-sub);border-radius:8px;padding:6px 10px;font-size:12px;">지난달 전체</button>
     </div>
@@ -1912,12 +2027,12 @@
     <input id="sale-edit-date" type="date">
     <div class="row2">
       <div><label>품목</label><input id="sale-edit-item" placeholder="예: 버블" autocomplete="off" oninput="showItemSuggestions(this)" onfocus="showItemSuggestions(this)" onblur="hideItemSuggestionsDelayed()"></div>
-      <div><label>칼라</label><input id="sale-edit-color" placeholder="예: 2번진청" autocomplete="off" oninput="showColorSuggestions(this,'sale-edit-item')" onfocus="showColorSuggestions(this,'sale-edit-item')" onblur="hideItemSuggestionsDelayed()"></div>
+      <div><label>컬러</label><input id="sale-edit-color" placeholder="예: 2번진청" autocomplete="off" oninput="showColorSuggestions(this,'sale-edit-item')" onfocus="showColorSuggestions(this,'sale-edit-item')" onblur="hideItemSuggestionsDelayed()"></div>
     </div>
     <label>출고 수량(y)</label>
     <input id="sale-edit-yards" type="number" step="0.1">
     <label id="sale-edit-skipinv-wrap" style="display:flex;align-items:center;gap:6px;font-size:13px;color:#a15c1e;margin-top:4px;">
-      <input type="checkbox" id="sale-edit-skip-inventory" style="width:auto;"> 이미 지난 매출입니다 (재고는 이미 빠졌거나 상관없음 - 이번엔 재고 건드리지 않기)
+      <input type="checkbox" id="sale-edit-skip-inventory" style="width:auto;"> 재고에서 빼지 않기 (이미 뺐거나 재고와 상관없는 매출)
     </label>
     <div id="sale-edit-breakdown-wrap" class="hidden">
       <label id="sale-edit-breakdown-wrap-label">절별로 나눠서 수정 (자동 채우기로 조정 가능)</label>
@@ -1969,7 +2084,7 @@
       <input id="sale-edit-extra-reason" placeholder="예: 급송비">
     </div>
 
-    <p style="font-size:12px;color:var(--muted);">수정: 재고 변동 없음(단가·금액 정정용) · 새 품목 추가: 재고 차감 · 삭제: 이월장부·재고 원복</p>
+    <p id="sale-edit-foot" style="font-size:12px;color:var(--muted);"></p>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeSaleEditModal()">취소</button>
       <button id="sale-edit-delete-btn" class="btn-cancel hidden" style="background:var(--b-danger-soft);color:var(--danger);" onclick="deleteSaleEntry()">삭제</button>
@@ -2342,6 +2457,7 @@ function parseChinaQtyForAutoMatch(qtyStr) {
   if (m) return { unit: 'y', value: parseFloat(m[1]) };
   return null;
 }
+let _rollAddPrefChinaId = null; // 발주에서 「재고에 넣기」로 열었을 때 그 발주를 먼저 짝지음
 function findWaitingChinaOrderMatch(item, color, excludeIds) {
   // 이 품목·컬러로 아직 대기중인 중국발주 중 제일 오래된 것 하나를 찾음 (여러개면 오래된 것부터 순서대로 처리하는 게 자연스러우니까)
   // excludeIds: 이번 재고등록 한 번 안에서 이미 다른 컬러블록이 처리를 결정한 발주 id들 - 같은 컬러를 실수로 여러 블록에 나눠 입력해도 같은 발주가 중복으로 안 걸리게 함
@@ -2349,6 +2465,7 @@ function findWaitingChinaOrderMatch(item, color, excludeIds) {
   const targetKey = chinaOrderMatchKey(t_item, t_color); // # 유무/띄어쓰기/표기 차이가 있어도 같은 컬러로 찾음
   const matches = chinaOrders.filter(o => o.status !== 'received' && !(excludeIds && excludeIds.has(o.id)) && ((String(o.item).trim() === t_item && String(o.color).trim() === t_color) || chinaOrderMatchKey(o.item, o.color) === targetKey));
   if (matches.length === 0) return null;
+  if (_rollAddPrefChinaId != null) { const pf = matches.find(o => o.id === _rollAddPrefChinaId); if (pf) return pf; }
   matches.sort((a, b) => String(a.date).localeCompare(String(b.date)));
   return matches[0];
 }
@@ -2449,6 +2566,8 @@ function genUniqueId() {
 }
 let nextLogId = 1;
 let salesAdminUnlocked = false;
+let whqItems = [], _whqUnsub = null, _whqPending = null, _whAutoTried = false;
+let _wh = { open: false, view: 'list', q: '', ctx: null, pq: '' };
 let salesDayFilter = monthStartStr(); // 기본은 이번 달 1일부터
 let salesDayFilterEnd = monthEndStr(); // 기본은 이번 달 말일까지 - 달력으로 하루만 고르면 그날만 보임
 let orderDayFilter = null; // 이월장부를 등록일 기준으로 볼 때 쓰는 날짜(없으면 전체)
@@ -2649,23 +2768,69 @@ async function askCostMgrOnce() { // 매니저를 처음 둘 때 한 번 묻기 
 }
 const ROLE_LABEL = { owner: '대표', manager: '매니저', staff: '직원' };
 function lockMsg(t) { const el = document.getElementById('lock-error'); if (el) el.textContent = t || ''; }
+function lgTab(t) { // 첫 화면 대표 / 직원
+  document.getElementById('lg-owner').style.display = t === 'owner' ? '' : 'none';
+  document.getElementById('lg-staff').style.display = t === 'staff' ? '' : 'none';
+  document.getElementById('lg-t-owner').classList.toggle('on', t === 'owner');
+  document.getElementById('lg-t-staff').classList.toggle('on', t === 'staff');
+  lockMsg('');
+}
+function lgStaffPrefill() { // 직원이 받은 링크(app.html?shop=코드&id=아이디)로 들어오면 가게 코드·아이디를 채워 둠 → 비밀번호만
+  let shop = '', id = '';
+  try { const q = new URLSearchParams(location.search); shop = (q.get('shop') || '').toLowerCase(); id = (q.get('id') || '').toLowerCase(); } catch (e) { /* 없음 */ }
+  if (!SHOP_CODE_RE.test(shop)) { shop = ''; try { shop = localStorage.getItem('lastShopCode') || ''; } catch (e) { shop = ''; } }
+  if (!shop) return;
+  document.getElementById('lg-shop').value = shop;
+  if (id && LOGIN_ID_RE.test(id)) document.getElementById('lg-id').value = id;
+  lgTab('staff');
+  const line = document.getElementById('lg-shop-line'), inp = document.getElementById('lg-shop');
+  inp.style.display = 'none'; line.style.display = '';
+  line.innerHTML = `가게 코드 <b>${esc(shop)}</b> · <a href="#" onclick="document.getElementById('lg-shop').style.display='';document.getElementById('lg-shop-line').style.display='none';document.getElementById('lg-shop').focus();return false;">다른 가게</a>`;
+  try { db.collection('shops').doc(shop).collection('public').doc('brand').get().then(d => { const n = d.exists && d.data().name; if (n) line.innerHTML = `<b>${esc(n)}</b> 직원 로그인 · <a href="#" onclick="document.getElementById('lg-shop').style.display='';document.getElementById('lg-shop-line').style.display='none';document.getElementById('lg-shop').focus();return false;">다른 가게</a>`; }).catch(() => {}); } catch (e) { /* 가게 이름 없이 */ }
+  setTimeout(() => { const el = document.getElementById(document.getElementById('lg-id').value ? 'pw-input' : 'lg-id'); if (el) el.focus(); }, 50);
+}
+function nsSuggestCode() { // 가게 코드 미리 채우기: 이메일 앞부분 (영문·숫자만). 대표가 바꿔도 됨
+  const el = document.getElementById('ns-id'); if (!el || el.value) return;
+  const u = firebase.auth().currentUser; let c = String((u && u.email) || '').split('@')[0].toLowerCase().replace(/[^a-z0-9-]/g, '').replace(/^-+/, '').slice(0, 24);
+  if (!/^[a-z0-9]/.test(c) || c.length < 3) c = 'shop' + Math.floor(1000 + Math.random() * 9000);
+  el.value = c; nsCodeCheck();
+}
+let _nsTimer = null, _nsSeq = 0;
+function nsCodeCheck() { // 쓸 수 있는 코드인지 바로 알려 줌 (없는 코드는 서버가 "없음"으로 답하고, 남의 가게 코드는 거부됨 = 이미 있음)
+  const el = document.getElementById('ns-id'), msg = document.getElementById('ns-code-msg'); if (!el || !msg) return;
+  const v = el.value.trim().toLowerCase(); if (el.value !== v) el.value = v;
+  const base = '직원 로그인·거래처 링크 주소에 들어가서 나중에 못 바꿉니다';
+  clearTimeout(_nsTimer);
+  if (!v) { msg.innerHTML = base; return; }
+  if (!SHOP_CODE_RE.test(v)) { msg.innerHTML = `<span class="bad">영문 소문자·숫자·- 로 2-30자 (첫 글자는 영문·숫자)</span>`; return; }
+  msg.innerHTML = '확인하는 중...';
+  const seq = ++_nsSeq;
+  _nsTimer = setTimeout(async () => {
+    let taken = false; try { const d = await db.collection('shops').doc(v).get(); taken = d.exists; } catch (e) { taken = true; }
+    if (seq !== _nsSeq) return;
+    msg.innerHTML = taken ? `<span class="bad">이미 있는 코드입니다. 다른 코드를 정해 주세요</span>` : `<span class="ok">✓ 쓸 수 있는 코드입니다</span> · ${base}`;
+  }, 350);
+}
 function showLockPane(which) {
   document.getElementById('lock-screen').style.display = '';
   document.getElementById('login-pane').style.display = which === 'login' ? '' : 'none';
   document.getElementById('newshop-pane').style.display = which === 'newshop' ? '' : 'none';
   document.getElementById('verify-pane').style.display = which === 'verify' ? '' : 'none';
   document.getElementById('pending-pane').style.display = which === 'pending' ? '' : 'none';
+  if (which === 'newshop') setTimeout(nsSuggestCode, 0);
 }
+const TERMS_VER = '2026-11-draft'; // 약관 판 - 약관을 고치면 바꿈 (가입할 때 어느 판에 동의했는지 남김)
 // 서비스 운영자 연락처 (가입 승인 대기 화면·고객센터에 표시) - 정해지면 채우기
 const SERVICE_SUPPORT = { kakao: '', tel: '' };
 function showShopStatusPane(status, shopName) {
   const pending = status === 'pending';
   document.getElementById('pd-title').textContent = pending ? '가입 신청 완료' : '사용이 중지된 가게입니다';
   document.getElementById('pd-desc').innerHTML = pending
-    ? `<b>${esc(shopName || '')}</b> 가게 신청이 접수되었습니다.<br>확인 후 승인되면 이 화면이 자동으로 넘어가고 바로 쓸 수 있습니다.`
+    ? `<b>${esc(shopName || '')}</b> 가게 신청이 접수되었습니다.<br>보통 <b>영업일 하루 안에</b> 승인되고, 승인되면 이 화면이 저절로 넘어가서 바로 쓸 수 있습니다.`
     : `<b>${esc(shopName || '')}</b> 가게는 지금 사용할 수 없습니다.<br>장부 내용은 그대로 보관되어 있습니다.`;
   const c = SERVICE_SUPPORT;
   document.getElementById('pd-contact').innerHTML = (c.kakao || c.tel) ? `문의: ${c.kakao ? `<a href="${esc(c.kakao)}" target="_blank" rel="noopener">카카오톡 상담</a>` : ''}${c.kakao && c.tel ? ' · ' : ''}${c.tel ? `<a href="tel:${esc(c.tel)}">${esc(c.tel)}</a>` : ''}` : '';
+  const prep = document.getElementById('pd-prep'); if (prep) prep.style.display = pending ? '' : 'none';
   showLockPane('pending');
 }
 function applyRoleChrome() {
@@ -2746,7 +2911,7 @@ function settingsSections() {
     own && ['발', '발주처', '발주처별 통화·도착 요일', sup ? `${sup}곳` : '', 'openSupplierModal()'],
   ]);
   sec('데이터', [
-    own && ['엑', '엑셀로 장부 넣기', '거래처·미수금·재고 첫 세팅', '', 'openImportModal()'],
+    own && ['엑', '장부 넣기', '쓰던 엑셀에서 거래처·미수금·재고 붙여넣기', '', 'openImportModal()'],
     mgr && can('sales') && ['백', '백업·복구', '자동 백업 목록에서 되돌리기', '', go('sales', 'showAvailableBackups()')],
     can('sales') && ['저', '지금 백업', '', '', 'manualBackupNow()'],
     mgr && can('sales') && ['매', '매출장부 내보내기·정리', '오래된 매출 기록을 파일로 받고 정리', '', go('sales', 'archiveOldSalesLog()')],
@@ -2762,6 +2927,7 @@ function settingsSections() {
   const pw = ROLE !== 'owner' || (cu && !/google/.test(((cu.providerData || [])[0] || {}).providerId || ''));
   sec('내 계정', [
     ['', '사용 안내', '기능별 사용법 · 데이터 보호 · 자주 묻는 질문', '', "window.open('guide.html', '_blank')"],
+    ['', '이용약관 · 개인정보 처리방침', '가입할 때 동의한 내용', '', "window.open('terms.html', '_blank')"],
     pw && ['비', '비밀번호 변경', '', '', 'changeMyPassword()'],
     !isInstalledApp() && ['앱', '앱으로 설치', '홈 화면에 아이콘 추가', '', 'installApp()'],
     ['↩', '로그아웃', '', '', 'logout()', 'red'],
@@ -3003,7 +3169,7 @@ async function logout() { try { await firebase.auth().signOut(); } catch (e) { /
 let _booted = false;
 let _memberUnsub = null;
 async function onAuthChanged(user) {
-  if (!user) { showLockPane('login'); try { const last = localStorage.getItem('lastShopCode'); if (last) document.getElementById('lg-shop').value = last; } catch (e) { /* 없음 */ } return; }
+  if (!user) { showLockPane('login'); lgStaffPrefill(); return; }
   if (_booted) return;
   lockMsg('가게 정보를 확인하는 중...');
   { const sup = (String(location.hash).match(/support=([a-z0-9-]{2,30})/) || [])[1]; if (sup && await supportBoot(user, sup)) return; } // 운영자 지원 보기
@@ -3058,13 +3224,16 @@ async function createShop() {
   const id = document.getElementById('ns-id').value.trim().toLowerCase();
   if (!name) { lockMsg('가게 이름을 입력해 주세요'); return; }
   if (!SHOP_CODE_RE.test(id)) { lockMsg('가게 코드는 영문 소문자·숫자·- 로 2-30자입니다'); return; }
+  const tel = document.getElementById('ns-tel').value.trim(), telD = tel.replace(/[^0-9]/g, '');
+  if (telD.length < 9 || telD.length > 11) { lockMsg('연락처를 확인해 주세요 (예: 010-1234-5678)'); return; }
+  if (!document.getElementById('ns-agree').checked) { lockMsg('이용약관·개인정보 처리방침에 동의해 주세요'); return; }
   const shopRef = db.collection('shops').doc(id);
   const now = new Date().toISOString();
   try {
     await db.runTransaction(async tx => {
       const s = await tx.get(shopRef);
       if (s.exists) throw new Error('TAKEN');
-      tx.set(shopRef, { name, ownerUid: user.uid, ownerEmail: user.email || '', ownerName: user.displayName || '', plan: 'trial', status: 'pending', createdAt: now }); // 운영자가 승인해야 쓸 수 있음
+      tx.set(shopRef, { name, ownerUid: user.uid, ownerEmail: user.email || '', ownerName: user.displayName || '', ownerTel: tel.slice(0, 20), agreedAt: now, termsVer: TERMS_VER, plan: 'trial', status: 'pending', createdAt: now }); // 운영자가 승인해야 쓸 수 있음 (연락처·약관 동의 시각 같이 남김)
       tx.set(shopRef.collection('members').doc(user.uid), { role: 'owner', name: user.displayName || '대표', email: user.email || '', active: true, createdAt: now });
       tx.set(db.collection('users').doc(user.uid), { shopId: id });
     });
@@ -3283,7 +3452,8 @@ function parseImportWorkbook(X, wb) {
   // 기초미수금·이월에만 있는 거래처는 거래처 목록에 자동 추가
   const extra = [];
   for (const x of out.unpaid.concat(out.orders)) if (!custSet.has(x.customer)) { custSet.add(x.customer); out.custs.push(x.customer); extra.push(x.customer); }
-  if (extra.length) notes.push(`거래처 시트에 없던 ${extra.length}곳(${extra.slice(0, 5).join(', ')}${extra.length > 5 ? ' 등' : ''})은 거래처 목록에 자동으로 넣습니다`);
+  { const have = new Set((typeof customerList !== 'undefined' ? customerList : []).map(n => String(n).trim())); const nw = extra.filter(n => !have.has(String(n).trim()));
+    if (nw.length) notes.push(`거래처 목록에 없던 ${nw.length}곳(${nw.slice(0, 5).join(', ')}${nw.length > 5 ? ' 등' : ''})은 거래처 목록에 자동으로 넣습니다`); }
   return { out, errs, notes, marks };
 }
 const IMPORT_LBL = { custs: '거래처', items: '품목·컬러', rolls: '재고', unpaid: '기초미수금', orders: '미출고이월', costs: '원가표' };
@@ -3329,20 +3499,88 @@ async function downloadMarkedWorkbook() {
     showToast('틀린 칸을 표시한 엑셀을 내려받았습니다');
   } catch (e) { showToast('표시한 엑셀을 만들지 못했습니다. 글로 된 목록을 보고 고쳐 주세요'); }
 }
-async function openImportModal() {
+let _impMode = 'paste', _impKind = 'unpaid';
+const IMP_PASTE = { // 붙여넣기로 넣기: 쓰던 엑셀에서 칸을 복사해 붙여 넣으면 양식 시트로 바꿔서 같은 검사·미리보기를 거침
+  unpaid: { lbl: '거래처 미수금', cols: '거래처명 · 미수금', opt: ' (셋째 칸에 기준일을 넣어도 됨)', ex: '가나상사\t1,250,000\n다라패션\t380,000', num: 1, sheet: 'unpaid', row: c => [c[0], c[1], c[2] || ''] },
+  custs: { lbl: '거래처 목록', cols: '거래처명', opt: ' (미수금 없는 거래처까지 목록만)', ex: '가나상사\n다라패션', num: -1, sheet: 'custs', row: c => [c[0]] },
+  rolls: { lbl: '재고', cols: '품목 · 컬러 · 야드', opt: ' (넷째 칸에 탕 번호를 넣어도 됨, 절마다 한 줄이면 가장 정확)', ex: '머핀\t43검정\t55\n머핀\t43검정\t52', num: 2, sheet: 'rolls', row: c => [c[0], c[1], c[3] || '', c[2], ''] },
+  costs: { lbl: '원가', cols: '품목 · 수입/국내 · 단가', opt: ' (수입은 위안, 국내는 야드당 원)', ex: '머핀\t수입\t12.5\n코튼20수\t국내\t2,300', num: 2, sheet: 'costs', row: c => [c[0], c[1], c[2], ''] },
+};
+function impPasteRows() { // 붙여 넣은 글 → 칸 나누기 (엑셀 복사는 탭으로 나뉨. 탭이 없으면 마지막 숫자를 금액·야드로 봄)
+  const P = IMP_PASTE[_impKind], ta = document.getElementById('imp-paste');
+  const lines = String((ta && ta.value) || '').replace(/\r/g, '').split('\n').map(l => l.replace(/\s+$/, '')).filter(l => l.trim() !== '');
+  const rows = [];
+  for (const l of lines) {
+    let c;
+    if (l.includes('\t')) c = l.split('\t').map(x => x.trim());
+    else if (/\s{2,}/.test(l.trim())) c = l.trim().split(/\s{2,}/);
+    else {
+      const t = l.trim().split(/\s+/);
+      if (_impKind === 'custs') c = [l.trim()];
+      else if (_impKind === 'unpaid') c = t.length >= 2 ? [t.slice(0, -1).join(' '), t[t.length - 1]] : t;
+      else if (_impKind === 'rolls') c = t.length >= 3 ? [t.slice(0, -2).join(' '), t[t.length - 2], t[t.length - 1]] : t;
+      else c = t.length >= 3 ? [t.slice(0, -2).join(' '), t[t.length - 2], t[t.length - 1]] : t;
+    }
+    rows.push(c);
+  }
+  let header = false; // 첫 줄이 제목(「거래처명 · 미수금」 같은 글)이면 건너뜀
+  if (rows.length && P.num >= 0) { const v = impNum(rows[0][P.num]); if (v === null || isNaN(v)) header = true; }
+  else if (rows.length && /^(거래처|거래처명|상호|업체|업체명)$/.test(String(rows[0][0] || '').trim())) header = true;
+  return { rows: header ? rows.slice(1) : rows, header };
+}
+function impPastePreview() {
+  const box = document.getElementById('imp-paste-pv'); if (!box) return;
+  const { rows, header } = impPasteRows(), P = IMP_PASTE[_impKind];
+  if (!rows.length) { box.innerHTML = ''; return; }
+  const seen = new Map(); rows.forEach(c => { const k = _impKind === 'rolls' ? '' : String(c[0] || '').trim(); if (k) seen.set(k, (seen.get(k) || 0) + 1); });
+  let bad = 0, sum = 0;
+  const tr = rows.slice(0, 300).map((c, i) => {
+    let why = '';
+    if (!String(c[0] || '').trim()) why = '이름이 비어 있음';
+    else if (P.num >= 0) { const v = impNum(c[P.num]); if (v === null || isNaN(v)) why = '숫자가 아님'; else if (_impKind === 'unpaid') sum += v; }
+    if (!why && _impKind !== 'rolls' && seen.get(String(c[0]).trim()) > 1) why = '두 번 나옴';
+    if (why) bad++;
+    const shown = _impKind === 'custs' ? [c[0]] : _impKind === 'unpaid' ? [c[0], c[1]] : _impKind === 'rolls' ? [c[0] + ' ' + (c[1] || ''), c[2]] : [c[0] + ' · ' + (c[1] || ''), c[2]];
+    return `<tr><td style="color:var(--muted);width:26px;">${i + 1}</td><td>${esc(shown[0] || '')}</td>${shown.length > 1 ? `<td style="text-align:right;">${esc(shown[1] == null ? '' : shown[1])}</td>` : ''}<td style="text-align:right;">${why ? `<span class="imp-bad">${why}</span>` : '<span style="color:#1a7a4a;">✓</span>'}</td></tr>`;
+  }).join('');
+  box.innerHTML = `${header ? '<div style="font-size:11.5px;color:var(--muted);margin:6px 0 2px;">첫 줄은 제목으로 보고 건너뜁니다</div>' : ''}
+    <div style="max-height:220px;overflow:auto;border:1px solid var(--border);border-radius:8px;margin-top:6px;"><table class="imp-pv">${tr}</table></div>
+    <div style="font-size:12.5px;margin-top:6px;">${rows.length}줄${_impKind === 'unpaid' ? ` · 합계 <b>${Math.round(sum).toLocaleString()}원</b>` : ''}${bad ? ` · <b style="color:var(--danger);">고칠 줄 ${bad}개</b> (고친 뒤 다시 붙여 넣어 주세요)` : ''}${rows.length > 300 ? ' · 앞 300줄만 보입니다' : ''}</div>
+    <button class="sm-btn" style="width:100%;margin-top:8px;" onclick="impPasteGo()" ${bad ? 'disabled' : ''}>${rows.length}줄 확인하기</button>`;
+}
+async function impPasteGo() { // 붙여 넣은 줄 → 양식과 같은 시트 → 파일 올리기와 같은 검사·미리보기·합계 확인
+  const { rows } = impPasteRows(), P = IMP_PASTE[_impKind]; if (!rows.length) return;
+  let X; try { X = await loadXlsxLib(); } catch (e) { showToast('엑셀 도구를 못 불러왔습니다. 인터넷 연결을 확인해 주세요'); return; }
+  const wb = X.utils.book_new(), d = IMPORT_SHEETS[P.sheet];
+  X.utils.book_append_sheet(wb, X.utils.aoa_to_sheet([d.head, ...rows.map(P.row)]), d.name);
+  await importFromWorkbook(X, wb, `붙여넣기 (${P.lbl})`, null, true);
+}
+function impSetMode(m) { _impMode = m; openImportModal(true); }
+function impSetKind(k) { _impKind = k; openImportModal(true); }
+async function openImportModal(keep) {
   if (!isOwner()) return;
   let ov = document.getElementById('importModal');
   if (!ov) { ov = document.createElement('div'); ov.id = 'importModal'; ov.className = 'sm-ov'; document.body.appendChild(ov); }
   _imp = null;
+  if (!keep) { _impMode = 'paste'; _impKind = 'unpaid'; }
   const fresh = rolls.length === 0 && shipmentLog.length === 0 && customerList.length === 0;
-  ov.innerHTML = `<div class="sm-box">
-    <h3>엑셀로 장부 넣기</h3>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.6;">${fresh ? '지금 쓰던 재고·거래처·미수금을 엑셀 한 파일로 한 번에 넣습니다.' : '처음 세팅 때 빠뜨린 거래처·미수금·품목·원가를 엑셀로 <b>추가</b>할 수 있습니다.'}<br>
-      이미 장부에 있는 건 <b>절대 바뀌지 않고</b>, 새 것만 들어갑니다. 재고·미출고이월은 첫 세팅 때만 넣을 수 있습니다.</div>
+  const P = IMP_PASTE[_impKind];
+  const pasteBody = `<div style="font-size:13px;font-weight:700;margin-top:4px;">무엇을 넣을까요?</div>
+    <div class="sv-chips" style="margin:6px 0 8px;">${Object.keys(IMP_PASTE).map(k => `<button type="button" class="${k === _impKind ? 'on' : ''}" onclick="impSetKind('${k}')">${IMP_PASTE[k].lbl}</button>`).join('')}</div>
+    <div style="font-size:12.5px;color:var(--muted);line-height:1.6;">쓰던 엑셀(또는 다른 프로그램에서 내려받은 표)에서 <b style="color:var(--text);">${P.cols}</b> 칸을 줄째로 복사해서 아래에 붙여 넣어 주세요${P.opt}</div>
+    <textarea id="imp-paste" rows="5" placeholder="${P.ex.replace(/\n/g, '&#10;').replace(/\t/g, '    ')}" oninput="impPastePreview()" style="width:100%;box-sizing:border-box;margin-top:8px;border:1.5px dashed #9fc3d6;background:#f6fafc;border-radius:10px;padding:10px;font-size:13.5px;font-family:inherit;resize:vertical;"></textarea>
+    <div id="imp-paste-pv"></div>`;
+  const fileBody = `<div style="font-size:12.5px;color:var(--muted);line-height:1.6;margin:4px 0 8px;">거래처·미수금·재고·이월·원가를 한 파일로 한 번에 넣을 때 씁니다.</div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;">
       <button class="sm-btn gray" onclick="downloadImportTemplate()">1. 양식 내려받기</button>
       <label class="sm-btn" style="cursor:pointer;">2. 채운 파일 올리기<input type="file" accept=".xlsx,.xls" onchange="importPick(this)" style="display:none;"></label>
-    </div>
+    </div>`;
+  ov.innerHTML = `<div class="sm-box">
+    <h3>장부 넣기</h3>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.6;">${fresh ? '지금 쓰던 거래처·미수금·재고를 옮깁니다. 과거 거래 내역은 옮기지 않아도 되고, 「오늘 기준」 잔액과 재고만 있으면 시작할 수 있습니다.' : '처음 세팅 때 빠뜨린 거래처·미수금·품목·원가를 더 넣을 수 있습니다.'}
+      이미 장부에 있는 건 <b>절대 바뀌지 않고</b>, 새 것만 들어갑니다.</div>
+    <div class="sv-seg"><button type="button" class="${_impMode === 'paste' ? 'on' : ''}" onclick="impSetMode('paste')">붙여넣기</button><button type="button" class="${_impMode === 'file' ? 'on' : ''}" onclick="impSetMode('file')">양식 파일</button></div>
+    ${_impMode === 'paste' ? pasteBody : fileBody}
     <div id="imp-body" style="margin-top:12px;"></div>
     <div id="imp-history">${importHistoryHtml()}</div>
     <div style="text-align:right;margin-top:12px;"><button class="sm-btn gray" onclick="if(!_impSaving)document.getElementById('importModal').remove()">닫기</button></div>
@@ -3354,14 +3592,26 @@ async function importPick(input) {
   const body = document.getElementById('imp-body'); body.innerHTML = '파일을 읽는 중...';
   let X; try { X = await loadXlsxLib(); } catch (e) { body.innerHTML = '<div class="err">엑셀 도구를 못 불러왔습니다. 인터넷 연결을 확인해 주세요</div>'; return; }
   let wb; try { wb = X.read(new Uint8Array(await f.arrayBuffer()), { type: 'array' }); } catch (e) { body.innerHTML = '<div class="err">엑셀 파일을 읽지 못했습니다. 양식 파일(.xlsx)인지 확인해 주세요</div>'; return; }
-  if (!Object.values(IMPORT_SHEETS).some(d => wb.Sheets[d.name])) { body.innerHTML = '<div class="err">양식의 시트(품목·컬러, 재고 ...)를 찾지 못했습니다. "양식 내려받기"로 받은 파일에 채워 주세요</div>'; return; }
+  if (!Object.values(IMPORT_SHEETS).some(d => wb.Sheets[d.name])) { body.innerHTML = '<div class="err">양식의 시트(품목·컬러, 재고 ...)를 찾지 못했습니다. 「양식 내려받기」로 받은 파일에 채우거나, 「붙여넣기」로 쓰던 엑셀의 칸을 복사해 넣어 주세요</div>'; return; }
+  let buf = null; try { buf = await f.arrayBuffer(); } catch (e) { buf = null; }
+  await importFromWorkbook(X, wb, f.name || '첫세팅.xlsx', buf, false);
+}
+async function importFromWorkbook(X, wb, fileName, fileBuf, fromPaste) {
+  const body = document.getElementById('imp-body'); if (!body) return;
   const parsed = parseImportWorkbook(X, wb);
-  parsed.fileName = f.name || '첫세팅.xlsx';
-  try { parsed.fileBuf = await f.arrayBuffer(); } catch (e) { parsed.fileBuf = null; }
+  if (fromPaste) parsed.errs = parsed.errs.map(m => m.replace(/^\[[^\]]* (\d+)번째 줄\]/, (x, n) => `[붙여 넣은 ${Number(n) - 1}번째 줄]`)); // 시트 줄(제목 포함) → 붙여 넣은 줄 번호
+  parsed.fileName = fileName; parsed.fileBuf = fileBuf; parsed.fromPaste = !!fromPaste;
   body.innerHTML = '장부와 비교하는 중...';
   parsed.plan = await planImport(parsed.out);
   _imp = parsed;
   renderImportPreview();
+  if (fromPaste) setTimeout(() => body.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+}
+function impDetailHtml(plan) { // 들어갈 줄을 시트별로 펼쳐 보기 (건수만 보고 넣지 않게)
+  const fmt = { custs: x => esc(x), items: x => `${esc(x.item)} ${esc(x.color)}`, rolls: x => `${esc(x.item)} ${esc(x.color)} · ${x.tang}탕 · ${x.qty}y`, unpaid: x => `${esc(x.customer)} <b style="float:right;">${x.amount.toLocaleString()}원</b>`,
+    orders: x => `${esc(x.date)} ${esc(x.customer)} · ${esc(x.item)} ${esc(x.color || '')} ${x.orderQty}${x.unit}`, costs: x => `${esc(x.item)} · ${x.type === 'import' ? '수입' : '국내'} ${x.price.toLocaleString()}${x.type === 'import' ? '위안' : '원'}` };
+  const parts = Object.keys(IMPORT_LBL).filter(k => plan[k].add.length).map(k => `<details class="imp-det"><summary>${IMPORT_LBL[k]} ${plan[k].add.length.toLocaleString()}건 넣을 내용 보기</summary><div>${plan[k].add.slice(0, 300).map(x => `<div>${fmt[k](x)}</div>`).join('')}${plan[k].add.length > 300 ? `<div style="color:var(--muted);">… 외 ${plan[k].add.length - 300}건</div>` : ''}</div></details>`);
+  return parts.length ? `<div style="margin-top:10px;">${parts.join('')}</div>` : '';
 }
 function renderImportPreview() {
   const body = document.getElementById('imp-body'); if (!body || !_imp) return;
@@ -3369,7 +3619,7 @@ function renderImportPreview() {
   const keys = Object.keys(IMPORT_LBL);
   const addN = keys.reduce((a, k) => a + plan[k].add.length, 0);
   const total = plan.unpaid.add.reduce((a, x) => a + x.amount, 0);
-  const rows = keys.map(k => { const n = out[k].length; if (!n) return `<tr><td>${IMPORT_LBL[k]}</td><td style="text-align:right;">0</td><td colspan="2" style="color:var(--muted)">없음</td></tr>`;
+  const rows = keys.map(k => { const n = out[k].length; if (!n) return ''; // 안 넣는 시트는 줄을 안 보임
     return `<tr><td>${IMPORT_LBL[k]}</td><td style="text-align:right;">${n.toLocaleString()}</td><td style="text-align:right;font-weight:700;">${plan[k].add.length ? '넣음 ' + plan[k].add.length.toLocaleString() : '-'}</td><td style="text-align:right;${plan[k].skip.length ? 'color:var(--danger);' : 'color:var(--muted);'}">${plan[k].skip.length ? '건너뜀 ' + plan[k].skip.length.toLocaleString() : ''}</td></tr>`; }).join('');
   // 건너뛰는 이유별로 묶어서 보여줌
   const skipLines = [];
@@ -3384,18 +3634,18 @@ function renderImportPreview() {
   const warnBox = plan.salesWarn.length ? `<div style="background:#fff3d6;color:#8a5a00;border-radius:8px;padding:10px;font-size:12.5px;margin-top:10px;line-height:1.6;"><b>확인해 주세요</b> - ${esc(plan.salesWarn.slice(0, 8).join(', '))}${plan.salesWarn.length > 8 ? ' 등' : ''}은(는) 이 앱에 이미 매출 기록이 있습니다.<br>엑셀 금액이 <b>앱에 적힌 매출을 빼고</b> 기준일까지 남은 잔액이어야 합니다. 앱 매출까지 포함된 금액이면 두 번 잡힙니다.</div>` : '';
   if (errs.length) {
     body.innerHTML = `<table><tr><th>시트</th><th style="text-align:right;">줄 수</th><th></th><th></th></tr>${rows}</table>
-      <div class="err" style="margin-top:10px;"><b>고칠 곳 ${errs.length}개</b> - 엑셀에서 고친 뒤 다시 올려 주세요. 아직 아무것도 안 들어갔습니다.<br>${errs.slice(0, 30).map(esc).join('<br>')}${errs.length > 30 ? '<br>...' : ''}</div>
-      ${_imp.fileBuf ? '<div style="margin-top:8px;"><button class="sm-btn" onclick="downloadMarkedWorkbook()">틀린 칸을 빨갛게 표시한 엑셀 받기</button><div style="font-size:11.5px;color:var(--muted);margin-top:4px;">올린 파일 그대로에 틀린 칸만 빨갛게 칠하고, 줄 맨 끝에 이유를 적어 드립니다. 고친 뒤 그 파일을 다시 올리면 됩니다 (맨 끝 "고칠 곳" 칸은 그대로 둬도 됩니다).</div></div>' : ''}`;
+      <div class="err" style="margin-top:10px;"><b>고칠 곳 ${errs.length}개</b> - ${_imp.fromPaste ? '고친 뒤 다시 붙여 넣어 주세요' : '엑셀에서 고친 뒤 다시 올려 주세요'}. 아직 아무것도 안 들어갔습니다.<br>${errs.slice(0, 30).map(esc).join('<br>')}${errs.length > 30 ? '<br>...' : ''}</div>
+      ${_imp.fileBuf && !_imp.fromPaste ? '<div style="margin-top:8px;"><button class="sm-btn" onclick="downloadMarkedWorkbook()">틀린 칸을 빨갛게 표시한 엑셀 받기</button><div style="font-size:11.5px;color:var(--muted);margin-top:4px;">올린 파일 그대로에 틀린 칸만 빨갛게 칠하고, 줄 맨 끝에 이유를 적어 드립니다. 고친 뒤 그 파일을 다시 올리면 됩니다 (맨 끝 "고칠 곳" 칸은 그대로 둬도 됩니다).</div></div>' : ''}`;
     return;
   }
   const totalBox = plan.unpaid.add.length ? `<div style="margin-top:12px;padding:10px;background:#eef5ff;border-radius:8px;font-size:13px;line-height:1.6;">
       <b>미수금 확인</b> - 이번에 넣는 ${plan.unpaid.add.length}곳의 미수금 합계는 <b>${total.toLocaleString()}원</b>입니다.<br>
       ${plan.firstTime ? '원래 쓰던 장부의 미수금 합계를' : '원래 장부에서 <b>이번에 넣는 거래처들만</b> 더한 합계를'} 직접 적어 주세요. 1원까지 같아야 넣을 수 있습니다.
       <input id="imp-total" inputmode="numeric" placeholder="합계 직접 입력" style="width:100%;margin-top:6px;"></div>` : '';
-  body.innerHTML = `<table><tr><th>시트</th><th style="text-align:right;">파일 줄</th><th></th><th></th></tr>${rows}</table>
+  body.innerHTML = `<table><tr><th>${_imp.fromPaste ? '종류' : '시트'}</th><th style="text-align:right;">줄 수</th><th></th><th></th></tr>${rows}</table>
     ${notes.length ? `<div style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.6;">${notes.map(esc).join('<br>')}</div>` : ''}
-    ${skipBox}${warnBox}${totalBox}
-    ${addN ? `<div style="text-align:right;margin-top:10px;"><button id="imp-save" class="sm-btn" onclick="importSave()">${keys.filter(k => plan[k].add.length).map(k => IMPORT_LBL[k]).join(', ')} 장부에 넣기</button></div>`
+    ${impDetailHtml(plan)}${skipBox}${warnBox}${totalBox}
+    ${addN ? `<div style="text-align:right;margin-top:10px;"><button id="imp-save" class="sm-btn" style="width:100%;" onclick="importSave()">장부에 넣기 (${addN.toLocaleString()}건)</button></div>`
       : '<div style="margin-top:10px;font-size:13px;color:var(--muted);">새로 넣을 내용이 없습니다. 장부는 그대로입니다.</div>'}`;
 }
 async function importSave() {
@@ -3446,7 +3696,7 @@ async function importSave() {
   if (done.includes('기초미수금')) { // 넣기 전·후 장부로 거래처마다 "늘어난 금액 = 엑셀 금액"인지 다시 계산
     const after = withFullArchiveMerged(() => getCustomerTrueUnpaidAll());
     const bad = plan.unpaid.add.filter(x => Math.round((after.get(x.customer) || 0) - (before.get(x.customer) || 0)) !== x.amount);
-    check = !bad.length ? `<div style="color:#1a7a4a;font-weight:700;margin-top:8px;">미수금 확인 ✔ 거래처 ${plan.unpaid.add.length}곳 모두 엑셀 금액만큼 정확히 늘었습니다 (합계 ${total.toLocaleString()}원)</div>`
+    check = !bad.length ? `<div style="color:#1a7a4a;font-weight:700;margin-top:8px;">미수금 확인 ✔ 거래처 ${plan.unpaid.add.length}곳 모두 넣은 금액만큼 정확히 늘었습니다 (합계 ${total.toLocaleString()}원)</div>`
       : `<div class="err" style="margin-top:8px;"><b>미수금이 엑셀과 다르게 계산된 거래처가 있습니다</b>: ${esc(bad.map(x => x.customer).join(', '))}. 장부를 쓰기 전에 고객센터로 문의해 주세요.</div>`;
   }
   const skipped = Object.keys(IMPORT_LBL).filter(k => plan[k].skip.length).map(k => `${IMPORT_LBL[k]} ${plan[k].skip.length}`);
@@ -3454,6 +3704,7 @@ async function importSave() {
     ${skipped.length ? `<div style="font-size:12.5px;color:var(--muted);margin-top:4px;">안 넣은 것(이미 있음 등): ${skipped.join(', ')}</div>` : ''}
     ${failed.length ? `<div class="err">저장 실패: ${failed.join(', ')} - 새로고침 후 같은 파일을 다시 올리면 안 들어간 것만 이어서 들어갑니다</div>` : ''}${check}`;
   _imp = null;
+  { const t = document.getElementById('imp-paste'), pv = document.getElementById('imp-paste-pv'); if (t && done.length) t.value = ''; if (pv && done.length) pv.innerHTML = ''; } // 붙여넣기 칸 비움 (같은 걸 또 넣지 않게)
   const hist = document.getElementById('imp-history'); if (hist) hist.innerHTML = importHistoryHtml();
 }
 
@@ -3536,7 +3787,7 @@ function importHistoryHtml() {
     else { const chk = checkImportUndo(r); right = chk.ok ? `<button class="sm-btn red" onclick="undoImportBatch('${escAttr(r.id)}')">되돌리기</button>` : `<span style="color:var(--muted);font-size:11.5px;">되돌릴 수 없음<br>${esc(chk.why[0])}</span>`; }
     return `<tr><td style="font-size:12px;">${esc(new Date(r.at).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }))}<br><span style="color:var(--muted)">${esc(desc)}</span></td><td style="text-align:right;">${right}</td></tr>`;
   }).join('');
-  return `<div style="margin-top:16px;font-weight:700;font-size:14px;">최근 엑셀 세팅 기록</div>
+  return `<div style="margin-top:16px;font-weight:700;font-size:14px;">최근 장부 넣기 기록</div>
     <div style="font-size:11.5px;color:var(--muted);margin:2px 0 4px;">잘못 올렸으면 ${IMPORT_UNDO_DAYS}일 안에, 올린 재고·미수금·이월에 아직 손대지 않았을 때 통째로 되돌릴 수 있습니다.</div>
     <table>${rows}</table>`;
 }
@@ -3641,8 +3892,8 @@ async function staffAdd() {
     b.set(db.collection('users').doc(uid), { shopId: SHOP_ID });
     await b.commit();
   } catch (e) { res.textContent = '계정은 만들었는데 가게 연결에 실패했습니다. 같은 아이디로 다시 추가하지 말고 고객센터로 문의해 주세요. ' + errHint(e); return; }
-  const url = location.href.split('?')[0].split('#')[0];
-  const msg = `${name}님, 장부 프로그램 로그인 정보입니다.\n주소: ${url}\n가게 코드: ${SHOP_ID}\n아이디: ${id}\n비밀번호: ${pw}\n처음 들어가면 위쪽 "비밀번호 변경"에서 바꿔주세요.`;
+  const url = location.href.split('?')[0].split('#')[0] + `?shop=${SHOP_ID}&id=${encodeURIComponent(id)}`; // 이 링크로 들어오면 가게 코드·아이디가 채워져서 비밀번호만 치면 됨
+  const msg = `${name}님, ${shopDisplayName() || '가게'} 장부 로그인 정보입니다.\n아래 주소를 누르고 비밀번호만 입력하면 됩니다.\n주소: ${url}\n가게 코드: ${SHOP_ID}\n아이디: ${id}\n비밀번호: ${pw}\n처음 들어가면 오른쪽 위 이름 ▾ › 「비밀번호 변경」에서 바꿔 주세요.`;
   _pwPending = { title: '추가했습니다. 아래 내용을 직원에게 카톡으로 보내 주세요', msg };
   if (role === 'manager') await askCostMgrOnce();
   await openStaffModal();
@@ -3675,8 +3926,8 @@ async function staffReissue(uid) {
     b.update(shopCol('members').doc(uid), { active: false, updatedAt: new Date().toISOString(), replacedBy: newId });
     await b.commit();
   } catch (e) { if (res) res.textContent = '새 계정은 만들었는데 가게 연결에 실패했습니다. 고객센터로 문의해 주세요. ' + errHint(e); return; }
-  const url = location.href.split('?')[0].split('#')[0];
-  const msg = `${old.name}님, 장부 프로그램 로그인 정보가 새로 발급됐습니다.\n주소: ${url}\n가게 코드: ${SHOP_ID}\n아이디: ${newId} (예전 아이디 ${old.loginId} 은/는 이제 안 됩니다)\n비밀번호: ${pw}\n처음 들어가면 위쪽 "비밀번호 변경"에서 바꿔 주세요.`;
+  const url = location.href.split('?')[0].split('#')[0] + `?shop=${SHOP_ID}&id=${encodeURIComponent(newId)}`;
+  const msg = `${old.name}님, ${shopDisplayName() || '가게'} 장부 로그인 정보가 새로 발급됐습니다.\n아래 주소를 누르고 비밀번호만 입력하면 됩니다.\n주소: ${url}\n가게 코드: ${SHOP_ID}\n아이디: ${newId} (예전 아이디 ${old.loginId} 은/는 이제 안 됩니다)\n비밀번호: ${pw}\n처음 들어가면 오른쪽 위 이름 ▾ › 「비밀번호 변경」에서 바꿔 주세요.`;
   _pwPending = { title: '새로 발급했습니다. 아래 내용을 직원에게 카톡으로 보내 주세요', msg };
   await openStaffModal();
 }
@@ -4988,7 +5239,8 @@ const FEATURES = [
   { k: 'freight', name: '운임 정산', desc: '해상운임 청구서가 오면 그 배 원단의 운임을 실제 금액으로 바꿉니다', need: 'overseas' },
   { k: 'cutPrice', name: '절·컷 단가', desc: '같은 품번이라도 컷으로 사면 단가가 다를 때. 발주·입고에서 절/컷을 고릅니다' },
   { k: 'process', name: '가공비 (기모·워싱 등)', desc: '가공처·단가·로스율을 관리하고 컬러별로 가공비를 원가에 더합니다' },
-  { k: 'payroll', name: '직원 수당', desc: '영업 담당 거래처나 가게 전체 출고량 기준으로 직원마다 수당을 계산합니다 (리포트 메뉴)' }
+  { k: 'payroll', name: '직원 수당', desc: '영업 담당 거래처나 가게 전체 출고량 기준으로 직원마다 수당을 계산합니다 (리포트 메뉴)' },
+  { k: 'warehouse', name: '창고 출고 화면', desc: '창고 직원이 휴대폰 숫자판으로 자른 야드를 보내면, 매장에서 출고 창이 채워진 채로 열립니다. 홈 맨 아래 「창고 출고 화면」' }
 ];
 function featureOn(k) {
   const f = settings.features || {};
@@ -5194,6 +5446,7 @@ function promoSeg(seg, quiet) {
   renderPromoSummary();
 }
 function renderPromoSummary() {
+  { const st = document.getElementById('stats'); if (st && currentTab === 'promo' && isPremium()) { const na0 = naList(); st.innerHTML = `<span>신상 ${new Set(na0.map(x => x.k.split('|')[0])).size}품번 · ${na0.length}컬러</span>`; } } // 위쪽 머리글 숫자도 같이
   const el = document.getElementById('pm-sum'); if (!el) return;
   if (!_catUniverse.length) _catUniverse = catalogUniverse();
   const na = naList(); const items = [...new Set(na.map(x => x.k.split('|')[0]))];
@@ -5317,7 +5570,7 @@ function shRender() {
     <div class="sh-what"><button type="button" class="${_sh.what === 'new' ? 'on' : ''}" onclick="shWhat('new')">신상 페이지</button><button type="button" class="${_sh.what === 'stock' ? 'on' : ''}" onclick="shWhat('stock')">재고 페이지</button></div>
     <div class="sh-msg">${esc(shText(_sh.what, '', true))}</div>
     <button type="button" class="rx-link" onclick="shEditMsg()">문구 고치기</button>
-    ${_sh.edit ? `<div class="rx-empty" style="text-align:left;padding:8px 0">묶음 「${esc(_sh.edit.name)}」에 넣을 거래처를 골라 주세요 · ${_sh.edit.size}곳</div><div style="display:flex;gap:6px;margin-bottom:6px"><button type="button" class="cat-mini" onclick="shEditSave()">묶음 저장</button><button type="button" class="cat-mini gray" onclick="_sh.edit=null; shRender()">취소</button>${G[_sh.edit.name] ? `<button type="button" class="cat-mini gray" onclick="shGrpDelete()">묶음 삭제</button>` : ''}</div>`
+    ${_sh.edit ? `<div class="rx-empty" style="text-align:left;padding:8px 0">묶음 「${esc(_sh.edit.name)}」에 넣을 거래처를 골라 주세요 · ${_sh.edit.size}곳</div>${list.length > 1 ? `<div class="selall"><button type="button" onclick="shEditAll(true)">보이는 거래처 모두 선택</button><button type="button" onclick="shEditAll(false)">모두 해제</button></div>` : ''}<div style="display:flex;gap:6px;margin-bottom:6px"><button type="button" class="cat-mini" onclick="shEditSave()">묶음 저장</button><button type="button" class="cat-mini gray" onclick="_sh.edit=null; shRender()">취소</button>${G[_sh.edit.name] ? `<button type="button" class="cat-mini gray" onclick="shGrpDelete()">묶음 삭제</button>` : ''}</div>`
       : `<div class="sh-grp"><button type="button" class="${!_sh.grp ? 'on' : ''}" onclick="shGrp('')">전체</button>${grpChips}<button type="button" class="add" onclick="shGrpNew()">+ 묶음</button>${_sh.grp ? `<button type="button" class="add" onclick="shGrpEdit()">「${esc(_sh.grp)}」 고치기</button>` : ''}</div>`}
     <input class="rx-in" placeholder="거래처 검색" value="${esc(_sh.q)}" oninput="_sh.q=this.value; shRenderSoon()" style="margin-bottom:4px">
     ${_sh.edit ? '' : `<div class="sh-row"><span class="n" style="color:var(--muted)">공용 링크</span><span class="t">거래처 없이 (기록 안 남음)</span><span class="b"><button type="button" class="cat-mini gray" onclick="shCopyPublic()">복사</button></span></div>`}
@@ -5402,6 +5655,7 @@ async function shGrpNew() {
   _sh.edit = new Set(shGroups()[name] || []); _sh.edit.name = name; _sh.q = ''; shRender();
 }
 function shGrpEdit() { if (!_sh.grp) return; _sh.edit = new Set(shGroups()[_sh.grp] || []); _sh.edit.name = _sh.grp; _sh.grp = ''; shRender(); }
+function shEditAll(on) { if (!_sh.edit) return; for (const c of (_sh.rows || [])) on ? _sh.edit.add(c) : _sh.edit.delete(c); shRender(); }
 function shEditPick(i, on) { const c = _sh.rows[i]; if (!c || !_sh.edit) return; on ? _sh.edit.add(c) : _sh.edit.delete(c); const el = document.querySelector('#pm-share .rx-empty'); if (el) el.textContent = `묶음 「${_sh.edit.name}」에 넣을 거래처를 골라 주세요 · ${_sh.edit.size}곳`; }
 async function shEditSave() {
   if (!_sh.edit) return; const name = _sh.edit.name, arr = [..._sh.edit];
@@ -5959,7 +6213,7 @@ function updateRateBar() {
 function applyTabChrome(tab) {
   for (const t of ['today', 'inv', 'china', 'cost', 'order', 'sales', 'promo']) document.getElementById('tab-' + t).classList.toggle('active', tab === t);
   const titles = { today: '홈', inv: '재고', cost: '원가표', order: '이월장부', sales: '매출·수금', china: '발주', promo: '홍보' };
-  const placeholders = { today: '', inv: '품번(품목) 또는 칼라 검색', cost: '품목(품번) 검색', order: '거래처 또는 품목 검색', sales: '거래처 또는 품목 검색', china: '품명, 중국품번, 컬러 검색' };
+  const placeholders = { today: '', inv: '품번(품목) 또는 컬러 검색', cost: '품목(품번) 검색', order: '거래처 또는 품목 검색', sales: '거래처 또는 품목 검색', china: '품명, 중국품번, 컬러 검색' };
   const fabLabels = { today: '', inv: '+ 입고', cost: '+ 원가 등록', order: '+ 주문 등록', sales: '', china: '+ 발주 등록', promo: '' };
   document.getElementById('page-title').textContent = titles[tab];
   document.getElementById('search').placeholder = placeholders[tab] || '';
@@ -6143,7 +6397,7 @@ function gsSteps() {
   return [
     { k: 'biz', t: '가게 정보 입력', d: '명세서에 들어갈 상호·계좌', done: !!(S.bizOwner || S.bizNumber || S.bizAddress || S.bankInfo), btn: '입력', fn: 'openBizInfoModal()' },
     { k: 'feat', t: '기능 선택', d: '해외 수입·후가공 사용 여부', done: !!(S.features && typeof S.features === 'object') || hasData, btn: '선택', fn: 'openFeatureModal()' },
-    { k: 'import', t: '기존 장부 옮기기', d: '엑셀로 거래처·미수금·재고 한 번에', done: hasData, btn: '엑셀로 넣기', fn: 'openImportModal()' },
+    { k: 'import', t: '기존 장부 옮기기', d: '쓰던 엑셀에서 거래처·미수금·재고 복사해 붙여넣기', done: hasData, btn: '넣기', fn: 'openImportModal()' },
     { k: 'cost', t: '품번·원가 등록', d: '원가가 있어야 순이익이 계산됩니다', done: costs.length > 0, btn: '원가 등록', fn: "switchTab('cost'); openAddModal()" },
     { k: 'staff', t: '직원 초대', d: '매니저·직원 계정 만들기', opt: true, done: (_gsStaffN || 0) > 0, btn: '초대', fn: 'openStaffModal()' },
   ];
@@ -6178,8 +6432,8 @@ async function gsHide() {
 function emptyGuideHtml(kind) {
   const own = isOwner();
   const G = {
-    inv: ['▦', '등록된 재고가 없습니다', '입고를 등록하면 품번 → 컬러 → 절 단위로<br>재고가 쌓이고, 출고할 때 자동으로 빠집니다.', [['+ 입고 등록', 'openAddModal()', 1], own && ['엑셀로 넣기', 'openImportModal()']], '<b>원단 한 절 = 한 줄</b><br>같은 컬러라도 탕(염색 차수)이 다르면 따로 등록됩니다.'],
-    cost: ['₩', '등록된 원가가 없습니다', '품번별 매입 단가를 등록하면<br>재고·매출에 원가와 순이익이 자동 계산됩니다.', [['+ 원가 등록', 'openAddModal()', 1], own && ['엑셀로 넣기', 'openImportModal()']], ''],
+    inv: ['▦', '등록된 재고가 없습니다', '입고를 등록하면 품번 → 컬러 → 절 단위로<br>재고가 쌓이고, 출고할 때 자동으로 빠집니다.', [['+ 입고 등록', 'openAddModal()', 1], own && ['장부 넣기', 'openImportModal()']], '<b>원단 한 절 = 한 줄</b><br>같은 컬러라도 탕(염색 차수)이 다르면 따로 등록됩니다.'],
+    cost: ['₩', '등록된 원가가 없습니다', '품번별 매입 단가를 등록하면<br>재고·매출에 원가와 순이익이 자동 계산됩니다.', [['+ 원가 등록', 'openAddModal()', 1], own && ['장부 넣기', 'openImportModal()']], ''],
     order: ['✎', '등록된 주문이 없습니다', '거래처 주문을 등록해 두고 나눠서 출고하면<br>남은 수량이 이월되고, 매출·미수금에 자동 반영됩니다.', [['+ 주문 등록', 'openAddModal()', 1]], '<b>순서</b>&nbsp; 주문 등록 → 출고 처리 → 매출·수금에서 입금 처리'],
     sales: ['↗', '등록된 매출이 없습니다', '이월장부에서 출고 처리하면 여기에 쌓입니다.<br>주문 없이 바로 나간 건은 직접 입력해 주세요.', [['+ 새 매출', "openSaleAddModal('')", 1], can('carry') && ['이월장부로', "switchTab('order')"]], own ? '기존 거래처 <b>미수금</b>은 ⚙ 설정 › 엑셀로 장부 넣기에서 한 번에 옮길 수 있습니다.' : ''],
     china: ['⇄', '발주 기록이 없습니다', '발주를 등록하면 도착 예정일별로 모아 보고,<br>도착하면 「입고 처리」로 재고에 바로 넣을 수 있습니다.', [['+ 발주 등록', 'openAddModal()', 1]], ''],
@@ -6233,6 +6487,7 @@ function renderToday() {
   const scAsk = scAskCount(); if (scAsk) todo.push({ k: 'scask', dot: 'var(--danger)', label: '재고 확인 요청', sub: '창고', n: scAsk, red: true, go: `showStockCheck('${scLatestAskDate() || ''}')` });
   if (money) todo.push({ k: 'pay', dot: 'var(--danger)', label: '수금 한 달 넘음', n: oldN, red: true, go: 'todayGoUnpaid()' });
   if (money) { const np = noPriceList().length; if (np) todo.push({ k: 'noprice', dot: '#c77d1a', label: '단가 미입력 출고', n: np, red: true, go: 'openNoPriceModal()' }); } // 있을 때만 줄을 보여줌
+  if (featureOn('warehouse') && whqItems.length) todo.unshift({ k: 'whq', dot: '#7a5bb0', label: '창고에서 온 출고', n: whqItems.length, go: 'whqListOpen()' });
   if (money && isPremium()) todo.push({ k: 'req', dot: '#7a5bb0', label: '손님 요청', n: rqOpenCount(), go: "switchTab('promo'); promoSeg('req')" });
   L += `<div style="${card}" class="td-todo">${head('오늘 할 일')}`;
   for (const t of todo) L += `<div class="td-row${t.n ? '' : ' zero'}" data-k="${t.k}" onclick="${t.go}"><i style="background:${t.dot}"></i><span>${t.label}${t.sub ? ` <small>${t.sub}</small>` : ''}</span><b class="${t.red && t.n ? 'red' : ''}">${t.n}</b><em>›</em></div>`;
@@ -6287,6 +6542,7 @@ function renderToday() {
   } else {
     R += `<div style="${card} display:flex; align-items:center; justify-content:space-between; gap:10px;"><div style="${muted}">매출·입금·수금은 대표님과 매니저만 볼 수 있습니다</div><button onclick="unlockTodayAdmin()" style="flex:none; border:1px solid var(--border); background:#fff; color:var(--text); border-radius:8px; padding:8px 12px; font-size:13px; font-weight:700;">관리자 정보 보기</button></div>`;
   }
+  if (whAllowed()) R += `<div style="text-align:center; margin:-4px 0 14px;"><button onclick="whOpen()" style="border:none; background:var(--b-info); color:var(--primary-dark); font-size:13px; font-weight:700; border-radius:8px; padding:9px 14px;">창고 출고 화면</button></div>`;
   const html = `${_gs}<div class="td-wrap"><div class="td-l">${L}</div><div class="td-r">${R}</div></div>`;
   list.innerHTML = html;
 }
@@ -6299,7 +6555,7 @@ function sanitizeRollsInMemory() {
     if (typeof r.qty === 'string') { const q = parseFloat(r.qty); r.qty = isNaN(q) ? 0 : q; }
   }
 }
-function render() { const r = _renderMain(); if (document.body.classList.contains('st-open')) { const pg = document.getElementById('settingsPage'); const y = pg ? pg.scrollTop : 0; openSettings(); if (pg) pg.scrollTop = y; } setTimeout(updateSelBar, 60); setTimeout(maybeOnboard, 400); return r; }
+function render() { whqEnsure(); const r = _renderMain(); if (_wh.open) whRender(); else whMaybeAuto(); if (document.body.classList.contains('st-open')) { const pg = document.getElementById('settingsPage'); const y = pg ? pg.scrollTop : 0; openSettings(); if (pg) pg.scrollTop = y; } setTimeout(updateSelBar, 60); setTimeout(maybeOnboard, 400); return r; }
 function _renderMain() {
   document.body.classList.toggle('no-cost', !canSeeCost()); document.body.classList.toggle('no-sales', !canSeeSales());
   for (const k of ['stock', 'order', 'carry', 'promo', 'pay', 'del', 'link', 'report']) document.body.classList.toggle('no-' + k, !can(k)); // 다른 기기에서 권한을 바꿔도 바로 반영
@@ -7203,7 +7459,7 @@ function renderInv() {
                   <div>절 <span class="yd">${r.qty}y</span>${r.inDate ? `<span style="font-size:11px;color:var(--muted);margin-left:6px;">${esc(r.inDate)} 입고</span>` : ''}${r.rollNote ? `<div style="margin-top:3px;display:inline-block;background:#e8f0fb;color:var(--primary-dark);font-weight:600;border-radius:5px;padding:2px 7px;font-size:12px;">${esc(r.rollNote)}</div>` : ''}${(canSeeCost() && r.costPerY != null && !isTangCostUniform(tangRolls)) ? `<div class="inv-cost">이 절 ${Math.round(r.costPerY).toLocaleString()}원</div>` : ''}</div>
                 </div>
                 <div class="btns">
-                  <button class="btn-out" onclick="event.stopPropagation(); openOutModal(${r.id})">출고</button>
+                  <button class="btn-out" onclick="event.stopPropagation(); openOutModal(${r.id})">빼기</button>
                   ${moreBtn([['메모', `openRollNoteModal(${r.id})`], ['수정', `openRollEditModal(${r.id})`], ['불량으로 표시', `markRollDefective(${r.id})`], ['삭제', `deleteRoll(${r.id})`, 1]])}
                 </div>`;
             }
@@ -7211,6 +7467,12 @@ function renderInv() {
           }
         }
         if (normalRolls.length >= 2) {
+          const sa = document.createElement('div'); sa.className = 'selall'; sa.style.margin = '8px 12px 0';
+          sa.innerHTML = `<button type="button">전체 선택</button><button type="button">전체 해제</button>`;
+          const [bAll, bNone] = sa.querySelectorAll('button');
+          bAll.onclick = (ev) => { ev.stopPropagation(); rollsDiv.querySelectorAll('.roll-bulk-checkbox').forEach(cb => cb.checked = true); };
+          bNone.onclick = (ev) => { ev.stopPropagation(); rollsDiv.querySelectorAll('.roll-bulk-checkbox').forEach(cb => cb.checked = false); };
+          rollsDiv.appendChild(sa);
           const bulkBtn = document.createElement('button');
           bulkBtn.textContent = '선택한 절 삭제';
           bulkBtn.style.cssText = 'border:none;background:#fdecea;color:var(--danger);border-radius:8px;padding:8px 12px;font-size:12px;font-weight:600;width:calc(100% - 24px);margin:8px 12px;';
@@ -7457,13 +7719,15 @@ function toggleGroup(k) { if (openGroups.has(k)) openGroups.delete(k); else open
 function toggleSalesDropdown(id) { document.getElementById(id).classList.toggle('hidden'); }
 
 function openRollAddModal() {
+  _rollAddPrefChinaId = null;
   document.getElementById('f-date').value = toDateInputValue(todayStr());
   document.getElementById('f-item').value = '';
   document.getElementById('f-color-blocks').innerHTML = '';
   addColorBlock();
   document.getElementById('addModal').classList.add('open');
 }
-function openRollAddModalFor(item, color) {
+function openRollAddModalFor(item, color, prefChinaId) {
+  _rollAddPrefChinaId = prefChinaId || null;
   document.getElementById('f-date').value = toDateInputValue(todayStr());
   document.getElementById('f-item').value = item;
   document.getElementById('f-color-blocks').innerHTML = '';
@@ -7488,7 +7752,7 @@ function addColorBlock(colorVal) {
   block.style.cssText = 'border:1px solid var(--border); border-radius:10px; padding:10px; margin-top:10px; background:#faf8f4;';
   block.innerHTML = `
     <div style="display:flex; gap:8px; align-items:center;">
-      <input type="text" class="f-block-color" placeholder="칼라 (예: 검정)" value="${escAttr(colorVal || '')}" autocomplete="off" oninput="showColorSuggestions(this, document.getElementById('f-item')); updateBlockStockInfo(this)" onfocus="showColorSuggestions(this, document.getElementById('f-item'))" onblur="hideItemSuggestionsDelayed()" style="flex:1;">
+      <input type="text" class="f-block-color" placeholder="컬러 (예: 검정)" value="${escAttr(colorVal || '')}" autocomplete="off" oninput="showColorSuggestions(this, document.getElementById('f-item')); updateBlockStockInfo(this)" onfocus="showColorSuggestions(this, document.getElementById('f-item'))" onblur="hideItemSuggestionsDelayed()" style="flex:1;">
       <button onclick="this.closest('.f-color-block').remove()" style="border:none;background:var(--b-danger-soft);color:var(--danger);border-radius:8px;padding:0 10px;font-size:12px;flex:none;height:38px;">이 컬러 삭제</button>
     </div>
     <div class="f-block-stock-info hidden" style="font-size:12px; color:var(--primary-dark); background:#eef3f8; border-radius:8px; padding:6px 8px; margin-top:6px;"></div>
@@ -7500,9 +7764,9 @@ function addColorBlock(colorVal) {
     <div class="cost-ui" style="margin-top:6px;"><label style="font-size:12px;">입고 원가 (원/y)</label>
       <div style="display:flex; gap:6px; align-items:center;"><input type="number" step="1" min="0" class="f-block-cost" placeholder="비우면 원가표 기준" style="flex:1;" oninput="blockCostHint(this)"><button type="button" onclick="openCostCalcModal(document.getElementById('f-item').value.trim(), this.closest('.f-color-block').querySelector('.f-block-color').value.trim(), { targetEl: this.closest('div').querySelector('.f-block-cost') })" style="border:none;background:var(--b-sub);color:#555;border-radius:8px;padding:8px 10px;font-size:12px;flex:none;">원가 계산</button></div>
       <div class="f-block-cost-hint" style="font-size:11.5px; color:var(--muted); margin-top:3px;">이 컬러의 모든 절에 들어갑니다. 해외 원단은 비워 두면 운임 정산까지 자동 반영됩니다.</div></div>
-    <label style="font-size:12px; margin-top:6px;">탕별 마수</label>
+    <div class="frr-head"><label style="font-size:12px; margin:0;">절별 마수 <span style="font-weight:400;color:var(--muted);">· 같은 탕이면 탕 번호 그대로</span></label><span class="f-block-sum"></span></div>
     <div class="f-block-rolls"></div>
-    <button onclick="addRollRowToBlock(this)" style="border:none;background:var(--b-info);color:var(--primary-dark);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:600;margin-top:6px;">+ 탕 추가</button>
+    <div class="frr-bulk"><button type="button" onclick="addRollRowToBlock(this).querySelector('.f-roll-qty').focus()" class="frr-add">+ 절 추가</button><input type="text" class="f-block-bulk" placeholder="여러 절 한 번에: 52 48 55" onkeydown="if(event.key==='Enter'){event.preventDefault(); rollBulkAdd(this)}"><button type="button" onclick="rollBulkAdd(this.previousElementSibling)">넣기</button></div>
   `;
   listEl.appendChild(block);
   syncBlockFormWraps();
@@ -7521,8 +7785,15 @@ function updateBlockStockInfo(colorInputEl) {
   const infoEl = block.querySelector('.f-block-stock-info');
   if (!item || !color) { infoEl.classList.add('hidden'); return; }
   const existing = findInventoryRolls(item, color);
+  const co = findWaitingChinaOrderMatch(item, color);
+  const coTxt = co ? ` · 발주 대기 ${esc(co.qty || '')}${co.date ? ` (${esc(co.date)} 발주)` : ''} → 저장하면 발주도 같이 처리합니다` : '';
+  infoEl.classList.remove('warn');
   if (existing.length === 0) {
-    infoEl.textContent = '현재 이 컬러는 재고가 없습니다 → 새로 넣으시면 탕1부터 시작하시면 됩니다';
+    const known = rollKnownColors(item);
+    if (known.length && !known.some(c => chinaOrderMatchKey(item, c) === chinaOrderMatchKey(item, color)) && !co) {
+      infoEl.innerHTML = `「${esc(item)}」에 처음 들어오는 컬러입니다. 이름을 확인해 주세요<br><span style="font-weight:400;">지금 있는 컬러: ${known.slice(0, 10).map(esc).join(', ')}${known.length > 10 ? ` 외 ${known.length - 10}개` : ''}</span>`;
+      infoEl.classList.add('warn');
+    } else infoEl.innerHTML = `지금 재고 없음 · 탕1부터 입력해 주세요${coTxt}`;
     infoEl.classList.remove('hidden');
     return;
   }
@@ -7532,11 +7803,19 @@ function updateBlockStockInfo(colorInputEl) {
   const tangText = Array.from(byTang.entries()).sort((a, b) => a[0] - b[0]).map(([t, q]) => `탕${t}(${q}y)`).join(' · ');
   // 0y로 비어있는 탕(예전에 다 나가서 빈 채로 남아있는 것)이 있으면, 새 탕번호로 건너뛰지 말고 그 빈 탕을 먼저 채우도록 제안
   const emptyTang = Array.from(byTang.entries()).find(([t, q]) => q === 0);
-  const suggestion = emptyTang ? `<b>탕${emptyTang[0]}</b>(지금 비어있음)` : `새 탕이면 <b>탕${maxTang + 1}</b>`;
-  infoEl.innerHTML = `현재 재고: ${tangText} — ${suggestion}로 입력하시면 됩니다`;
+  const suggestion = emptyTang ? `빈 <b>탕${emptyTang[0]}</b>` : `새 탕이면 <b>탕${maxTang + 1}</b>`;
+  infoEl.innerHTML = `지금 재고: ${tangText} · 같은 탕이면 그 번호, ${suggestion}로 입력해 주세요${coTxt}`;
   infoEl.classList.remove('hidden');
 }
-function closeAddModal() { document.getElementById('addModal').classList.remove('open'); }
+function rollKnownColors(item) { // 이 품번에 지금까지 쓴 컬러 (재고·원가·스와치·발주)
+  const t = String(item).trim(), set = new Set();
+  for (const r of rolls) if (String(r.item).trim() === t && r.color) set.add(String(r.color).trim());
+  for (const x of swatchInfo) if (String(x.item).trim() === t && x.color) set.add(String(x.color).trim());
+  for (const c of costs) if (String(c.item).trim() === t && c.color) set.add(String(c.color).trim());
+  for (const o of chinaOrders) if (String(o.item).trim() === t && o.color) set.add(String(o.color).trim());
+  return [...set].sort((a, b) => a.localeCompare(b, 'ko'));
+}
+function closeAddModal() { document.getElementById('addModal').classList.remove('open'); _rollAddPrefChinaId = null; }
 function calcCostForRollEdit() {
   // 롤 수정 화면의 [원가 계산] 버튼 - 지금 입력창에 적힌 품번/컬러 기준
   const item = document.getElementById('roll-edit-item').value.trim();
@@ -7650,40 +7929,90 @@ function getRollEffectiveCostLabel(rollId, item, color) {
   const custom = r && r.costPerY != null && std != null && r.costPerY !== std;
   return { text: `원가 ${Math.round(effective).toLocaleString()}원${r && r.form === 'cut' && r.costPerY == null ? ' (컷)' : ''}`, custom };
 }
-function addRollRowToBlock(elInBlock) {
+function addRollRowToBlock(elInBlock, qtyVal, noFocus) {
   const listEl = elInBlock.classList && elInBlock.classList.contains('f-block-rolls') ? elInBlock : elInBlock.closest('.f-color-block').querySelector('.f-block-rolls');
   const existingRows = listEl.querySelectorAll('.f-roll-tang');
   const lastTangVal = existingRows.length > 0 ? existingRows[existingRows.length - 1].value : '1';
   const row = document.createElement('div');
   row.className = 'f-roll-row';
-  row.style.marginTop = '6px';
-  row.style.padding = '8px';
-  row.style.border = '1px solid var(--border)';
-  row.style.borderRadius = '8px';
-  row.style.background = '#fff';
   row.innerHTML = `
-    <div style="display:flex; gap:8px; align-items:center;">
-      <input type="number" min="1" value="${lastTangVal || 1}" placeholder="탕번호" class="f-roll-tang" style="flex:1;">
-      <input type="number" step="0.1" placeholder="마수(y)" class="f-roll-qty" style="flex:1;">
-      <button type="button" onclick="toggleRollNote(this)" style="border:none;background:var(--b-warn);color:#a15c1e;border-radius:8px;padding:0 10px;font-size:12px;flex:none;height:38px;">메모</button>
-      <button onclick="this.closest('.f-roll-row').remove()" style="border:none;background:var(--b-danger-soft);color:var(--danger);border-radius:8px;padding:0 10px;font-size:12px;flex:none;height:38px;">삭제</button>
+    <div class="frr-main">
+      <span class="frr-n"></span>
+      <label class="frr-tang">탕<input type="number" min="1" inputmode="numeric" value="${escAttr(lastTangVal || 1)}" class="f-roll-tang"></label>
+      <input type="number" step="0.1" inputmode="decimal" placeholder="마수(y)" class="f-roll-qty" value="${qtyVal != null ? escAttr(qtyVal) : ''}" oninput="rollBlockSum(this)" onkeydown="rollQtyKey(event, this)">
+      <button type="button" class="frr-more" onclick="toggleRollMore(this)" title="원가 · 메모 · 불량">⋯</button>
+      <button type="button" class="frr-del" onclick="removeRollRow(this)" title="이 절 빼기">✕</button>
     </div>
-    <div class="cost-ui" style="display:flex; gap:6px; align-items:center; margin-top:6px;">
-      <input type="number" step="1" placeholder="이 절만 다른 원가 (선택)" class="f-roll-cost" style="flex:1; padding:8px; border:1px solid var(--border); border-radius:8px; font-size:13px;">
-      <button type="button" onclick="calcCnyForRollCost(this)" style="border:none;background:var(--b-sub);color:#555;border-radius:8px;padding:8px 10px;font-size:12px;flex:none;">원가 계산</button>
-    </div>
-    <div class="f-roll-note-wrap hidden" style="margin-top:6px;">
-      <input type="text" class="f-roll-note" maxlength="40" placeholder="탕 메모 - 이 탕 전체 (예: 색 살짝 진함)" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:8px; font-size:13px;">
-      <input type="text" class="f-roll-own-note" maxlength="40" placeholder="절 메모 - 이 절만 (예: 끝단 얼룩 10cm)" style="width:100%; margin-top:6px; padding:8px; border:1px solid var(--border); border-radius:8px; font-size:13px;">
-    </div>
-    <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);margin:6px 0 0;">
-      <input type="checkbox" class="f-roll-defective" style="width:auto;" onchange="this.closest('.f-roll-row').querySelector('.f-roll-reason-wrap').classList.toggle('hidden', !this.checked)"> 불량 절로 표시
-    </label>
-    <div class="f-roll-reason-wrap hidden" style="margin-top:4px;">
-      <input type="text" class="f-roll-reason" placeholder="불량 사유 (예: 염색 불량)" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:8px; font-size:13px;">
+    <div class="frr-tags"></div>
+    <div class="f-roll-more hidden" oninput="rollRowTags(this.closest('.f-roll-row'))" onchange="rollRowTags(this.closest('.f-roll-row'))">
+      <div class="cost-ui" style="display:flex; gap:6px; align-items:center;">
+        <input type="number" step="1" placeholder="이 절만 다른 원가 (선택)" class="f-roll-cost" style="flex:1; padding:8px; border:1px solid var(--border); border-radius:8px; font-size:13px;">
+        <button type="button" onclick="calcCnyForRollCost(this)" style="border:none;background:var(--b-sub);color:#555;border-radius:8px;padding:8px 10px;font-size:12px;flex:none;">원가 계산</button>
+      </div>
+      <div class="f-roll-note-wrap" style="margin-top:6px;">
+        <input type="text" class="f-roll-note" maxlength="40" placeholder="탕 메모 - 이 탕 전체 (예: 색 살짝 진함)" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:8px; font-size:13px;">
+        <input type="text" class="f-roll-own-note" maxlength="40" placeholder="절 메모 - 이 절만 (예: 끝단 얼룩 10cm)" style="width:100%; margin-top:6px; padding:8px; border:1px solid var(--border); border-radius:8px; font-size:13px;">
+      </div>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);margin:6px 0 0;">
+        <input type="checkbox" class="f-roll-defective" style="width:auto;" onchange="this.closest('.f-roll-row').querySelector('.f-roll-reason-wrap').classList.toggle('hidden', !this.checked)"> 불량 절로 표시
+      </label>
+      <div class="f-roll-reason-wrap hidden" style="margin-top:4px;">
+        <input type="text" class="f-roll-reason" placeholder="불량 사유 (예: 염색 불량)" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:8px; font-size:13px;">
+      </div>
     </div>
   `;
   listEl.appendChild(row);
+  rollBlockSum(listEl);
+  return row;
+}
+function rollBlockOf(el) { return el.closest ? el.closest('.f-color-block') : null; }
+function rollBlockSum(el) { // 컬러마다 「3절 · 155y」 합계 + 줄 번호
+  const block = rollBlockOf(el); if (!block) return;
+  const rows = block.querySelectorAll('.f-roll-row'); let n = 0, y = 0;
+  rows.forEach((r, i) => { const nEl = r.querySelector('.frr-n'); if (nEl) nEl.textContent = i + 1; const q = parseFloat(r.querySelector('.f-roll-qty').value); if (!isNaN(q) && q >= 0) { n++; y += q; } });
+  const sum = block.querySelector('.f-block-sum'); if (sum) sum.textContent = n ? `${n}절 · ${(Math.round(y * 100) / 100).toLocaleString()}y` : '';
+}
+function removeRollRow(btn) {
+  const block = rollBlockOf(btn); const list = btn.closest('.f-block-rolls');
+  btn.closest('.f-roll-row').remove();
+  if (list && !list.querySelector('.f-roll-row')) addRollRowToBlock(list);
+  if (block) rollBlockSum(block.querySelector('.f-block-rolls'));
+}
+function rollQtyKey(ev, el) { // 마수 칸에서 Enter → 다음 절 칸 (마지막이면 새 줄)
+  if (ev.key !== 'Enter') return;
+  ev.preventDefault();
+  if (el.value.trim() === '') return;
+  const row = el.closest('.f-roll-row'); let next = row.nextElementSibling;
+  if (!next) next = addRollRowToBlock(row.closest('.f-block-rolls'));
+  const q = next.querySelector('.f-roll-qty'); q.focus();
+}
+function toggleRollMore(btn) {
+  const row = btn.closest('.f-roll-row'); const m = row.querySelector('.f-roll-more');
+  m.classList.toggle('hidden'); btn.classList.toggle('on', !m.classList.contains('hidden'));
+  rollRowTags(row);
+}
+function toggleRollNote(btn) { toggleRollMore(btn); }
+function rollRowTags(row) { // ⋯ 안에 넣은 것을 접어 둬도 보이게 (원가 · 메모 · 불량)
+  if (!row) return; const t = row.querySelector('.frr-tags'); if (!t) return;
+  const v = c => (row.querySelector(c) || {}).value || '';
+  const xs = [];
+  if (parseFloat(v('.f-roll-cost')) > 0 && canSeeCost()) xs.push(`원가 ${Math.round(parseFloat(v('.f-roll-cost'))).toLocaleString()}원`);
+  if (v('.f-roll-note').trim()) xs.push('탕 메모: ' + v('.f-roll-note').trim());
+  if (v('.f-roll-own-note').trim()) xs.push('절 메모: ' + v('.f-roll-own-note').trim());
+  if (row.querySelector('.f-roll-defective').checked) xs.push('불량' + (v('.f-roll-reason').trim() ? ': ' + v('.f-roll-reason').trim() : ''));
+  t.innerHTML = row.querySelector('.f-roll-more').classList.contains('hidden') ? xs.map(x => `<span>${esc(x)}</span>`).join('') : '';
+}
+function rollBulkAdd(inp) { // 「52 48 55」 → 절 3개 (빈 줄부터 채움)
+  const block = rollBlockOf(inp); if (!block) return;
+  const toks = String(inp.value || '').split(/[\s,\/+·]+/).filter(Boolean);
+  const nums = toks.map(t => parseFloat(t)).filter(v => !isNaN(v) && v > 0);
+  if (!toks.length) { inp.focus(); return; }
+  if (nums.length !== toks.length) { showToast('숫자만 띄어서 적어 주세요 (예: 52 48 55)'); return; }
+  const list = block.querySelector('.f-block-rolls');
+  const empties = [...list.querySelectorAll('.f-roll-row')].filter(r => r.querySelector('.f-roll-qty').value.trim() === '');
+  for (const q of nums) { const r = empties.shift(); if (r) r.querySelector('.f-roll-qty').value = q; else addRollRowToBlock(list, q); }
+  inp.value = ''; rollBlockSum(list);
+  showToast(`${nums.length}절을 넣었습니다`);
 }
 function autoDeriveCat(item) {
   const existing = rolls.find(r => String(r.item).trim() === String(item).trim());
@@ -7862,7 +8191,7 @@ async function saveAdd() {
   if (chinaSyncFailed) {
     (await uiAlert('재고는 정상적으로 등록됐습니다.\n다만 발주 상태 반영은 서버 연결 문제로 실패했습니다 - 발주 탭에서 직접 처리해 주세요.'));
   }
-  showToast(`입고 등록되었습니다 (컬러 ${totalColors}개, 탕 ${totalEntries}개)${chinaMatchDecisions.length > 0 && !chinaSyncFailed ? ' · 발주도 같이 처리했습니다' : ''}${frMsg ? ' · ' + frMsg : ''}`);
+  showToast(`입고 등록되었습니다 (컬러 ${totalColors}개 · 절 ${totalEntries}개)${chinaMatchDecisions.length > 0 && !chinaSyncFailed ? ' · 발주도 같이 처리했습니다' : ''}${frMsg ? ' · ' + frMsg : ''}`);
 }
 
 function openOutModal(id) {
@@ -7871,7 +8200,17 @@ function openOutModal(id) {
   pendingOut = id;
   document.getElementById('out-desc').textContent = `${r.item} · ${r.color} · 탕${r.tang} (현재 ${r.qty}y)${getTangNote(r.item, r.color, r.tang) ? ' · ' + getTangNote(r.item, r.color, r.tang) : ''}${r.rollNote ? ' · 절: ' + r.rollNote : ''}`;
   document.getElementById('out-qty').value = '';
+  document.getElementById('out-to-sale').classList.toggle('hidden', !(can('sales') && salesAdminUnlocked));
   document.getElementById('outModal').classList.add('open');
+  setTimeout(() => document.getElementById('out-qty').focus(), 60);
+}
+function outToSale() {
+  const r = rolls.find(x => x.id === pendingOut); if (!r) return;
+  const yd = document.getElementById('out-qty').value;
+  closeOutModal(); switchTab('sales'); openSaleAddModal();
+  document.getElementById('sale-edit-item').value = r.item; document.getElementById('sale-edit-color').value = r.color;
+  if (yd) document.getElementById('sale-edit-yards').value = yd;
+  setTimeout(() => document.getElementById('sale-edit-customer').focus(), 60);
 }
 function closeOutModal() { document.getElementById('outModal').classList.remove('open'); pendingOut = null; }
 let _confirmingOut = false;
@@ -7887,9 +8226,9 @@ async function confirmOut() {
     if (amt >= r.qty) {
       r.qty = 0;
       await cleanupDepletedRolls(r.item, r.color, [r.id]);
-      showToast('전체 출고 완료');
+      showToast('재고에서 모두 뺐습니다');
     }
-    else { r.qty = Math.round((r.qty - amt) * 100) / 100; showToast(`${amt}y 출고, 남은 마수 ${r.qty}y`); }
+    else { r.qty = Math.round((r.qty - amt) * 100) / 100; showToast(`${amt}y 뺐습니다 · 남은 마수 ${r.qty}y`); }
     compactTangsForItemColor(item, color);
     await persistRolls(); closeOutModal(); render();
   } finally { _confirmingOut = false; }
@@ -7986,12 +8325,6 @@ function openRollNoteModal(id) {
   const r = rolls.find(x => x.id === id);
   if (!r) return;
   openNoteModal('절 메모', `${r.item} · ${r.color} · 탕${r.tang} (${r.qty}y) - 이 절 하나에만 붙는 메모입니다`, r.rollNote || '', (v) => saveRollNote(id, v));
-}
-function toggleRollNote(btn) {
-  const row = btn.closest('.f-roll-row');
-  const wrap = row.querySelector('.f-roll-note-wrap');
-  wrap.classList.toggle('hidden');
-  if (!wrap.classList.contains('hidden')) row.querySelector('.f-roll-note').focus();
 }
 function openRollEditModal(id) {
   const r = rolls.find(x => x.id === id);
@@ -9715,6 +10048,7 @@ function openSaleEditModal(logId) {
   document.getElementById('sale-edit-color').value = entry.color || '';
   document.getElementById('sale-edit-yards').value = entry.yardsShipped + (entry.defectYards || 0);
   document.getElementById('sale-edit-skipinv-wrap').classList.add('hidden');
+  document.getElementById('sale-edit-foot').textContent = '여기서 고쳐도 재고는 바뀌지 않습니다 (단가·금액 정정용). 삭제하면 이월장부와 재고가 원래대로 돌아갑니다.';
   populateSaleEditBreakdown(entry);
   document.getElementById('sale-edit-price').value = entry.unitPrice || '';
   document.getElementById('sale-edit-note').value = entry.note || '';
@@ -9788,19 +10122,21 @@ function applySaleCostCalc() {
   showToast(`원가 칸에 ${r.total.toLocaleString()}원을 채웠습니다 · 저장해야 반영됩니다`);
 }
 function openSaleAddModal(customer) {
+  _whqPending = null; document.querySelectorAll('#wh-note').forEach(n => n.remove());
   pendingSaleEditId = null;
   pendingSaleAddCustomer = customer;
   document.getElementById('sale-edit-title').textContent = customer ? '품목 추가' : '새 매출 등록';
   document.getElementById('sale-edit-addmore-btn').classList.remove('hidden');
   document.getElementById('sale-edit-delete-btn').classList.add('hidden');
   document.getElementById('sale-edit-desc').textContent = customer ? `${customer} · 이 거래처 매출에 새 품목을 추가합니다` : '거래처 이름을 입력하고 매출을 등록해 주세요 (처음 거래하는 곳도 됩니다)';
-  document.getElementById('sale-edit-customer').value = customer;
+  document.getElementById('sale-edit-customer').value = customer || '';
   document.getElementById('sale-edit-date').value = toDateInputValue(todayStr());
   document.getElementById('sale-edit-item').value = '';
   document.getElementById('sale-edit-color').value = '';
   document.getElementById('sale-edit-yards').value = '';
   document.getElementById('sale-edit-skip-inventory').checked = false;
   document.getElementById('sale-edit-skipinv-wrap').classList.remove('hidden');
+  document.getElementById('sale-edit-foot').textContent = '저장하면 재고에서 자동으로 빠집니다.';
   document.getElementById('sale-edit-breakdown-wrap').classList.add('hidden');
   document.getElementById('sale-edit-breakdown-list').innerHTML = '';
   document.getElementById('sale-edit-new-tang-list').innerHTML = '';
@@ -9829,11 +10165,13 @@ let _saveSaleInProgress = false;
 async function confirmSaleEdit(keepOpen) {
   if (_saveSaleInProgress) { showToast('처리 중입니다, 잠시만 기다려 주세요'); return; }
   _saveSaleInProgress = true;
+  const n0 = shipmentLog.length;
   try {
     await confirmSaleEditInner(keepOpen);
   } finally {
     _saveSaleInProgress = false; // 성공/실패/중간에 뭘 하든, 함수가 끝나는 순간 바로 풀림 (다음 저장을 막지 않게)
   }
+  if (_whqPending && shipmentLog.length > n0) { const id = _whqPending; _whqPending = null; document.querySelectorAll('#wh-note').forEach(n => n.remove()); await whqMark(id, 'done'); render(); }
 }
 async function confirmSaleEditInner(keepOpen) {
   const isNew = pendingSaleEditId === null;
@@ -10480,6 +10818,7 @@ function openPreShipmentModal(customerName, orderIds) {
   if (pastUnpaid.length > 0) {
     pastWrap.innerHTML = `
       <div style="font-size:12px; font-weight:700; color:#a15c1e; margin-bottom:4px;">미수금 항목 (체크한 것만 이 명세서에 포함됩니다 - 오늘 등록한 건 기본 체크)</div>
+      ${pastUnpaid.length > 1 ? `<div class="selall" style="margin:2px 0 4px;"><button type="button" onclick="document.querySelectorAll('.pre-ship-past-check').forEach(cb => cb.checked = true)">전체 선택</button><button type="button" onclick="document.querySelectorAll('.pre-ship-past-check').forEach(cb => cb.checked = false)">전체 해제</button></div>` : ''}
       ${pastUnpaid.map(e => `
         <label style="display:flex; align-items:center; gap:6px; padding:4px 0; font-size:12px;">
           <input type="checkbox" class="pre-ship-past-check" data-entry-id="${e.id}" ${e.date === todayStr() ? 'checked' : ''} style="width:auto;">
@@ -11601,6 +11940,7 @@ function naSync() { // 신상 화면에서 고른 컬러 = 신상 목록. 바뀌
   const at = new Map(cur.map(x => [x.k, x.at]));
   settings = { ...settings, newArrivals: keys.map(k => ({ k, at: at.get(k) || todayStr() })) };
   clearTimeout(_naTimer); _naTimer = setTimeout(() => { persistSettings(); }, 700);
+  if (currentTab === 'promo') renderPromoSummary(); // 위쪽 「신상 N품번」도 바로 맞춤 (예전엔 탭을 바꿔야 바뀌었음)
 }
 async function catNewClearAll() {
   if (!_catSel.size) return;
@@ -11848,7 +12188,8 @@ function catUpdateCount() {
   const colors = items.reduce((s, it) => s + it.colors.length, 0);
   const FM = CAT_FMT[cfg.format] || null, nImg = catImgCount(items, FM);
   document.getElementById('cat-count').textContent = items.length === 0 ? (cfg.mode === 'new' ? '신상 목록이 비어 있습니다' : '품목을 검색해서 추가해 주세요') : `이미지 ${nImg}장${FM ? ` (${FM.label})` : ''} · ${items.length}품목 · ${colors}컬러${FM && !FM.insta && nImg > 6 ? ' · 채널 캐러셀은 6장까지' : ''}${FM && FM.insta && nImg > 20 ? ' · 인스타는 한 게시물에 20장까지' : ''}`;
-  catRenderPhotos(); catRenderBestPick();
+  catRenderPhotos(); catRenderBestPick(); catFoldSum();
+  { const pb = document.getElementById('pub-go-btn'); if (pb) pb.style.display = cfg.mode === 'new' ? '' : 'none'; } // 고객 페이지 올리기는 신상/베스트에서만
 }
 async function generateCatalog(mode) {
   const cfg = readCatalogCfg();
@@ -11935,6 +12276,16 @@ function pubThumb(it) { // 목록 카드용 작은 정사각 사진: 소재 사�
   });
 }
 let _pubBusy = false;
+function pubGo(sec) { const el = document.getElementById('pub-sec'); if (el) el.value = sec; publishCatalog(); }
+function catFoldToggle() { const b = document.getElementById('cat-box'); if (!b) return; const f = !b.classList.contains('folded'); b.classList.toggle('folded', f); try { localStorage.setItem('catFold', f ? '1' : '0'); } catch (e) { /* 그대로 */ } const a = document.getElementById('cat-fold-arr'); if (a) a.textContent = f ? '▾' : '▴'; }
+function catFoldSum() { // 접힌 「이미지 꾸미기 · 사진」 제목에 지금 설정을 짧게
+  const el = document.getElementById('cat-fold-sum'); if (!el) return;
+  if (!window._catFoldInit) { window._catFoldInit = true; let open = false; try { open = localStorage.getItem('catFold') === '0'; } catch (e) { open = false; } if (open) { const b = document.getElementById('cat-box'); if (b) b.classList.remove('folded'); const a = document.getElementById('cat-fold-arr'); if (a) a.textContent = '▴'; } } // 지난번에 펼쳐 뒀으면 펼친 채로
+  const t = (document.getElementById('cat-title') || {}).value || '';
+  const f = document.getElementById('cat-format'); const fl = f && f.selectedOptions && f.selectedOptions[0] ? f.selectedOptions[0].text.split(' (')[0] : '';
+  let noPh = 0; try { const items = catPicked(readCatalogCfg()); noPh = items.filter(it => !_catPhotos[catPhotoKey(it)]).length; } catch (e) { noPh = 0; }
+  el.textContent = [fl, t ? `「${t}」` : '', noPh ? `사진 없는 품번 ${noPh}` : ''].filter(Boolean).join(' · ');
+}
 async function publishCatalog() {
   if (_pubBusy) return;
   const sec = document.getElementById('pub-sec').value;
@@ -11964,7 +12315,7 @@ async function publishCatalog() {
       const old = idx.entries.find(e => e.id === id);
       if (old && old.n > pages.length) for (let i = pages.length; i < old.n; i++) await pubDeletePage(id, i);
       const fiP = fiPublic(it.item);
-      const ent = { id, sec, item: it.item, mix: it.mix || '', ...(Object.keys(fiP).length ? { info: fiP } : {}), n: pages.length, colors: it.colors.length, cl: catGroupsOf(it).map(custColorLabel).slice(0, 80), date: today, thumb, tc: (catDotColor(it.colors[0].color) || '') };
+      const ent = { id, sec, item: it.item, mix: it.mix || '', ...(Object.keys(fiP).length ? { info: fiP } : {}), n: pages.length, colors: catGroupsOf(it).length, cl: catGroupsOf(it).map(custColorLabel).slice(0, 80), /* 컬러 수 = 손님 화면에 실제로 보이는 컬러 칸 수 (예전엔 묶이기 전 수라 「컬러 2」인데 1칸만 보였음) */ date: today, thumb, tc: (catDotColor(it.colors[0].color) || '') };
       if (old) idx.entries[idx.entries.indexOf(old)] = ent; else newEntries.push(ent);
       done++;
     }
@@ -12072,6 +12423,194 @@ async function ledgerSyncAll(manual) {
     if (manual) showToast(n ? `장부를 갱신했습니다 (${n}곳)` : '이미 최신입니다');
     return true;
   } finally { _ledgerBusy = false; if (_ledgerAgain) { _ledgerAgain = false; ledgerSchedule(); } }
+}
+// ===== 창고 출고 화면 (기능 선택에서 켬, 기본 꺼짐) =====
+// 창고 직원이 자른 야드를 한 절씩 숫자판으로 넣고 「매장으로 보내기」 → shops/{가게}/whq 에 한 건 추가 (재고·매출은 안 바뀜)
+// 매장은 홈 「창고에서 온 출고」 → 「출고 처리」를 누르면 지금 쓰는 출고 창이 야드가 채워진 채로 열림 → 저장되면 그 건은 끝(done)
+function whAllowed() { return featureOn('warehouse') && (can('carry') || can('stock')); }
+function whqEnsure() {
+  if (!useFirebase || typeof db === 'undefined' || !db || !SHOP_ID) return;
+  const want = whAllowed();
+  if (want && !_whqUnsub) {
+    try {
+      _whqUnsub = shopCol('whq').where('status', '==', 'sent').onSnapshot(s => {
+        whqItems = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => whqAt(a) - whqAt(b));
+        scheduleRender();
+      }, () => { whqItems = []; });
+    } catch (e) { _whqUnsub = null; }
+  } else if (!want && _whqUnsub) { try { _whqUnsub(); } catch (e) {} _whqUnsub = null; whqItems = []; }
+}
+function whqAt(x) { return x && x.at && x.at.toMillis ? x.at.toMillis() : (x && x.atMs) || 0; }
+function whqSum(cuts) { return Math.round((cuts || []).reduce((s, v) => s + (Number(v) || 0), 0) * 100) / 100; }
+function whqCutsText(cuts) { const c = (cuts || []).map(Number).filter(v => v > 0); return `${c.join(' · ')} = ${whqSum(c).toLocaleString()}y (${c.length}절)`; }
+function whqTime(x) { const t = whqAt(x); if (!t) return '방금'; const d = new Date(t); const today = new Date().toDateString() === d.toDateString(); return `${today ? '' : `${d.getMonth() + 1}/${d.getDate()} `}${d.getHours() < 12 ? '오전' : '오후'} ${((d.getHours() + 11) % 12) + 1}:${String(d.getMinutes()).padStart(2, '0')}`; }
+async function whqAdd(rec) {
+  const data = { by: (firebase.auth && firebase.auth().currentUser) ? firebase.auth().currentUser.uid : '', name: String((ME && ME.name) || '').slice(0, 30), orderId: rec.orderId == null ? null : String(rec.orderId),
+    customer: String(rec.customer || '').slice(0, 40), item: String(rec.item || '').slice(0, 60), color: String(rec.color || '').slice(0, 60), unit: rec.unit === '절' ? '절' : 'y',
+    cuts: rec.cuts.slice(0, 200).map(v => Math.round(Number(v) * 100) / 100), status: 'sent', v: 1 };
+  if (!useFirebase) { whqItems.push({ id: 'l' + Date.now().toString(36), ...data, atMs: Date.now() }); return true; }
+  try { await shopCol('whq').add({ ...data, at: firebase.firestore.FieldValue.serverTimestamp() }); return true; }
+  catch (e) { await uiAlert('보내지 못했습니다. 인터넷 연결을 확인하고 다시 눌러 주세요.\n' + errHint(e)); return false; }
+}
+async function whqMark(id, status) {
+  const x = whqItems.find(q => q.id === id); if (!x) return;
+  if (!useFirebase) { whqItems = whqItems.filter(q => q.id !== id); return; }
+  try { await shopCol('whq').doc(id).update({ status, doneAt: firebase.firestore.FieldValue.serverTimestamp(), doneBy: firebase.auth().currentUser ? firebase.auth().currentUser.uid : '', doneName: String((ME && ME.name) || '').slice(0, 30) }); whqItems = whqItems.filter(q => q.id !== id); }
+  catch (e) { showToast('창고 출고 표시를 바꾸지 못했습니다 · ' + errHint(e)); }
+}
+// --- 매장 쪽: 목록 · 출고 처리 창 채우기 ---
+function whqListOpen() {
+  let ov = document.getElementById('whqModal');
+  if (!ov) { ov = document.createElement('div'); ov.id = 'whqModal'; ov.className = 'sm-ov'; document.body.appendChild(ov); ov.addEventListener('mousedown', e => { if (e.target === ov) ov.remove(); }); }
+  const rows = whqItems.map(q => {
+    const o = q.orderId != null ? orders.find(x => String(x.id) === String(q.orderId)) : null;
+    return `<div class="whq-it"><b>${esc(q.customer || '거래처 미정')} · ${esc(q.item)} ${esc(q.color || '')}</b>
+      <div class="whq-c">${esc(whqCutsText(q.cuts))}</div><div class="whq-m">${esc(q.name || '창고')} · ${esc(whqTime(q))}${q.orderId != null ? (o && !o.done ? '' : ' · <span style="color:var(--danger);">주문이 이미 끝남 → 매출로 넣기</span>') : ' · 주문 없이 자른 것'}</div>
+      <div class="whq-a"><button type="button" onclick="whqVoid('${escAttr(q.id)}')">지우기</button><button type="button" class="p" onclick="document.getElementById('whqModal').remove(); whqProcess('${escAttr(q.id)}')">출고 처리</button></div></div>`;
+  }).join('');
+  ov.innerHTML = `<div class="sm-box rx-box" style="max-width:520px;"><div class="rx-top"><h3>창고에서 온 출고</h3><button type="button" class="rx-close" onclick="document.getElementById('whqModal').remove()">✕</button></div>
+    <p style="font-size:12.5px;color:var(--muted);margin:0 0 8px;">「출고 처리」를 누르면 출고 창이 창고에서 적은 야드로 채워져 열립니다. 단가·절을 확인하고 저장해 주세요.</p>
+    ${rows || '<div style="padding:24px 0;text-align:center;color:var(--muted);">처리할 창고 출고가 없습니다</div>'}</div>`;
+}
+async function whqVoid(id) {
+  if (!(await uiConfirm('이 창고 출고를 지울까요? (재고·매출은 원래부터 안 바뀌어 있습니다)', { ok: '지우기', danger: true }))) return;
+  await whqMark(id, 'void'); render(); if (document.getElementById('whqModal')) whqListOpen();
+}
+function whqNoteHtml(q) { return `<div id="wh-note" style="font-size:13px;background:#efe9f7;color:#4e3a78;border-radius:8px;padding:8px 10px;margin:0 0 8px;font-weight:600;">창고 ${esc(q.name || '')} · ${esc(whqTime(q))}<br>${esc(whqCutsText(q.cuts))}</div>`; }
+function whqProcess(id) {
+  const q = whqItems.find(x => x.id === id); if (!q) return;
+  const cuts = (q.cuts || []).map(Number).filter(v => v > 0); const tot = whqSum(cuts);
+  const o = q.orderId != null ? orders.find(x => String(x.id) === String(q.orderId) && !x.done) : null;
+  document.querySelectorAll('#wh-note').forEach(n => n.remove());
+  if (o) {
+    if (!can('carry')) { permDeny('carry'); return; }
+    switchTab('order'); openOrderReceiveModal(o.id); _whqPending = id;
+    document.getElementById('or-desc').insertAdjacentHTML('afterend', whqNoteHtml(q));
+    if ((o.unit || 'y') === '절') {
+      document.getElementById('or-jeol-count').value = cuts.length;
+      const tangs = [...document.querySelectorAll('#or-jeol-tang-list input[data-roll-id]')];
+      if (!document.getElementById('or-jeol-tang-section').classList.contains('hidden') && tangs.length) {
+        tangs.forEach((inp, i) => { inp.value = i < cuts.length ? cuts[i] : 0; }); updateJeolTangTotal();
+      } else { renderJeolYardInputs(); document.querySelectorAll('#or-jeol-list .or-jeol-yard-input').forEach((inp, i) => { if (i < cuts.length) inp.value = cuts[i]; }); if (typeof updateJeolTotal === 'function') updateJeolTotal(); }
+    } else {
+      const ins = [...document.querySelectorAll('#or-rolls-list input[data-roll-id]')];
+      if (!document.getElementById('or-rolls-wrap').classList.contains('hidden') && ins.length) {
+        let need = tot;
+        ins.forEach(inp => { const r = pendingReceiveRolls.find(x => x.rollId === parseInt(inp.dataset.rollId)); const take = Math.min(r ? r.qty : 0, Math.max(0, need)); inp.value = take > 0 ? take : 0; need = Math.round((need - take) * 100) / 100; });
+        updateOrderRollsTotal();
+        if (need > 0.001) showToast(`재고에 적힌 것보다 ${need}y 더 잘랐습니다. 절별 출고량을 확인해 주세요`);
+      } else document.getElementById('or-qty').value = tot;
+    }
+  } else {
+    if (!can('sales') || !salesAdminUnlocked) { showToast('주문이 없는 건은 매출로 넣어야 해서 대표님·매니저가 처리해 주세요'); return; }
+    switchTab('sales'); openSaleAddModal(); _whqPending = id;
+    if (q.customer) document.getElementById('sale-edit-customer').value = q.customer;
+    document.getElementById('sale-edit-item').value = q.item || ''; document.getElementById('sale-edit-color').value = q.color || '';
+    document.getElementById('sale-edit-yards').value = tot;
+    document.getElementById('sale-edit-desc').insertAdjacentHTML('afterend', whqNoteHtml(q));
+  }
+}
+async function whqAfterSave(modalId) { // 출고 창·매출 창이 저장돼 닫혔으면 그 창고 건은 끝
+  if (!_whqPending) return;
+  const m = document.getElementById(modalId);
+  if (m && m.classList.contains('open')) return;
+  const id = _whqPending; _whqPending = null; document.querySelectorAll('#wh-note').forEach(n => n.remove());
+  await whqMark(id, 'done'); render();
+}
+// --- 창고 쪽 화면 ---
+function whOpen() {
+  if (!featureOn('warehouse')) { showToast('설정 › 기능 선택에서 「창고 출고 화면」을 켜 주세요'); return; }
+  if (!(can('carry') || can('stock'))) { permDeny('carry'); return; }
+  _wh = { open: true, view: 'list', q: '', ctx: null, pq: '' };
+  try { localStorage.setItem('whMode:' + SHOP_ID, '1'); } catch (e) {}
+  whqEnsure(); whRender();
+}
+function whClose() { _wh.open = false; try { localStorage.removeItem('whMode:' + SHOP_ID); } catch (e) {} const p = document.getElementById('wh-pane'); if (p) p.remove(); document.body.classList.remove('wh-on'); render(); }
+function whMaybeAuto() {
+  if (_whAutoTried || _wh.open || !SHOP_ID || !featureOn('warehouse')) return;
+  let on = false; try { on = localStorage.getItem('whMode:' + SHOP_ID) === '1'; } catch (e) {}
+  _whAutoTried = true; if (on && (can('carry') || can('stock'))) whOpen();
+}
+function whRemain(o) { const r = (o.orderQty || 0) - (o.received || 0); return r > 0 ? Math.round(r * 100) / 100 : 0; }
+function whOrderCard(o) {
+  const sent = whqItems.filter(q => String(q.orderId) === String(o.id));
+  const st = dueState(o);
+  return `<button type="button" class="wh-card${sent.length ? ' sent' : ''}" onclick="whStart('${escAttr(String(o.id))}')"><span class="c">${esc(o.customer || '')}${st === 'late' ? ' <i class="late">예정일 지남</i>' : st === 'today' ? ' <i>오늘</i>' : ''}</span><b>${esc(o.item || '')}${o.color ? ' · ' + esc(o.color) : ''}</b><span class="q">남은 것 ${whRemain(o).toLocaleString()}${esc(o.unit || 'y')}</span>${sent.length ? `<span class="s">보냄 · ${esc(whqCutsText(sent[sent.length - 1].cuts))} <i>매장 확인 대기</i></span>` : ''}</button>`;
+}
+function whRender() {
+  if (!_wh.open) return;
+  let p = document.getElementById('wh-pane');
+  if (!p) { p = document.createElement('div'); p.id = 'wh-pane'; document.body.appendChild(p); }
+  document.body.classList.add('wh-on');
+  const d = new Date(); const day = `${d.getMonth() + 1}월 ${d.getDate()}일 (${['일', '월', '화', '수', '목', '금', '토'][d.getDay()]})`;
+  const focusQ = document.activeElement && document.activeElement.id === 'wh-q', focusP = document.activeElement && document.activeElement.id === 'wh-pq';
+  if (_wh.view === 'cut') { whRenderCut(p); return; }
+  if (_wh.view === 'pick') {
+    const pq = _wh.pq.trim();
+    const seen = new Map();
+    for (const r of rolls) { if (r.defective || !(r.qty > 0)) continue; const k = r.item + '\u0001' + r.color; seen.set(k, Math.round(((seen.get(k) || 0) + r.qty) * 100) / 100); }
+    let list = [...seen.entries()].map(([k, y]) => { const [item, color] = k.split('\u0001'); return { item, color, y }; });
+    if (pq) list = list.filter(x => matchesSearchWords(pq, x.item, x.color));
+    list.sort((a, b) => a.item.localeCompare(b.item, 'ko') || a.color.localeCompare(b.color, 'ko'));
+    p.innerHTML = `<div class="wh-hd"><button type="button" class="wh-back" onclick="_wh.view='list'; whRender()">‹ 뒤로</button><h1>주문 없이 자른 것</h1><p>품번이나 컬러를 찾아서 눌러 주세요</p></div>
+      <div class="wh-body"><input id="wh-pq" class="wh-search" placeholder="품번 · 컬러 찾기" value="${escAttr(_wh.pq)}" oninput="_wh.pq=this.value; whRender()">
+      ${pq ? list.slice(0, 40).map(x => `<button type="button" class="wh-card" onclick="whStartFree('${escAttr(x.item)}','${escAttr(x.color)}')"><b>${esc(x.item)} · ${esc(x.color)}</b><span class="q">재고 ${x.y.toLocaleString()}y</span></button>`).join('') || '<div class="wh-empty">찾는 원단이 없습니다</div>' : '<div class="wh-empty">위 칸에 품번이나 컬러를 적어 주세요</div>'}</div>`;
+    if (focusP) { const i = document.getElementById('wh-pq'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }
+    return;
+  }
+  const q = _wh.q.trim();
+  const open = dueOpen();
+  const due = open.filter(o => ['late', 'today'].includes(dueState(o))).sort((a, b) => String(a.due).localeCompare(String(b.due)));
+  const found = q ? open.filter(o => !due.includes(o) && matchesSearchWords(q, o.customer || '', o.item || '', o.color || '')).slice(0, 40) : [];
+  const mine = whqItems.filter(x => x.orderId == null);
+  p.innerHTML = `<div class="wh-hd"><button type="button" class="wh-back" onclick="whClose()">장부 화면 ›</button><h1>창고 출고</h1><p>${day}${ME && ME.name ? ' · ' + esc(ME.name) + '님' : ''}</p></div>
+    <div class="wh-body">
+      <div class="wh-sec">오늘 · 지난 출고 예정 ${due.length}건</div>
+      ${due.map(whOrderCard).join('') || '<div class="wh-empty">오늘 출고 예정인 주문이 없습니다<br>아래에서 거래처나 품번으로 찾아 주세요</div>'}
+      <div class="wh-sec">다른 주문 찾기</div>
+      <input id="wh-q" class="wh-search" placeholder="거래처 · 품번 · 컬러" value="${escAttr(_wh.q)}" oninput="_wh.q=this.value; whRender()">
+      ${q ? (found.map(whOrderCard).join('') || '<div class="wh-empty">진행 중인 주문 중에 없습니다</div>') : ''}
+      ${mine.length ? `<div class="wh-sec">주문 없이 보낸 것 (매장 확인 대기)</div>${mine.map(x => `<div class="wh-card sent"><b>${esc(x.item)} · ${esc(x.color || '')}</b><span class="s">${esc(whqCutsText(x.cuts))}</span></div>`).join('')}` : ''}
+      <button type="button" class="wh-big sub" onclick="_wh.view='pick'; _wh.pq=''; whRender(); setTimeout(()=>{const i=document.getElementById('wh-pq'); if(i) i.focus();},50)">+ 주문 없이 자른 것</button>
+    </div>`;
+  if (focusQ) { const i = document.getElementById('wh-q'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }
+}
+function whStart(orderId) {
+  const o = orders.find(x => String(x.id) === String(orderId)); if (!o) return;
+  _wh.ctx = { orderId: o.id, customer: o.customer || '', item: o.item || '', color: o.color || '', unit: o.unit || 'y', remainTxt: `${whRemain(o).toLocaleString()}${o.unit || 'y'}`, cuts: [], cur: '' };
+  _wh.view = 'cut'; whRender();
+}
+function whStartFree(item, color) { _wh.ctx = { orderId: null, customer: '', item, color, unit: 'y', remainTxt: '', cuts: [], cur: '' }; _wh.view = 'cut'; whRender(); }
+function whRenderCut(p) {
+  const c = _wh.ctx; const sum = whqSum(c.cuts);
+  p.innerHTML = `<div class="wh-hd"><button type="button" class="wh-back" onclick="whCutBack()">‹ 뒤로</button><h1>${esc(c.item)}${c.color ? ' · ' + esc(c.color) : ''}</h1><p>${c.orderId != null ? `${esc(c.customer)} · 남은 것 ${esc(c.remainTxt)}` : '주문 없이 자른 것'}</p></div>
+    <div class="wh-body">
+      ${c.orderId == null ? `<input id="wh-cust" class="wh-search" placeholder="거래처 (아시면)" value="${escAttr(c.customer)}" oninput="_wh.ctx.customer=this.value">` : ''}
+      <div class="wh-lab">${c.cuts.length ? '지금까지 자른 것 (누르면 지움)' : '한 절씩 야드를 넣고 「다음 절」'}</div>
+      <div class="wh-cuts">${c.cuts.map((v, i) => `<button type="button" onclick="whCutDel(${i})">${v}y</button>`).join('')}</div>
+      <div class="wh-lab">${c.cuts.length + 1}번째 절${c.cuts.length ? ` · 합계 ${sum.toLocaleString()}y` : ''}</div>
+      <div class="wh-disp">${c.cur ? esc(c.cur) : '<span style="color:#bbb;">0</span>'}<small> y</small></div>
+      <div class="wh-kp">${['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(k => `<button type="button" onclick="whKey('${k}')">${k}</button>`).join('')}<button type="button" class="g" onclick="whKey('del')">지우기</button><button type="button" onclick="whKey('0')">0</button><button type="button" class="g" onclick="whKey('.')">.</button></div>
+      <div class="wh-row"><button type="button" class="wh-big sub" onclick="whNextCut()">다음 절</button><button type="button" class="wh-big" onclick="whSend()">매장으로 보내기</button></div>
+    </div>`;
+}
+function whKey(k) {
+  const c = _wh.ctx; if (!c) return;
+  if (k === 'del') c.cur = c.cur.slice(0, -1);
+  else if (k === '.') { if (!c.cur.includes('.')) c.cur = (c.cur || '0') + '.'; }
+  else if (c.cur.replace('.', '').length < 5) c.cur = (c.cur === '0' ? '' : c.cur) + k;
+  whRender();
+}
+function whNextCut() { const c = _wh.ctx; const v = parseFloat(c.cur); if (!(v > 0)) { showToast('야드를 먼저 넣어 주세요'); return false; } c.cuts.push(Math.round(v * 100) / 100); c.cur = ''; whRender(); return true; }
+async function whCutDel(i) { const c = _wh.ctx; if (!(await uiConfirm(`${c.cuts[i]}y를 지울까요?`, { ok: '지우기' }))) return; c.cuts.splice(i, 1); whRender(); }
+async function whCutBack() { const c = _wh.ctx; if ((c.cuts.length || c.cur) && !(await uiConfirm('넣은 야드를 보내지 않고 나갈까요?', { ok: '나가기' }))) return; _wh.view = c.orderId == null ? 'pick' : 'list'; _wh.ctx = null; whRender(); }
+async function whSend() {
+  const c = _wh.ctx; if (c.cur && parseFloat(c.cur) > 0) { c.cuts.push(Math.round(parseFloat(c.cur) * 100) / 100); c.cur = ''; }
+  if (!c.cuts.length) { showToast('자른 야드를 넣어 주세요'); return; }
+  whRender();
+  if (!(await uiConfirm(`${c.customer ? c.customer + ' · ' : ''}${c.item} ${c.color}\n${whqCutsText(c.cuts)}\n매장으로 보낼까요?`, { ok: '보내기' }))) return;
+  const ok = await whqAdd(c); if (!ok) return;
+  showToast('매장으로 보냈습니다'); _wh.view = 'list'; _wh.ctx = null; _wh.q = ''; whRender();
 }
 // ===== 출고 예정일 (이월 건마다 거래처에게 알려 주는 날짜) =====
 // o.due = 'YYYY-MM-DD' (선택). 앱 「출고 예정」 화면·입고 안내 창에서 적음 → 거래처 장부 링크 이월 탭에 "11/30(월) 출고 예정"
@@ -12308,7 +12847,7 @@ function renderLedgerLinkModal() {
   const mode = token ? ledgerModeOf(c) : '', pin = mode === 'pin' ? ledgerPinOf(c) : '';
   if (!token) {
     box.innerHTML = `<div style="font-size:15px; font-weight:800; margin-bottom:6px;">${esc(c)}</div>
-      <div style="font-size:12.5px; color:var(--muted); line-height:1.6; margin-bottom:10px;">거래처가 자기 미수금·출고·입금·주문 진행을 휴대폰으로 보는 링크입니다. 비밀번호 없이 링크만 누르면 열리고, 내용은 암호화돼서 저장됩니다.</div>
+      <div style="font-size:12.5px; color:var(--muted); line-height:1.6; margin-bottom:10px;">거래처가 자기 미수금·출고·입금·진행사항을 휴대폰으로 보는 링크입니다. 비밀번호 없이 링크만 누르면 열리고, 내용은 암호화돼서 저장됩니다.</div>
       <button type="button" onclick="ledgerCreate()" style="${bs} width:100%; background:var(--primary); color:#fff;">장부 링크 만들기</button>`;
     return;
   }
@@ -12333,7 +12872,7 @@ function renderLedgerLinkModal() {
     <div style="${sec} display:flex; gap:6px; white-space:nowrap;"><button type="button" onclick="ledgerRefreshNow()" style="${bs} flex:1; background:var(--b-sub); color:#444;">지금 갱신</button><button type="button" onclick="ledgerRegen()" style="${bs} flex:1.3; background:var(--b-sub); color:#444;">링크 다시 만들기</button><button type="button" onclick="ledgerOff()" style="${bs} flex:1; background:var(--b-danger-soft); color:#8a2f1d;">링크 끄기</button></div>`
     + ledgerMemoHtml(c);
 }
-function ledgerMsgText(c) { const t = ledgerLinks()[c], m = ledgerModeOf(c); return m === 'key' ? `${c} - ${shopDisplayName()} 장부 링크입니다.\n누르면 바로 열립니다 (미수금·출고·입금·주문 진행).\n${ledgerUrl(t, c)}` : `${c} - ${shopDisplayName()} 장부 링크입니다.\n${ledgerUrl(t, c)}\n\n비밀번호는 ${ledgerPinOf(c) || ledgerPin()} 입니다.`; }
+function ledgerMsgText(c) { const t = ledgerLinks()[c], m = ledgerModeOf(c); return m === 'key' ? `${c} - ${shopDisplayName()} 장부 링크입니다.\n누르면 바로 열립니다 (미수금·출고·입금·진행사항).\n${ledgerUrl(t, c)}` : `${c} - ${shopDisplayName()} 장부 링크입니다.\n${ledgerUrl(t, c)}\n\n비밀번호는 ${ledgerPinOf(c) || ledgerPin()} 입니다.`; }
 function ledgerClip(txt, okMsg) { const ok = () => showToast(okMsg); if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(ok, () => uiCopyBox(txt)); else uiCopyBox(txt); }
 function ledgerCopyMsg() { ledgerClip(ledgerMsgText(_ledgerModalCustomer), '문구를 복사했습니다'); }
 function ledgerCopyPin() { const p = ledgerPinOf(_ledgerModalCustomer); if (p) ledgerClip(p, '비밀번호 복사 완료'); }
@@ -13250,10 +13789,10 @@ function renderCustomerLedgerView() {
       <button type="button" class="sv-act" onclick="if(ledgerCustomer) prepayOpen(ledgerCustomer)">선수금 받기</button>
       ${outMenuBtn('명세서', [['고른 줄 인쇄', 'printCurrentLedgerStatement()'], ['이 기간 인쇄', 'printLedgerPeriod()'], ['이 기간 ' + kakaoLbl(), "printLedgerPeriod('share')"]], '').replace('style=""', 'class="sv-act"')}
     </div>
-    <div class="sv-small">
-      <span onclick="document.querySelectorAll('.ledger-print-check').forEach(cb=>cb.checked=true)">전체 선택</span>
-      <span onclick="document.querySelectorAll('.ledger-print-check').forEach(cb=>cb.checked=false)">전체 해제</span>
-      <label><input type="checkbox" id="ledger-print-add-tax"> 부가세 포함해서 인쇄</label>
+    <div class="selall" style="margin:2px 0 10px;">
+      <button type="button" onclick="document.querySelectorAll('.ledger-print-check').forEach(cb=>cb.checked=true)">전체 선택</button>
+      <button type="button" onclick="document.querySelectorAll('.ledger-print-check').forEach(cb=>cb.checked=false)">전체 해제</button>
+      <label class="cnt" style="display:flex;align-items:center;gap:4px;"><input type="checkbox" id="ledger-print-add-tax" style="width:auto;"> 부가세 포함해서 인쇄</label>
     </div>`;
   list.appendChild(controls);
   const profileWrap = document.createElement('div'); profileWrap.id = 'ledger-profile-wrap'; list.appendChild(profileWrap);
@@ -15345,12 +15884,30 @@ function payPicker(i) {
   const q = paySearch.trim(); const shown = names.filter(n => !q || matchesSearchWords(q, n));
   box.innerHTML = `<input type="search" placeholder="거래처 검색" value="${escAttr(paySearch)}" oninput="paySearch=this.value; const b=this.closest('.pay-pick'); b.replaceWith(payPicker(${i})); setTimeout(()=>{ const n=document.querySelector('.pay-pick input'); if(n){ n.focus(); n.setSelectionRange(n.value.length,n.value.length);} },0)">
     <div class="pay-sub" style="margin:4px 0;">체크하면 담당 거래처. 직원이 새로 뚫은 거래처는 「신규」도 체크하고 첫거래일을 확인해 주세요.</div>
+    ${shown.length > 1 ? `<div class="selall"><button type="button" onclick="payPickAll(${i}, true)">보이는 거래처 모두 담당</button><button type="button" onclick="payPickAll(${i}, false)">모두 빼기</button><span class="cnt">${shown.length}곳${q ? ' (찾은 것)' : ''}</span></div>` : ''}
     <div class="pay-plist">${shown.map(n => { const mine = (me.customers || []).find(c => c.name === n); const other = owner.get(n);
       return `<div class="pay-prow"><label><input type="checkbox" ${mine ? 'checked' : ''} onchange="payToggleCust(${i}, ${JSON.stringify(n).replace(/"/g, '&quot;')}, this.checked)">${esc(n)}${other && !mine ? ` <small>· ${esc(other)} 담당</small>` : ''}</label>${mine ? `<label class="pay-new-l"><input type="checkbox" ${mine.isNew ? 'checked' : ''} onchange="payToggleNew(${i}, ${JSON.stringify(n).replace(/"/g, '&quot;')}, this.checked)">신규</label>${mine.isNew ? `<input class="pay-since" value="${escAttr(mine.since || '')}" placeholder="YY.MM.DD" onchange="paySetSince(${i}, ${JSON.stringify(n).replace(/"/g, '&quot;')}, this.value)">` : ''}` : ''}</div>`; }).join('') || '<div class="pay-sub" style="padding:8px 0;">거래처가 없습니다</div>'}</div>`;
   return box;
 }
 function payFirstDate(n) { const ds = shipmentLog.filter(e => String(e.customer || '').trim() === n && e.item !== '이월 미수금' && /^\d\d\.\d\d\.\d\d$/.test(String(e.date))).map(e => String(e.date)).sort(); return ds[0] || todayStr(); }
 async function payUpdate(fn) { const list = JSON.parse(JSON.stringify(payPeople())); fn(list); if (await paySave(list)) render(); }
+async function payPickAll(i, on) { // 보이는(찾은) 거래처를 한 번에 - 다른 직원 담당은 건드리지 않음
+  const people = payPeople(), me = people[i]; if (!me) return;
+  const owner = new Map(); people.forEach((p, j) => { if (j !== i) for (const c of (p.customers || [])) owner.set(c.name, p.name); });
+  const names = [...new Set([...shipmentLog.map(e => String(e.customer || '').trim()), ...customerList.map(c => String(c).trim()), ...(me.customers || []).map(c => c.name)].filter(Boolean))];
+  const q = paySearch.trim(); const shown = names.filter(n => !q || matchesSearchWords(q, n));
+  if (on) {
+    const add = shown.filter(n => !owner.has(n) && !(me.customers || []).some(c => c.name === n));
+    if (!add.length) { showToast('새로 담당할 거래처가 없습니다 (다른 직원 담당은 그대로 둠)'); return; }
+    if (!(await uiConfirm(`${me.name} 담당으로 ${add.length}곳을 넣으시겠습니까?${owner.size ? '\n다른 직원이 맡은 거래처는 그대로 둡니다.' : ''}`, { ok: '넣기', danger: false }))) return;
+    payUpdate(list => { list[i].customers = [...(list[i].customers || []), ...add.map(n => ({ name: n, isNew: false }))]; });
+  } else {
+    const set = new Set(shown), cnt = (me.customers || []).filter(c => set.has(c.name)).length;
+    if (!cnt) return;
+    if (!(await uiConfirm(`${me.name} 담당에서 ${cnt}곳을 빼시겠습니까?`))) return;
+    payUpdate(list => { list[i].customers = (list[i].customers || []).filter(c => !set.has(c.name)); });
+  }
+}
 function payToggleCust(i, n, on) {
   payUpdate(list => {
     if (on) { for (const p of list) if (p !== list[i] && (p.customers || []).some(c => c.name === n)) { p.customers = p.customers.filter(c => c.name !== n); showToast(`${n}: ${p.name} → ${list[i].name} 담당으로 옮겼습니다`); }
@@ -17617,7 +18174,7 @@ function buildChinaOrderCard(o) {
       </div>
       <div style="display:flex; align-items:center; gap:6px; flex:none; margin-left:8px;">
         ${chinaBadge(o, isReceived, arrival)}
-        <button onclick="event.stopPropagation(); ${isReceived ? `toggleChinaOrderStatus(${o.id})` : `openChinaReceiveModal(${o.id})`}" style="border:none;background:var(--b-sub);color:var(--text);border-radius:6px;padding:5px 8px;font-size:11px;">${isReceived ? '대기로' : '입고처리'}</button>
+        <button onclick="event.stopPropagation(); ${isReceived ? `toggleChinaOrderStatus(${o.id})` : `openChinaReceiveModal(${o.id})`}" style="border:none;background:var(--b-sub);color:var(--text);border-radius:6px;padding:5px 8px;font-size:11px;">${isReceived ? '대기로' : '입고 처리'}</button>
       </div>
     </div>
     ${o.note ? `<div style="font-size:12px; color:#a15c1e; font-weight:700; margin-top:5px; background:#fff3d6; border-radius:5px; padding:4px 8px; display:inline-block;">${esc(o.note)}</div>` : ''}
@@ -17671,7 +18228,7 @@ function renderChinaOrdersByItem(filtered) {
             </div>
             <div style="display:flex; align-items:center; gap:6px; flex:none; margin-left:8px;">
               ${chinaBadge(o, isReceived, arrival)}
-              <button onclick="event.stopPropagation(); ${isReceived ? `toggleChinaOrderStatus(${o.id})` : `openChinaReceiveModal(${o.id})`}" style="border:none;background:var(--b-sub);color:var(--text);border-radius:6px;padding:5px 8px;font-size:11px;">${isReceived ? '대기로' : '입고처리'}</button>
+              <button onclick="event.stopPropagation(); ${isReceived ? `toggleChinaOrderStatus(${o.id})` : `openChinaReceiveModal(${o.id})`}" style="border:none;background:var(--b-sub);color:var(--text);border-radius:6px;padding:5px 8px;font-size:11px;">${isReceived ? '대기로' : '입고 처리'}</button>
             </div>
           </div>
           ${o.note ? `<div style="font-size:12px; color:#a15c1e; font-weight:700; margin-top:5px; background:#fff3d6; border-radius:5px; padding:4px 8px; display:inline-block;">${esc(o.note)}</div>` : ''}
@@ -17702,7 +18259,26 @@ function openChinaReceiveModal(id) {
   document.getElementById('china-receive-desc').textContent = `${o.item || ''} ${o.color || ''} · 발주수량: ${o.qty || ''}`;
   document.getElementById('china-receive-qty').value = o.qty || '';
   document.getElementById('china-receive-remain').value = '';
+  const toStock = can('stock');
+  document.getElementById('china-recv-main').classList.toggle('hidden', !toStock);
+  document.getElementById('china-recv-only').classList.toggle('hidden', toStock);
+  document.getElementById('china-recv-actions').querySelector('.btn-save').classList.toggle('hidden', toStock);
   document.getElementById('chinaReceiveModal').classList.add('open');
+}
+function chinaReceiveOnly() {
+  document.getElementById('china-recv-main').classList.add('hidden');
+  document.getElementById('china-recv-only').classList.remove('hidden');
+  document.getElementById('china-recv-actions').querySelector('.btn-save').classList.remove('hidden');
+  setTimeout(() => document.getElementById('china-receive-qty').focus(), 50);
+}
+function chinaReceiveToStock() { // 발주 → 입고 창 (품번·컬러·중국품번 채워서). 저장하면 이 발주를 먼저 짝지어 처리
+  const o = chinaOrders.find(x => x.id === _receivingChinaOrderId); if (!o) return;
+  closeChinaReceiveModal();
+  const item = resolveInventoryItem(o.item || ''), color = String(resolveInventoryColor(o.item || '', o.color || '')).trim();
+  openRollAddModalFor(item, color, o.id);
+  const b = document.querySelector('#f-color-blocks .f-color-block');
+  if (b && o.chinaCode) b.querySelector('.f-block-chinacode').value = o.chinaCode;
+  setTimeout(() => { const q = document.querySelector('#f-color-blocks .f-roll-qty'); if (q) q.focus(); }, 80);
 }
 function closeChinaReceiveModal() {
   document.getElementById('chinaReceiveModal').classList.remove('open');
@@ -17752,7 +18328,7 @@ function openChinaMatchConfirm(order, enteredInfo) {
       document.getElementById('china-match-detail').textContent = `지금 ${enteredInfo.enteredValue}${enteredInfo.unit} 입력하셨습니다 → ${remainingText} 부족합니다`;
       html += `<button onclick='resolveChinaMatch({action:"partial", receivedQty:"${enteredInfo.enteredValue}${enteredInfo.unit}", remainQty:"${remainingText}"})' style="border:none;background:var(--primary-dark);color:#fff;border-radius:8px;padding:10px;font-size:14px;font-weight:700;">${remainingText} 이월 처리</button>`;
     } else {
-      document.getElementById('china-match-detail').textContent = `지금 ${enteredInfo.enteredValue}${enteredInfo.unit} 입력하셨습니다 → 발주량만큼 다 왔습니다`;
+      { const over = Math.round((enteredInfo.enteredValue - enteredInfo.orderValue) * 100) / 100; document.getElementById('china-match-detail').textContent = over > 0.001 ? `지금 ${enteredInfo.enteredValue}${enteredInfo.unit} 입력하셨습니다 → 발주량보다 ${over}${enteredInfo.unit} 더 왔습니다` : `지금 ${enteredInfo.enteredValue}${enteredInfo.unit} 입력하셨습니다 → 발주량만큼 다 왔습니다`; }
       html += `<button onclick='resolveChinaMatch({action:"full", receivedQty:"${enteredInfo.enteredValue}${enteredInfo.unit}"})' style="border:none;background:var(--primary-dark);color:#fff;border-radius:8px;padding:10px;font-size:14px;font-weight:700;">입고 완료 처리</button>`;
     }
   } else {
@@ -18206,7 +18782,7 @@ function renderCustomerBuckets(list2) {
         factoryHead.style.cssText = 'display:flex; align-items:center; gap:6px; padding:6px 4px; font-size:12px; color:var(--muted); border-top:1px dashed var(--border); margin-top:4px; flex-wrap:wrap;';
         factoryHead.innerHTML = (notDoneIds.length > 0 ? `
           <input type="checkbox" class="preship-group-check" data-ids="${notDoneIds.join(',')}" onchange="this.dataset.ids.split(',').forEach(id => { const cb = document.querySelector('.preship-item-check[data-id=\\'' + id + '\\']'); if (cb) cb.checked = this.checked; })" style="width:auto;">
-          <span>${esc(fkey)} (이 그룹 전체 선택)</span>
+          <span>${esc(fkey)} (${byFactory.size > 1 ? '이 공장 ' : ''}전체 선택)</span>
         ` : `<span>${esc(fkey)}</span>`) + `
           <button onclick="openOrderAddModal('${cust === '(거래처 미입력)' ? '' : escAttr(cust)}', '${fkey === '(연락처 미입력)' ? '' : escAttr(fkey)}')" style="border:none;background:var(--b-ok);color:#2f6b46;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;">+ 추가</button>
           <button onclick="renameFactoryForOrders('${escAttr(fkey)}', [${allIdsInGroup.join(',')}])" style="border:none;background:var(--b-sub);color:#555;border-radius:6px;padding:2px 8px;font-size:11px;">공장/연락처 일괄수정 (${allIdsInGroup.length}건)</button>
@@ -18394,7 +18970,7 @@ function addColorRow(colorListEl) {
   row.style.cssText = 'border-top:1px dashed var(--border); padding-top:6px; margin-top:6px;';
   row.innerHTML = `
     <div class="row2">
-      <div><input type="text" class="o-color-input" placeholder="칼라 (예: 1번연베지)" autocomplete="off" oninput="showColorSuggestions(this, this.closest('.o-item-group').querySelector('.o-item-input'))" onfocus="showColorSuggestions(this, this.closest('.o-item-group').querySelector('.o-item-input'))" onblur="hideItemSuggestionsDelayed()"></div>
+      <div><input type="text" class="o-color-input" placeholder="컬러 (예: 1번연베지)" autocomplete="off" oninput="showColorSuggestions(this, this.closest('.o-item-group').querySelector('.o-item-input'))" onfocus="showColorSuggestions(this, this.closest('.o-item-group').querySelector('.o-item-input'))" onblur="hideItemSuggestionsDelayed()"></div>
       <div style="display:flex; gap:4px;">
         <input type="number" step="0.1" class="o-color-qty" placeholder="수량" style="flex:1;">
         <select class="o-color-unit" style="flex:none; width:64px;">
@@ -18761,6 +19337,7 @@ function findInventoryRolls(item, color) {
 function openOrderReceiveModal(id) {
   const o = orders.find(x => x.id === id);
   if (!o) return;
+  _whqPending = null; document.querySelectorAll('#wh-note').forEach(n => n.remove());
   pendingReceiveOrderId = id;
   const remain = (o.orderQty && o.orderQty > o.received) ? Math.round((o.orderQty - o.received) * 100) / 100 : 0;
   document.getElementById('orderReceiveTitle').textContent = '출고 처리';
@@ -19136,6 +19713,7 @@ async function confirmOrderReceive() {
   } finally {
     _confirmingOrderReceive = false;
   }
+  await whqAfterSave('orderReceiveModal');
 }
 async function confirmOrderReceiveInner(o) {
   const isJeol = (o.unit || 'y') === '절';
@@ -19479,7 +20057,7 @@ function addReturnRow(item, color, unit, note) {
   row.innerHTML = `
     <div class="row2">
       <div><input type="text" class="ret-row-item" placeholder="품목 (예: 버블)" value="${escAttr(item || '')}" autocomplete="off" oninput="showItemSuggestions(this); updateReturnRowTangHint(this)" onfocus="showItemSuggestions(this)" onblur="hideItemSuggestionsDelayed()"></div>
-      <div><input type="text" class="ret-row-color" placeholder="칼라 (예: 2번진청)" value="${escAttr(color || '')}" autocomplete="off" oninput="showColorSuggestions(this, this.closest('.ret-row').querySelector('.ret-row-item')); updateReturnRowTangHint(this)" onfocus="showColorSuggestions(this, this.closest('.ret-row').querySelector('.ret-row-item'))" onblur="hideItemSuggestionsDelayed()"></div>
+      <div><input type="text" class="ret-row-color" placeholder="컬러 (예: 2번진청)" value="${escAttr(color || '')}" autocomplete="off" oninput="showColorSuggestions(this, this.closest('.ret-row').querySelector('.ret-row-item')); updateReturnRowTangHint(this)" onfocus="showColorSuggestions(this, this.closest('.ret-row').querySelector('.ret-row-item'))" onblur="hideItemSuggestionsDelayed()"></div>
     </div>
     <div style="display:flex; gap:6px; align-items:center; margin-top:6px;">
       <input type="number" step="0.1" class="ret-row-qty" placeholder="수량" oninput="updateReturnRowTangHint(this)" style="flex:1;">
@@ -20389,6 +20967,15 @@ function spsIsOn(r) { return r.o.done ? spsOn.has(r.o.id) : !spsOff.has(r.o.id);
 function spsMD(d) { const p = String(d || '').split('.').map(x => x.trim()); return p.length >= 3 ? `${p[1]}/${p[2]}` : String(d || ''); }
 function spsNum(v) { return String(Math.round(v * 100) / 100); }
 function spsSetTab(t) { spsTab = t; renderSampleStmt(); }
+function spsAll(on, cust) { // 보고 있는 탭(대기/완료)의 줄을 한 번에 (거래처를 주면 그 거래처만)
+  for (const r of spsRows()) {
+    if (r.tab !== spsTab) continue;
+    if (cust != null && String(r.o.customer || '').trim() !== cust) continue;
+    const id = r.o.id;
+    if (r.o.done) { if (on) spsOn.add(id); else spsOn.delete(id); } else { if (on) spsOff.delete(id); else spsOff.add(id); }
+  }
+  renderSampleStmt();
+}
 function spsToggle(id, checked) {
   const o = orders.find(x => x.id === id); if (!o) return;
   if (o.done) { if (checked) spsOn.add(id); else spsOn.delete(id); }
@@ -20418,8 +21005,9 @@ function renderSampleStmt() {
   const all = spsRows();
   const waitN = all.filter(r => r.tab === 'wait').length, doneN = all.length - waitN;
   const chip = (t, label, on) => `<span onclick="spsSetTab('${t}')" style="cursor:pointer;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;background:${on ? 'var(--primary-dark)' : '#ede3d0'};color:${on ? '#fff' : '#5f5e5a'};">${label}</span>`;
-  document.getElementById('sps-tabs').innerHTML = chip('wait', `대기 ${waitN}`, spsTab === 'wait') + chip('done', `완료 ${doneN}`, spsTab === 'done');
   const rows = all.filter(r => r.tab === spsTab);
+  document.getElementById('sps-tabs').innerHTML = chip('wait', `대기 ${waitN}`, spsTab === 'wait') + chip('done', `완료 ${doneN}`, spsTab === 'done')
+    + (rows.length > 1 ? `<span class="selall" style="margin:0 0 0 auto;"><button type="button" onclick="spsAll(true)">전체 선택</button><button type="button" onclick="spsAll(false)">전체 해제</button></span>` : '');
   const listEl = document.getElementById('sps-list');
   if (rows.length === 0) {
     listEl.innerHTML = `<div class="empty" style="padding:24px 10px;">${spsTab === 'wait' ? '출고 전인 샘플 주문이 없습니다<br><span style="font-size:11px;">이월장부에서 주문 등록할 때 "샘플 주문"를 체크하면 여기 모입니다</span>' : '출고 완료된 샘플이 없습니다'}</div>`;
@@ -20428,7 +21016,7 @@ function renderSampleStmt() {
     let lastCust = null, html = '';
     for (const r of rows) {
       const o = r.o, cust = String(o.customer || '').trim();
-      if (multi && cust !== lastCust) { html += `<div style="font-size:12px;font-weight:700;color:var(--primary-dark);margin:10px 0 2px;">${esc(cust || '(거래처 미입력)')}</div>`; }
+      if (multi && cust !== lastCust) { const nC = rows.filter(x => String(x.o.customer || '').trim() === cust).length; html += `<div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:700;color:var(--primary-dark);margin:10px 0 2px;"><span>${esc(cust || '(거래처 미입력)')}</span>${nC > 1 ? `<span class="selall" style="margin:0;"><button type="button" onclick="spsAll(true, ${svA(cust)})">이 거래처 선택</button><button type="button" onclick="spsAll(false, ${svA(cust)})">해제</button></span>` : ''}</div>`; }
       lastCust = cust;
       const p = spsPriceOf(o);
       const qtyLabel = r.unit === '절' ? `${spsNum(r.qty)}절 ≈ ${spsNum(r.yards)}y` : `${spsNum(r.qty)}y`;
@@ -21351,19 +21939,7 @@ async function applyCarryoverUnpaidIfNeeded() {
   await persistSettings();
   showToast(`기존 거래처 미수금 ${addedCount}건을 반영했습니다`);
 }
-async function fixMeiWonNameIfNeeded() {
-  if (settings.meiWonNameFixed) return;
-  let changed = false;
-  for (const e of shipmentLog) {
-    if (e.item === '이월 미수금' && String(e.customer).trim() === '메이 원') {
-      e.customer = '메이원';
-      changed = true;
-    }
-  }
-  if (changed) await persistShipmentLog();
-  settings = { ...settings, meiWonNameFixed: true };
-  await persistSettings();
-}
+async function fixMeiWonNameIfNeeded() { return; } // [새 시스템] 백야 거래처 이름을 고치던 일회성 코드 - 백야 데이터엔 이미 해당 없음, 실제 거래처 이름이 판매용 코드에 남지 않게 비움
 
 async function applyDataVersionIfNeeded() {
   // 2026년 8월 초, 재고/이월장부를 새 파일 기준으로 한 번 맞춰야 했던 일회성 작업이었어요.

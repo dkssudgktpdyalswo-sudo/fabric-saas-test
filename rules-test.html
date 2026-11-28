@@ -111,6 +111,20 @@ async function runAll() {
     await expectDenied('16-7. 대표A가 기록 지우기', () => LG(A, SA).doc(logId || 'x').delete());
     await expectDenied('16-8. 대표B가 A 가게에 기록 남기기', () => LG(B, SA).add({ at: ST(), by: B.uid, name: 'x', role: 'owner', lines: [], n: 0, v: 1 }));
     await expectDenied('16-9. 운영자도 기록 지우기 못 함', () => ADM.db.collection('shops').doc(SA).collection('logs').doc(logId || 'x').delete());
+    // 창고 출고: 가게 사람은 자기 이름으로 보냄(sent)만, 끝·지움 표시만, 다른 가게는 못 봄
+    const WQ = (u) => u.db.collection('shops').doc(SA).collection('whq');
+    const wq = (x) => Object.assign({ at: ST(), by: S.uid, name: '시험직원', orderId: null, customer: '', item: 'A-201', color: '검정', unit: 'y', cuts: [52, 48], status: 'sent', v: 1 }, x || {});
+    let wqId = null;
+    await expectOk('16-10. 직원S가 창고 출고 보내기', async () => { const r = await WQ(S).add(wq()); wqId = r.id; });
+    await expectDenied('16-11. 직원S가 대표 이름으로 창고 출고 보내기', () => WQ(S).add(wq({ by: A.uid })));
+    await expectDenied('16-12. 처리 끝(done)으로 꾸며서 보내기', () => WQ(S).add(wq({ status: 'done' })));
+    await expectDenied('16-13. 정해진 칸 말고 다른 칸(단가) 끼워 넣기', () => WQ(S).add(wq({ price: 3000 })));
+    await expectDenied('16-14. 대표B가 A 가게 창고 출고 보기', () => WQ(B).get());
+    await expectOk('16-15. 대표A가 창고 출고 보기', () => WQ(A).get());
+    await expectDenied('16-16. 대표A가 야드(cuts) 바꾸기', () => WQ(A).doc(wqId || 'x').update({ cuts: [1], status: 'done', doneBy: A.uid }));
+    await expectOk('16-17. 대표A가 끝 표시', () => WQ(A).doc(wqId || 'x').update({ status: 'done', doneAt: ST(), doneBy: A.uid, doneName: '대표' }));
+    await expectDenied('16-18. 끝난 건 다시 고치기', () => WQ(S).doc(wqId || 'x').update({ status: 'void', doneAt: ST(), doneBy: S.uid, doneName: 'x' }));
+    await expectDenied('16-19. 직원S가 창고 출고 지우기', () => WQ(S).doc(wqId || 'x').delete());
     await expectDenied('17. 직원S가 직원 목록 보기', () => S.db.collection('shops').doc(SA).collection('members').get());
     await expectDenied('18. 직원S가 자기를 대표으로 바꾸기', () => D(S, SA, 'members', S.uid).update({ role: 'owner' }));
     await expectDenied('19. 직원S가 백업 삭제', () => D(S, SA, 'backups', 'x').delete());

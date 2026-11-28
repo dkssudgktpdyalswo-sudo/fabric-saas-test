@@ -196,15 +196,20 @@ function season() { const m = new Date().getMonth() + 1; return (m >= 3 && m <= 
 function isRecent(d) { const m = /^(\d\d)\.(\d\d)\.(\d\d)$/.exec(d || ''); if (!m) return false; const t = new Date(2000 + +m[1], +m[2] - 1, +m[3]); return (Date.now() - t.getTime()) / 864e5 <= 7; }
 
 function head(p) {
-  const tabs = [['new', '신상'], ['best', 'Best']]; if (stockOpen()) tabs.push(['stock', '재고']); // 재고 탭은 관리자가 공개해둔 때만
+  const hasBest = !idx || idx.entries.some(e => /^best_/.test(e.sec)); // 올린 Best가 없으면 Best 탭을 안 보임 (빈 「준비 중」 화면 방지)
+  const tabs = [['new', '신상']]; if (hasBest || p === 'best') tabs.push(['best', 'Best']); if (stockOpen()) tabs.push(['stock', '재고']); // 재고 탭은 관리자가 공개해둔 때만
   return `<div class="top"><div class="brand">${logoHtml()}${BRAND.loc ? `<span class="loc">${esc(BRAND.loc)}</span>` : ''}</div><div class="tabs">${tabs.map(([k, n]) => `<a href="${url({ p: k })}" data-go='${JSON.stringify({ p: k })}' class="${k === p ? 'on' : ''}">${n}</a>`).join('')}</div></div>`;
+}
+function shortDate(d) { // '26.11.28' → 올해면 '11.28', 아니면 그대로
+  const m = String(d || '').match(/^(\d{2})\.(\d{2})\.(\d{2})$/); if (!m) return String(d || '');
+  return ('20' + m[1]) === String(new Date().getFullYear()) ? `${+m[2]}.${m[3]}` : String(d);
 }
 function cardHtml(e, p, s) {
   const th = e.thumb ? `<img class="th" src="${e.thumb}" alt="">` : `<div class="th" style="background:${esc(e.tc || '#eceae4')}"></div>`;
   const tag = p === 'best' ? '<span class="tag">★ BEST</span>' : (p === 'new' && isRecent(e.date) ? '<span class="tag">NEW</span>' : '');
   const sub = [e.mix, e.colors ? `컬러 ${e.colors}` : ''].filter(Boolean).join(' · ');
   const go_ = { p, i: e.id }; if (s) go_.s = s;
-  return `<a class="card" href="${url(go_)}" data-go='${JSON.stringify(go_)}'>${th}<div class="meta">${tag}<div class="nm">${esc(e.item)}</div>${e.info && typeof e.info.desc === 'string' && e.info.desc ? `<div class="ds2">${esc(e.info.desc)}</div>` : ''}<div class="ds">${esc(sub)}${p === 'new' && e.date ? `${sub ? ' · ' : ''}${esc(e.date)} 입고` : ''}</div></div><span class="chev">›</span></a>`;
+  return `<a class="card" href="${url(go_)}" data-go='${JSON.stringify(go_)}'>${th}<div class="meta">${tag}<div class="nm">${esc(e.item)}</div>${e.info && typeof e.info.desc === 'string' && e.info.desc ? `<div class="ds2">${esc(e.info.desc)}</div>` : ''}<div class="ds">${esc(sub)}${p === 'new' && e.date ? `${sub ? ' · ' : ''}${esc(shortDate(e.date))} 입고` : ''}</div></div><span class="chev">›</span></a>`;
 }
 function infoHtml(info, mix) { // 원단 소개·용도·특징·스펙 (가게에서 적은 것만, 빈 칸은 안 보임)
   const o = (info && typeof info === 'object') ? info : {};
@@ -241,7 +246,7 @@ function swGrid(o) {
 function stockDetailBody(o) {
   const nOut = o.cols.filter(c => c.s > 0).length;
   const fi = hasInfo(o.info) ? infoHtml(o.info, o.mix) : ''; // 원단 정보가 있으면 혼용률은 그 안에 같이 보임
-  const sub = [fi ? '' : o.mix, `컬러 ${o.cols.length}`, o.date ? `${o.date} 입고` : ''].filter(Boolean).join(' · ');
+  const sub = [fi ? '' : o.mix, `컬러 ${o.cols.length}`, o.date ? `${shortDate(o.date)} 입고` : ''].filter(Boolean).join(' · ');
   return (o.p ? `<img class="mat" src="${o.p}" alt="${esc(o.item)}">` : '') + fi + `<div style="padding:10px 16px 0;font-size:13.5px;color:var(--muted)">${esc(sub)}</div>`
     + (nOut > 0 ? `<div class="tog"><button type="button" id="hideBtn"><span>품절 컬러 숨기기</span><span class="sv${hideOut ? ' on' : ''}"></span></button><span style="font-size:12px;color:var(--muted)">품절 ${nOut}</span></div>` : '')
     + (rqOn() ? '<div class="rqhint">컬러를 눌러 고르면 샘플감·스와치를 요청할 수 있어요. 품절 컬러는 재입고 알림을 받을 수 있어요.</div>' : '')
@@ -262,7 +267,8 @@ function listView(P) {
     const cnt = k => all.filter(e => e.sec === 'best_' + k).length;
     if (!P.s && cnt(s) === 0 && cnt(s === 'fw' ? 'ss' : 'fw') > 0) s = s === 'fw' ? 'ss' : 'fw';
     const list = all.filter(e => e.sec === 'best_' + s);
-    return head('best') + `<div class="sub"><div class="seg">${['fw', 'ss'].map(k => `<a href="${url({ p: 'best', s: k })}" data-go='${JSON.stringify({ p: 'best', s: k })}' class="${k === s ? 'on' : ''}">${k === 'fw' ? 'F/W' : 'S/S'}</a>`).join('')}</div></div><div class="list">${list.length ? list.map(e => cardHtml(e, 'best', s)).join('') : '<div class="empty">준비 중이에요</div>'}</div>`;
+    const seasons = ['fw', 'ss'].filter(k => cnt(k) > 0 || k === s);
+    return head('best') + `<div class="sub"${seasons.length < 2 ? ' style="display:none;"' : ''}><div class="seg">${seasons.map(k => `<a href="${url({ p: 'best', s: k })}" data-go='${JSON.stringify({ p: 'best', s: k })}' class="${k === s ? 'on' : ''}">${k === 'fw' ? 'F/W' : 'S/S'}</a>`).join('')}</div></div><div class="list">${list.length ? list.map(e => cardHtml(e, 'best', s)).join('') : '<div class="empty">준비 중이에요</div>'}</div>`;
   }
   if (P.p === 'stock') {
     if (sErr) return head('stock') + `<div class="msg">재고를 불러오지 못했어요.<br>잠시 후 다시 시도해주세요.<br><button onclick="boot()">다시 불러오기</button></div>`;
