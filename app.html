@@ -2320,7 +2320,7 @@
 <script>
 // [새 시스템] 코드 안의 비밀번호(입장 3059 / 매출 9503 / 리포트 7080)는 없앰 - 로그인 계정의 역할로 대신함
 const DATA_VERSION = "2026-08-03-v4"; // 재고/이월장부 씨앗 데이터를 바꿀 때마다 이 값을 새로 바꿔주세요
-const APP_CODE_VERSION = "2026-11-25-f"; // 이 앱 코드 자체의 버전. 새 파일을 배포할 때마다 이 값을 반드시 새로 바꿔주세요 - 그러면 예전 화면이 자동으로 새로고침됨
+const APP_CODE_VERSION = "2026-11-28-a"; // 이 앱 코드 자체의 버전. 새 파일을 배포할 때마다 이 값을 반드시 새로 바꿔주세요 - 그러면 예전 화면이 자동으로 새로고침됨
 const SCHEMA_STAMP = 2; // 서버 저장규칙이 확인하는 "최신 앱 도장" - 절대 자주 바꾸지 않음(이 값을 아는 코드만 저장 가능하게 서버에서 막을 때 씀)
 const CONFIRMED_EMPTY = '__CONFIRMED_EMPTY__'; // "서버가 확실하게 문서가 없다고 확인해줬다"는 걸 표시하는 특수값
                                                  // (한번도 확인 안 한 null과 구분해서, 그 사이 다른 사람이 첫 데이터를 만들었으면 충돌로 감지하기 위함)
@@ -21831,10 +21831,26 @@ function openSwatchEditModal(cat, item, color) {
   document.getElementById('swatchEditModal').classList.add('open');
 }
 function closeSwatchEditModal() { document.getElementById('swatchEditModal').classList.remove('open'); editingSwatchKey = null; }
-function renamePendingChinaColors(item, fromColor, toColor) { // 컬러 이름을 바꾸면 아직 안 들어온 발주도 새 이름으로 (안 바꾸면 옛 이름 "재고 없음 · 예정" 줄이 남음)
-  const ni = normalizeNameForMatch(item), nf = normalizeNameForMatch(fromColor); let n = 0;
-  for (const o of chinaOrders) { if (o.status === 'received') continue; if (normalizeNameForMatch(o.item) === ni && normalizeNameForMatch(o.color) === nf) { o.color = toColor; n++; } }
-  return n;
+// 컬러 이름을 바꿀 때 같이 바꿔야 하는 것들(아직 안 들어온 중국발주 / 출고가 안 끝난 이월 / 컬러별 원가)을 "재고 이름을 바꾸기 전에" 찾아둠
+// (바꾼 뒤에는 옛 이름이 재고에서 사라져서, 품번 접두어·순번 표기로 적힌 발주를 같은 컬러로 못 알아봄)
+function findColorRefs(item, fromColor) {
+  const t_item = String(item).trim(), from = String(fromColor).trim(), nm = normalizeNameForMatch, k = chinaOrderMatchKey(t_item, from);
+  return {
+    china: chinaOrders.filter(o => o.status !== 'received' && ((nm(o.item) === nm(t_item) && nm(o.color) === nm(from)) || chinaOrderMatchKey(o.item, o.color) === k)),
+    ord: orders.filter(o => !o.done && nm(o.item) === nm(t_item) && nm(o.color) === nm(from)),
+    cost: costs.filter(c => c.color && String(c.item).trim() === t_item && String(c.color).trim() === from)
+  };
+}
+async function applyColorRefs(list) { // list: [{refs, to}] → 바꾼 곳만 저장
+  let ch = false, od = false, co = false;
+  for (const { refs, to } of list) {
+    for (const o of refs.china) { o.color = to; ch = true; }
+    for (const o of refs.ord) { o.color = to; od = true; }
+    for (const c of refs.cost) { c.color = to; co = true; }
+  }
+  if (ch) await persistChinaOrders();
+  if (od) await persistOrders();
+  if (co) await persistCosts();
 }
 async function saveSwatchEdit() {
   if (!editingSwatchKey) return;
@@ -21854,6 +21870,7 @@ async function saveSwatchEdit() {
   if (newColorName && newColorName !== color) {
     const t_item = String(item).trim();
     const t_oldColor = String(color).trim();
+    const refs = findColorRefs(t_item, t_oldColor); // 이름 바꾸기 전에 먼저 찾아둠
     for (const r of rolls) {
       if (String(r.item).trim() === t_item && String(r.color).trim() === t_oldColor) r.color = newColorName;
     }
@@ -21864,7 +21881,7 @@ async function saveSwatchEdit() {
       if (String(p.item).trim() === t_item && String(p.color).trim() === t_oldColor) p.color = newColorName;
     }
     if (recordColorRename(item, color, item, newColorName)) await persistSettings(); // 알림이 옛 이름 출고 기록을 새 이름으로 이어보게
-    if (renamePendingChinaColors(item, color, newColorName)) await persistChinaOrders();
+    await applyColorRefs([{ refs, to: newColorName }]); // 중국발주 · 이월 · 컬러별 원가도 새 이름으로
     await persistRolls();
     await persistPriceBook();
     color = newColorName;
@@ -21912,6 +21929,12 @@ function openSwatchBulkModal(cat, item) {
     if (!r.defective) stock.set(c, Math.round(((stock.get(c) || 0) + (Number(r.qty) || 0)) * 100) / 100);
   }
   for (const sw of swatchInfo) if (String(sw.item).trim() === t_item && sw.color != null && swHasInfo(sw)) names.add(String(sw.color).trim());
+  for (const o of chinaOrders) { // 재고에는 없고 중국발주로만 목록에 떠 있는 컬러도 이름을 고칠 수 있게 (목록에 보이는 이름과 똑같이 맞춤)
+    if (o.status === 'received') continue;
+    if (String(resolveInventoryItem(o.item) || '').trim() !== t_item) continue;
+    const co = String(resolveInventoryColor(t_item, o.color) || '').trim();
+    if (co && ![...names].some(n => normalizeNameForMatch(n) === normalizeNameForMatch(co))) names.add(co);
+  }
   names.delete('');
   if (names.size === 0) { showToast('고칠 컬러가 없습니다'); return; }
   const rows = Array.from(names).map(c => {
@@ -22025,12 +22048,13 @@ async function saveSwatchBulk() {
     const renameMap = res.renameMap;
     let renamed = 0;
     if (renameMap.size > 0) {
+      const refList = Array.from(renameMap, ([from, to]) => ({ refs: findColorRefs(t_item, from), to })); // 이름 바꾸기 전에 먼저 찾아둠
       for (const r of rolls) if (String(r.item).trim() === t_item && renameMap.has(String(r.color).trim())) r.color = renameMap.get(String(r.color).trim());
       for (const sw of swatchInfo) if (String(sw.item).trim() === t_item && sw.color != null && renameMap.has(String(sw.color).trim())) sw.color = renameMap.get(String(sw.color).trim());
       for (const pb of priceBook) if (String(pb.item).trim() === t_item && pb.color && renameMap.has(String(pb.color).trim())) pb.color = renameMap.get(String(pb.color).trim());
       let settingsChanged = false;
-      let chinaRen = 0; for (const [from, to] of renameMap) { if (recordColorRename(item, from, item, to)) settingsChanged = true; renamed++; chinaRen += renamePendingChinaColors(item, from, to); }
-      if (chinaRen) await persistChinaOrders();
+      for (const [from, to] of renameMap) { if (recordColorRename(item, from, item, to)) settingsChanged = true; renamed++; }
+      await applyColorRefs(refList); // 중국발주 · 이월 · 컬러별 원가도 새 이름으로
       if (settingsChanged) await persistSettings();
       await persistRolls();
       await persistPriceBook();
