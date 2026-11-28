@@ -130,6 +130,10 @@ async function runAll() {
     await expectOk('16-22. 절·탕·실마수 고침까지 넣어 보내기', () => WQ(S).add(wq({ cuts: [23, 27], whole: [false, false], rolls: [11, 12], tangs: [1, 2], from: [60, 55], fixes: [{ r: 12, t: 2, s: 55, a: 54.5 }], v: 2 })));
     await expectOk('16-23. 실마수 고치기만 보내기 (야드 없이)', () => WQ(S).add(wq({ cuts: [], fixes: [{ r: 12, t: 2, s: 55, a: 54 }], v: 2 })));
     await expectDenied('16-24. 야드도 실마수도 없이 보내기', () => WQ(S).add(wq({ cuts: [] })));
+    await expectOk('16-25. 직원S가 반품 받아옴 보내기', () => WQ(S).add(wq({ kind: 'ret', retType: 'return', customer: '시험거래처', cuts: [30, 25], v: 2 })));
+    await expectDenied('16-26. 반품 종류에 이상한 값', () => WQ(S).add(wq({ kind: 'ret', retType: 'free', cuts: [30], v: 2 })));
+    await expectOk('16-27. 야드 없이 노트 사진만 보내기', () => WQ(S).add(wq({ cuts: [], photo: 'data:image/jpeg;base64,' + 'A'.repeat(2000), v: 2 })));
+    await expectDenied('16-28. 사진 칸에 사진 아닌 글', () => WQ(S).add(wq({ cuts: [], photo: '<script>', v: 2 })));
     await expectDenied('17. 직원S가 직원 목록 보기', () => S.db.collection('shops').doc(SA).collection('members').get());
     await expectDenied('18. 직원S가 자기를 대표으로 바꾸기', () => D(S, SA, 'members', S.uid).update({ role: 'owner' }));
     await expectDenied('19. 직원S가 백업 삭제', () => D(S, SA, 'backups', 'x').delete());

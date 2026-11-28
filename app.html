@@ -47,7 +47,7 @@
     --primary: #2c5f7c; --primary-dark: #1e4258; --accent: #d98e4a;
     --bg: #f5f3ef; --card: #ffffff; --danger: #c0392b; --danger-bg: #fdecea;
     --text: #2b2b2b; --muted: #7a7a7a; --border: #e2ddd4;
-    --b-sub: #ecebe8; --b-info: #e3edf3; --b-ok: #e6f2ea; --b-warn: #fdf0d8; --b-danger-soft: #fdecea; /* 버튼 색은 이 몇 가지만 */
+    --b-sub: #ecebe8; --b-info: #e3edf3; --b-ok: #e6f2ea; --b-warn: #fbeee6; --b-danger-soft: #fdecea; /* 버튼 색은 이 몇 가지만 */
   }
   * { box-sizing: border-box; }
   body { margin: 0; font-family: -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; background: var(--bg); color: var(--text); }
@@ -172,7 +172,8 @@
   .wh-card.sent { opacity: .72; }
   .wh-card .st { display: block; font-size: 15px; color: #555; margin-top: 2px; }
   .wh-card .st i, .wh-card .c i.smp { font-style: normal; font-size: 13px; font-weight: 700; border-radius: 6px; padding: 2px 7px; margin-left: 4px; }
-  .wh-card .st i.late { color: var(--danger); background: var(--b-danger-soft); }
+  .wh-card .st i.late, .wh-card .q i.late { color: var(--danger); background: var(--b-danger-soft); }
+  .wh-card .q i { font-style: normal; font-size: 13px; font-weight: 700; border-radius: 6px; padding: 2px 7px; margin-left: 4px; }
   .wh-card .c i.smp { color: #7a5bb0; background: #efe9f7; }
   .wh-stk { background: #fff; border: 1px solid #e2ddd3; border-radius: 14px; padding: 10px 12px; margin-top: 10px; }
   .wh-stk .h { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 15px; color: #555; font-weight: 700; margin-bottom: 4px; }
@@ -198,6 +199,33 @@
   .wh-calc { font-size: 15px; color: #555; margin: 6px 4px 0; text-align: right; min-height: 20px; line-height: 1.4; } .wh-calc .fx { color: #4e3a78; font-weight: 700; }
   .wh-mine { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: #fff; border: 1px solid #e2ddd3; border-radius: 12px; padding: 8px 12px; margin-bottom: 6px; font-size: 15px; }
   .wh-mine button { flex: none; border: none; background: var(--b-danger-soft); color: var(--danger); border-radius: 8px; font-size: 15px; font-weight: 700; padding: 8px 12px; }
+  .wh-stk .wh-ch { font-size: 16px; padding: 4px 9px; min-width: 0; border-width: 1.5px; border-radius: 8px; }
+  .wh-ch.cut { border-color: #b9a6dc; color: #4e3a78; } .wh-ch.sel.cut { color: #fff; }
+  .wh-ents button { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 7px 12px; font-size: 16px; }
+  .wh-ents button em { font-style: normal; font-size: 13px; font-weight: 600; color: #888; flex: none; }
+  .wh-add { display: flex; gap: 8px; margin-top: 8px; }
+  .wh-add button { flex: 1; border: 2.5px solid var(--primary-dark); background: #fff; color: var(--primary-dark); border-radius: 13px; font-size: 18px; font-weight: 800; padding: 13px 4px; font-family: inherit; }
+  .wh-add button:active { background: var(--primary-dark); color: #fff; }
+  .wh-tools { display: flex; gap: 6px; margin-top: 8px; }
+  .wh-tools button { flex: 1; border: 1.5px solid #d9d4ca; background: #fff; color: #444; border-radius: 10px; font-size: 14px; font-weight: 700; padding: 10px 2px; font-family: inherit; }
+  .wh-tools button.on { background: #7a5bb0; border-color: #7a5bb0; color: #fff; } .wh-tools button:disabled { color: #bbb; }
+  .wh-photo { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid #e2ddd3; border-radius: 10px; padding: 6px 8px; margin-top: 8px; font-size: 14px; color: #555; }
+  .wh-photo img { width: 56px; height: 42px; object-fit: cover; border-radius: 6px; } .wh-photo span { flex: 1; }
+  .wh-photo button { border: none; background: none; color: #7a5bb0; font-weight: 700; font-size: 14px; } .wh-photo button.x { color: var(--danger); }
+  .wh-pv { position: fixed; inset: 0; z-index: 3000; background: rgba(0,0,0,.85); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 12px; }
+  .wh-pv img { max-width: 100%; max-height: 85vh; border-radius: 6px; } .wh-pv button { border: none; background: #fff; border-radius: 8px; padding: 10px 22px; font-weight: 700; }
+  .whq-ph { display: flex; align-items: center; gap: 8px; margin-top: 6px; cursor: pointer; } .whq-ph img { width: 84px; height: 60px; object-fit: cover; border-radius: 6px; border: 1px solid #d6cfbf; } .whq-ph span { font-weight: 500; }
+  .wh-entb { display: flex; justify-content: space-between; align-items: center; margin: 12px 2px 6px; }
+  .wh-undo { border: 2px solid #cfc9bd; background: #fff; color: #444; border-radius: 10px; font-size: 16px; font-weight: 700; padding: 7px 12px; font-family: inherit; }
+  .wh-big.del { background: var(--b-danger-soft); color: var(--danger); }
+  .wh-big.ret { background: #fff; color: #a1441e; border: 2px solid #e5b9a0; }
+  .wh-hd.ret { background: #7a4a2e; }
+  .wh-card .c i.ret { font-style: normal; font-size: 13px; font-weight: 700; color: #a1441e; background: #fbeee6; border-radius: 6px; padding: 2px 7px; margin-left: 4px; }
+  .wh-fixline { display: block; width: 100%; text-align: left; font-family: inherit; } .wh-fixline small { font-weight: 500; color: #7a5bb0; }
+  .wh-mine button.ed { background: var(--b-info); color: var(--primary-dark); margin-right: -2px; }
+  .whq-bar { display: flex; justify-content: space-between; align-items: center; width: 100%; border: 1px solid #d5c8ee; background: #f3eefb; color: #4e3a78; border-radius: 10px; padding: 11px 14px; margin: 0 0 10px; font-size: 14px; font-weight: 600; font-family: inherit; }
+  .whq-bar .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #7a5bb0; margin-right: 7px; vertical-align: middle; }
+  .whq-k { display: inline-block; font-size: 12px; color: #a1441e; background: #fbeee6; border-radius: 6px; padding: 1px 6px; margin-right: 2px; }
   .wh-dim { position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 3; }
   .wh-sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 4; background: #fff; border-radius: 20px 20px 0 0; box-shadow: 0 -6px 20px rgba(0,0,0,.25); padding: 14px 14px 18px; max-width: 560px; margin: 0 auto; }
   .wh-sheet h3 { margin: 0 0 4px; font-size: 20px; } .wh-sheet p { margin: 0 0 8px; color: #666; font-size: 15px; }
@@ -599,7 +627,7 @@
   .order-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
   .order-status { font-size: 11px; padding: 3px 9px; border-radius: 999px; font-weight: 700; white-space: nowrap; }
   .status-wait { background: #fdecea; color: #c0392b; }
-  .status-partial { background: #fff3d6; color: #a15c1e; }
+  .status-partial { background: #fbeee6; color: #a15c1e; }
   .status-done { background: #eaf3ec; color: #2f6b46; }
   .order-progress { font-size: 13px; margin-top: 8px; color: var(--text); }
   .order-note { font-size: 12px; color: var(--muted); margin-top: 4px; }
@@ -652,7 +680,7 @@
 
   /* ===== 버튼 색: 기본=연한 회색 / 중요(입고 등)=연한 푸른톤 / 삭제·반품·불량=빨강 ===== */
   :root { --btn-neutral-bg: #eceff1; --btn-neutral-text: #3a3f45; --btn-key-bg: #dcebf8; --btn-key-text: #1c4f86; --btn-danger-bg: #fdecea; }
-  :is(#list, .controls, .rate-bar) button:is([style*="var(--b-info)"], [style*="var(--b-ok)"], [style*="var(--b-warn)"], [style*="var(--b-sub)"], [style*="#dbe9f0"], [style*="rgb(219, 233, 240)"], [style*="#eaf3ec"], [style*="rgb(234, 243, 236)"], [style*="#fff3d6"], [style*="rgb(255, 243, 214)"], [style*="#e8edf5"], [style*="rgb(232, 237, 245)"], [style*="#e8f0fb"], [style*="rgb(232, 240, 251)"], [style*="#f1eee7"], [style*="rgb(241, 238, 231)"], [style*="#fce8d6"], [style*="rgb(252, 232, 214)"], [style*="#f0e6fa"], [style*="rgb(240, 230, 250)"], [style*="#e6f0fa"], [style*="rgb(230, 240, 250)"], [style*="#e6faf0"], [style*="rgb(230, 250, 240)"], [style*="#fdf0e0"], [style*="rgb(253, 240, 224)"], [style*="background:#eee"], [style*="background: #eee"], [style*="rgb(238, 238, 238)"]), :is(#list, .controls, .rate-bar) :is(.btn-out, .btn-receive, .btn-complete) { background: var(--btn-neutral-bg) !important; color: var(--btn-neutral-text) !important; }
+  :is(#list, .controls, .rate-bar) button:is([style*="var(--b-info)"], [style*="var(--b-ok)"], [style*="var(--b-warn)"], [style*="var(--b-sub)"], [style*="#dbe9f0"], [style*="rgb(219, 233, 240)"], [style*="#eaf3ec"], [style*="rgb(234, 243, 236)"], [style*="#fbeee6"], [style*="rgb(255, 243, 214)"], [style*="#e8edf5"], [style*="rgb(232, 237, 245)"], [style*="#e8f0fb"], [style*="rgb(232, 240, 251)"], [style*="#f1eee7"], [style*="rgb(241, 238, 231)"], [style*="#fce8d6"], [style*="rgb(252, 232, 214)"], [style*="#f0e6fa"], [style*="rgb(240, 230, 250)"], [style*="#e6f0fa"], [style*="rgb(230, 240, 250)"], [style*="#e6faf0"], [style*="rgb(230, 250, 240)"], [style*="#fdf0e0"], [style*="rgb(253, 240, 224)"], [style*="background:#eee"], [style*="background: #eee"], [style*="rgb(238, 238, 238)"]), :is(#list, .controls, .rate-bar) :is(.btn-out, .btn-receive, .btn-complete) { background: var(--btn-neutral-bg) !important; color: var(--btn-neutral-text) !important; }
   button[style*="var(--b-warn)"] { background: var(--btn-neutral-bg) !important; color: var(--btn-neutral-text) !important; }
   :is(#list, .controls, .rate-bar) button.btn-key { background: var(--btn-key-bg) !important; color: var(--btn-key-text) !important; }
   :is(#list, .controls, .rate-bar) button:is([style*="var(--b-danger-soft)"], [style*="#fdecea"], [style*="rgb(253, 236, 234)"], .btn-del, .btn-danger) { background: var(--btn-danger-bg) !important; color: var(--danger) !important; box-shadow: none; }
@@ -722,7 +750,7 @@
   .ss.saving { color: #fff; }
   .ss.saved { color: #9be3b4; }
   .ss.idle { color: rgba(255,255,255,.55); }
-  .ss.fail, .ss.offline { color: #2b1a00; background: #ffd27a; border-radius: 10px; padding: 2px 8px; }
+  .ss.fail, .ss.offline { color: #2b1a00; background: #f6c9a8; border-radius: 10px; padding: 2px 8px; }
   .ss-dot { width: 7px; height: 7px; border-radius: 50%; background: #fff; animation: savingPulse 1s infinite; }
   @media (max-width: 480px) { .ss.idle .ss-t { display: none; } }
   .cl-list { margin-top: 10px; }
@@ -750,7 +778,7 @@
   .sc-tip { font-size: 12.5px; color: #666; margin-bottom: 4px; } .sc-sec { font-size: 12px; font-weight: 800; color: #888; margin: 12px 2px 6px; }
   .sc-card { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 12px 13px; margin-bottom: 9px; } .sc-card.done { opacity: .78; } .sc-card.done .sc-t { color: #2c7a5b; }
   .sc-t { font-size: 15px; font-weight: 800; } .sc-q { font-size: 14px; margin-top: 5px; } .sc-q b { font-size: 16px; } .sc-s { font-size: 12px; color: #999; margin-top: 3px; }
-  .sc-tag { font-size: 11px; border-radius: 6px; padding: 2px 7px; font-weight: 700; vertical-align: 2px; margin-left: 2px; } .sc-tag.y { background: #fff3d6; color: #a15c1e; } .sc-tag.r { background: #fdecea; color: var(--danger); }
+  .sc-tag { font-size: 11px; border-radius: 6px; padding: 2px 7px; font-weight: 700; vertical-align: 2px; margin-left: 2px; } .sc-tag.y { background: #fbeee6; color: #a15c1e; } .sc-tag.r { background: #fdecea; color: var(--danger); }
   .sc-ask { font-size: 12.5px; color: var(--danger); font-weight: 700; margin-top: 5px; } .sc-who { font-size: 12.5px; color: #2c7a5b; font-weight: 700; margin-top: 3px; }
   .sc-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; } .sc-undo { flex: none; border: 1px solid var(--border); background: #fff; color: #777; border-radius: 8px; padding: 6px 10px; font-size: 12px; }
   .sc-btns { display: flex; gap: 8px; margin-top: 10px; } .sc-btns button { flex: 1; border: none; border-radius: 9px; padding: 11px 0; font-size: 14.5px; font-weight: 800; }
@@ -773,7 +801,7 @@
   .pay-li { display: flex; justify-content: space-between; gap: 10px; padding: 6px 0; border-top: 1px solid #f0ece5; font-size: 13.5px; } .pay-li.pend { color: #a15c1e; } .pay-new { background: #e4edf3; color: #1a5f8a; border-radius: 5px; padding: 0 5px; font-size: 11px; font-weight: 700; }
   .pay-acts { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; } .pay-acts button { border: none; background: var(--b-info); color: var(--primary-dark); border-radius: 8px; padding: 7px 11px; font-size: 12.5px; font-weight: 700; }
   .pay-add { border: 1.5px dashed #b9b5aa; background: #fff; color: #555; border-radius: 10px; padding: 11px; font-size: 14px; font-weight: 700; width: 100%; margin-top: 4px; }
-  .pay-warn { font-size: 12px; color: #8a5300; background: #fff4e5; border-radius: 8px; padding: 8px 12px; margin-bottom: 10px; }
+  .pay-warn { font-size: 12px; color: #a1441e; background: #fbeee6; border-radius: 8px; padding: 8px 12px; margin-bottom: 10px; }
   .pay-cust { margin-top: 8px; border-top: 1px dashed var(--border); padding-top: 4px; }
   .pay-pick { margin-top: 8px; border-top: 1px dashed var(--border); padding-top: 8px; } .pay-pick input[type=search] { width: 100%; box-sizing: border-box; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; }
   .pay-plist { max-height: 320px; overflow: auto; } .pay-prow { display: flex; align-items: center; gap: 8px; padding: 7px 2px; border-bottom: 1px dashed var(--border); font-size: 14px; flex-wrap: wrap; }
@@ -1455,7 +1483,7 @@
   <div class="modal">
     <h3 id="swb-title">스왓치 일괄수정</h3>
     <div id="swb-list"></div>
-    <div id="swb-summary" style="margin-top:8px;font-size:12px;padding:8px 10px;border-radius:8px;background:#fffbe6;color:#7a5a00;line-height:1.4;display:none;"></div>
+    <div id="swb-summary" style="margin-top:8px;font-size:12px;padding:8px 10px;border-radius:8px;background:#fbf3ee;color:#a1441e;line-height:1.4;display:none;"></div>
     <div id="swb-errors" style="margin-top:8px;font-size:12px;padding:8px 10px;border-radius:8px;background:#fdecea;color:var(--danger);line-height:1.5;display:none;"></div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeSwatchBulkModal()">취소</button>
@@ -2605,8 +2633,9 @@ function genUniqueId() {
 }
 let nextLogId = 1;
 let salesAdminUnlocked = false;
+let _whqSeenOnce = false;
 let whqItems = [], _whqUnsub = null, _whqPending = null, _whAutoTried = false;
-let _wh = { open: false, view: 'list', q: '', ctx: null, pq: '', fixing: null };
+let _wh = { open: false, view: 'list', q: '', ctx: null, pq: '', fixing: null, entry: null, rq: '', retCust: '' };
 let salesDayFilter = monthStartStr(); // 기본은 이번 달 1일부터
 let salesDayFilterEnd = monthEndStr(); // 기본은 이번 달 말일까지 - 달력으로 하루만 고르면 그날만 보임
 let orderDayFilter = null; // 이월장부를 등록일 기준으로 볼 때 쓰는 날짜(없으면 전체)
@@ -3604,7 +3633,7 @@ async function openImportModal(keep) {
   if (!keep) { _impMode = 'paste'; _impKind = 'unpaid'; }
   const fresh = rolls.length === 0 && shipmentLog.length === 0 && customerList.length === 0;
   const P = IMP_PASTE[_impKind];
-  const pasteBody = `<div style="font-size:13px;font-weight:700;margin-top:4px;">무엇을 넣을까요?</div>
+  const pasteBody = `<div style="font-size:13px;font-weight:700;margin-top:4px;">넣을 내용을 골라 주세요</div>
     <div class="sv-chips" style="margin:6px 0 8px;">${Object.keys(IMP_PASTE).map(k => `<button type="button" class="${k === _impKind ? 'on' : ''}" onclick="impSetKind('${k}')">${IMP_PASTE[k].lbl}</button>`).join('')}</div>
     <div style="font-size:12.5px;color:var(--muted);line-height:1.6;">쓰던 엑셀(또는 다른 프로그램에서 내려받은 표)에서 <b style="color:var(--text);">${P.cols}</b> 칸을 줄째로 복사해서 아래에 붙여 넣어 주세요${P.opt}</div>
     <textarea id="imp-paste" rows="5" placeholder="${P.ex.replace(/\n/g, '&#10;').replace(/\t/g, '    ')}" oninput="impPastePreview()" style="width:100%;box-sizing:border-box;margin-top:8px;border:1.5px dashed #9fc3d6;background:#f6fafc;border-radius:10px;padding:10px;font-size:13.5px;font-family:inherit;resize:vertical;"></textarea>
@@ -3670,7 +3699,7 @@ function renderImportPreview() {
     }
   }
   const skipBox = skipLines.length ? `<div style="background:var(--danger-bg);color:var(--danger);border-radius:8px;padding:10px;font-size:12.5px;margin-top:10px;line-height:1.7;"><b style="font-size:13px;">아래는 장부에 들어가지 않습니다</b><br>${skipLines.join('<br>')}</div>` : '';
-  const warnBox = plan.salesWarn.length ? `<div style="background:#fff3d6;color:#8a5a00;border-radius:8px;padding:10px;font-size:12.5px;margin-top:10px;line-height:1.6;"><b>확인해 주세요</b> - ${esc(plan.salesWarn.slice(0, 8).join(', '))}${plan.salesWarn.length > 8 ? ' 등' : ''}은(는) 이 앱에 이미 매출 기록이 있습니다.<br>엑셀 금액이 <b>앱에 적힌 매출을 빼고</b> 기준일까지 남은 잔액이어야 합니다. 앱 매출까지 포함된 금액이면 두 번 잡힙니다.</div>` : '';
+  const warnBox = plan.salesWarn.length ? `<div style="background:#fbeee6;color:#a1441e;border-radius:8px;padding:10px;font-size:12.5px;margin-top:10px;line-height:1.6;"><b>확인해 주세요</b> - ${esc(plan.salesWarn.slice(0, 8).join(', '))}${plan.salesWarn.length > 8 ? ' 등' : ''}은(는) 이 앱에 이미 매출 기록이 있습니다.<br>엑셀 금액이 <b>앱에 적힌 매출을 빼고</b> 기준일까지 남은 잔액이어야 합니다. 앱 매출까지 포함된 금액이면 두 번 잡힙니다.</div>` : '';
   if (errs.length) {
     body.innerHTML = `<table><tr><th>시트</th><th style="text-align:right;">줄 수</th><th></th><th></th></tr>${rows}</table>
       <div class="err" style="margin-top:10px;"><b>고칠 곳 ${errs.length}개</b> - ${_imp.fromPaste ? '고친 뒤 다시 붙여 넣어 주세요' : '엑셀에서 고친 뒤 다시 올려 주세요'}. 아직 아무것도 안 들어갔습니다.<br>${errs.slice(0, 30).map(esc).join('<br>')}${errs.length > 30 ? '<br>...' : ''}</div>
@@ -6526,7 +6555,7 @@ function renderToday() {
   const scAsk = scAskCount(); if (scAsk) todo.push({ k: 'scask', dot: 'var(--danger)', label: '재고 확인 요청', sub: '창고', n: scAsk, red: true, go: `showStockCheck('${scLatestAskDate() || ''}')` });
   if (money) todo.push({ k: 'pay', dot: 'var(--danger)', label: '수금 한 달 넘음', n: oldN, red: true, go: 'todayGoUnpaid()' });
   if (money) { const np = noPriceList().length; if (np) todo.push({ k: 'noprice', dot: '#c77d1a', label: '단가 미입력 출고', n: np, red: true, go: 'openNoPriceModal()' }); } // 있을 때만 줄을 보여줌
-  if (featureOn('warehouse') && whqItems.length) todo.unshift({ k: 'whq', dot: '#7a5bb0', label: '창고에서 온 출고', n: whqItems.length, go: 'whqListOpen()' });
+  if (featureOn('warehouse') && whqItems.length) todo.unshift({ k: 'whq', dot: '#7a5bb0', label: '창고에서 온 출고·반품', n: whqItems.length, go: 'whqListOpen()' });
   if (money && isPremium()) todo.push({ k: 'req', dot: '#7a5bb0', label: '손님 요청', n: rqOpenCount(), go: "switchTab('promo'); promoSeg('req')" });
   L += `<div style="${card}" class="td-todo">${head('오늘 할 일')}`;
   for (const t of todo) L += `<div class="td-row${t.n ? '' : ' zero'}" data-k="${t.k}" onclick="${t.go}"><i style="background:${t.dot}"></i><span>${t.label}${t.sub ? ` <small>${t.sub}</small>` : ''}</span><b class="${t.red && t.n ? 'red' : ''}">${t.n}</b><em>›</em></div>`;
@@ -7148,7 +7177,7 @@ function renderLowStockAlerts(list) {
 
   const carryIdxAlert = isOpen ? buildCarryoverIndex() : null; // 펼쳤을 때만 계산 (이월장부에서 아직 못 나간 수량)
   const banner = document.createElement('div');
-  banner.style.cssText = 'background:#fff3d6; border:1px solid #e8c98a; border-radius:10px; padding:10px 12px; margin-bottom:10px;';
+  banner.style.cssText = 'background:#fbeee6; border:1px solid #ecc9b4; border-radius:10px; padding:10px 12px; margin-bottom:10px;';
   banner.innerHTML = `
     <div onclick="toggleGroup('${gk}')" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;">
       <div style="font-weight:700; font-size:13px; color:#a15c1e;">재고 부족 알림 (${alerts.length}건${notOrdered < alerts.length ? ` · 미발주 ${notOrdered}건` : ''})</div>
@@ -7164,7 +7193,7 @@ function renderLowStockAlerts(list) {
     const isCritical = a.qty < 50; // 50y 미만은 특히 위험하게 강조
     const qtyColor = isCritical ? 'var(--danger)' : '#a15c1e';
     return `
-              <div style="display:flex; justify-content:space-between; align-items:center; background:${isCritical ? '#fdecea' : '#fdf6e3'}; border-radius:6px; padding:6px 8px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; background:${isCritical ? '#fdecea' : '#fbf1ea'}; border-radius:6px; padding:6px 8px;">
                 <div style="cursor:pointer; flex:1;" onclick="event.stopPropagation();goToLowStockItem('${escAttr(a.item)}','${escAttr(a.color)}')">
                   <div style="font-size:13px; font-weight:600;">${esc(a.color)}${a.swText ? ` <span style="font-weight:400; color:var(--muted);">(${a.swText})</span>` : ''}</div>
                   <div style="font-size:11px; color:var(--muted); margin-top:1px;">최근 30일 ${a.shippedRecently}y 나감</div>
@@ -7185,7 +7214,7 @@ function renderLowStockAlerts(list) {
       `).join('')}
       </div>
       ${dismissedList.length > 0 ? `
-        <div onclick="event.stopPropagation();toggleGroup('${dismissedGk}')" style="margin-top:8px; padding-top:6px; border-top:1px dashed #e8c98a; font-size:12px; color:#a15c1e; cursor:pointer; text-decoration:underline;">
+        <div onclick="event.stopPropagation();toggleGroup('${dismissedGk}')" style="margin-top:8px; padding-top:6px; border-top:1px dashed #ecc9b4; font-size:12px; color:#a15c1e; cursor:pointer; text-decoration:underline;">
           무시한 항목 ${dismissedList.length}개 ${dismissedOpen ? '숨기기' : '보기'}
         </div>
         ${dismissedOpen ? dismissedList.map(k => {
@@ -7475,7 +7504,7 @@ function renderInv() {
                 <button class="btn-out" style="background:var(--b-info);color:var(--primary-dark);" onclick="event.stopPropagation(); openTangCostModal('${escAttr(g.item)}','${escAttr(g.color)}',${tn})" ${canSeeCost() ? '' : 'hidden'}>원가</button>
                 <button class="btn-out" style="background:var(--b-warn);color:#a15c1e;" onclick="event.stopPropagation(); openTangNoteModal('${escAttr(g.item)}','${escAttr(g.color)}',${tn})">메모</button>
               </div>
-            </div>${tangNote ? `<div style="margin-top:3px;display:inline-block;background:#fff3d6;color:#a15c1e;font-weight:600;border-radius:5px;padding:2px 7px;font-size:12px;">${esc(tangNote)}</div>` : ''}${tangCostLabel ? `<div class="inv-cost${/^원가표/.test(tangCostLabel) ? ' std' : ''}${/확인 필요/.test(tangCostLabel) ? ' warn' : ''}">${esc(tangCostLabel)}</div>` : ''}`;
+            </div>${tangNote ? `<div style="margin-top:3px;display:inline-block;background:#fbeee6;color:#a15c1e;font-weight:600;border-radius:5px;padding:2px 7px;font-size:12px;">${esc(tangNote)}</div>` : ''}${tangCostLabel ? `<div class="inv-cost${/^원가표/.test(tangCostLabel) ? ' std' : ''}${/확인 필요/.test(tangCostLabel) ? ' warn' : ''}">${esc(tangCostLabel)}</div>` : ''}`;
           rollsDiv.appendChild(th);
           for (const r of tangRolls) {
             const rr = document.createElement('div');
@@ -7872,6 +7901,7 @@ function calcCnyForRollCost(btn) {
 }
 let costCalcCtx = null;
 function openCostCalcModal(item, color, opts) {
+  opts = opts || {};
   // opts: { targetEl } - 계산 결과를 그 입력칸에 채우기만 함 (저장은 그 화면의 원래 저장 버튼이 함)
   //       { tang }     - 계산 결과를 그 탕에 지금 있는 롤 전체에 바로 적용하고 저장까지 함
   costCalcCtx = { item, color, ...opts };
@@ -9588,6 +9618,7 @@ function renderOrders() {
     const t = searchTerm.trim().toLowerCase();
     list2 = list2.filter(o => String(o.customer).toLowerCase().includes(t) || String(o.item).toLowerCase().includes(t));
   }
+  if (featureOn('warehouse') && whqItems.length) list.insertAdjacentHTML('beforeend', `<button type="button" class="whq-bar" onclick="whqListOpen()"><span><span class="dot"></span>창고에서 온 출고·반품 <b>${whqItems.length}건</b></span><span>보기 ›</span></button>`);
   if (!orderDayFilter && !searchTerm.trim()) list.insertAdjacentHTML('beforeend', dueBarHtml());
   if (list2.length === 0) { list.insertAdjacentHTML('beforeend', orders.length === 0 && !searchTerm.trim() ? emptyGuideHtml('order') : '<div class="empty">해당 조건의 주문이 없습니다</div>'); return; }
 
@@ -12478,7 +12509,10 @@ function whqEnsure() {
   if (want && !_whqUnsub) {
     try {
       _whqUnsub = shopCol('whq').where('status', '==', 'sent').onSnapshot(s => {
+        const prev = new Set(whqItems.map(x => x.id)), first = !_whqSeenOnce; _whqSeenOnce = true;
         whqItems = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => whqAt(a) - whqAt(b));
+        const fresh = first ? [] : whqItems.filter(x => !prev.has(x.id) && x.by !== whMyUid());
+        if (fresh.length && !_wh.open) showToast(`창고에서 ${fresh[0].kind === 'ret' ? '반품이' : '출고가'} 왔습니다 · ${fresh[0].customer ? fresh[0].customer + ' · ' : ''}${fresh[0].item} (홈 「오늘 할 일」)`);
         scheduleRender();
       }, () => { whqItems = []; });
     } catch (e) { _whqUnsub = null; }
@@ -12510,9 +12544,20 @@ async function whqAdd(c) {
     cuts: ps.map(p => whR2(p.v)), whole: ps.map(p => !!p.whole), rolls: ps.map(p => p.roll == null ? null : p.roll), tangs: ps.map(p => p.tang == null ? null : p.tang), from: ps.map(p => p.from == null ? null : whR2(p.from)),
     fixes: Object.entries(c.fixes).slice(0, 50).map(([r, f]) => ({ r: isNaN(+r) ? r : +r, t: f.t, s: whR2(f.s), a: whR2(f.a) })),
     sample: !!c.sample, memo: String(c.memo || '').trim().slice(0, 60), status: 'sent', v: 2 };
+  if (c.photo) data.photo = c.photo;
+  if (c.kind === 'ret') { data.kind = 'ret'; data.retType = c.retType === 'defect' ? 'defect' : 'return'; data.orderId = null; data.rolls = []; data.tangs = []; data.from = []; data.fixes = []; data.whole = ps.map(() => false); data.sample = false; }
   if (!useFirebase) { whqItems.push({ id: 'l' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), ...data, atMs: Date.now() }); return true; }
-  try { await shopCol('whq').add({ ...data, at: firebase.firestore.FieldValue.serverTimestamp() }); return true; }
-  catch (e) { await uiAlert('보내지 못했습니다. 인터넷 연결을 확인하고 다시 눌러 주세요.\n' + errHint(e)); return false; }
+  if (navigator.onLine === false) { await uiAlert('인터넷이 끊겨 있습니다.\n넣은 것은 그대로 있으니, 연결되는 곳에서 「매장으로 보내기」를 다시 눌러 주세요.'); return false; }
+  const ref = c.sendId ? shopCol('whq').doc(c.sendId) : shopCol('whq').doc(); c.sendId = ref.id; // 같은 건을 다시 눌러도 한 번만 감
+  try {
+    const was = await Promise.race([ref.get().then(d => d.exists), new Promise(r => setTimeout(() => r(false), 4000))]).catch(() => false);
+    if (was) return true; // 지난번에 늦게라도 들어간 것
+    await Promise.race([ref.set({ ...data, at: firebase.firestore.FieldValue.serverTimestamp() }), new Promise((_, rj) => setTimeout(() => rj(new Error('slow')), 20000))]);
+    return true;
+  } catch (e) {
+    await uiAlert(e && e.message === 'slow' ? '인터넷이 느려서 아직 다 못 보냈습니다.\n넣은 것은 그대로 있으니 잠시 후 「매장으로 보내기」를 다시 눌러 주세요. 두 번 가지 않습니다.' : '보내지 못했습니다. 인터넷 연결을 확인하고 다시 눌러 주세요.\n' + errHint(e));
+    return false;
+  }
 }
 async function whqMark(id, status) {
   const x = whqItems.find(q => q.id === id); if (!x) return;
@@ -12532,21 +12577,25 @@ function whqListOpen() {
   const rows = whqItems.map(q => {
     const o = q.orderId != null ? orders.find(x => String(x.id) === String(q.orderId)) : null;
     const ps = whqPieces(q), fx = q.fixes || [], mix = whqMixText(q);
-    const fixOnly = !ps.length && fx.length;
+    const fixOnly = !ps.length && fx.length && !q.photo;
+    if (q.kind === 'ret') return `<div class="whq-it ret"><b><span class="whq-k">${q.retType === 'defect' ? '불량' : '반품'} 받아옴</span> ${esc(q.customer || '')} · ${esc(q.item)} ${esc(q.color || '')}</b>
+      <div class="whq-c">${ps.length ? `${ps.map(p => p.v + 'y').join(' · ')} = ${whqSum(q.cuts).toLocaleString()}y (${ps.length}절)` : '야드 없이 노트 사진만'}</div>${q.memo ? `<div class="whq-c" style="color:#4e3a78;">메모: ${esc(q.memo)}</div>` : ''}${whqPhotoThumb(q)}
+      <div class="whq-m">${esc(q.name || '창고')} · ${esc(whqTime(q))}</div>
+      <div class="whq-a"><button type="button" onclick="whqVoid('${escAttr(q.id)}')">지우기</button><button type="button" class="p" onclick="document.getElementById('whqModal').remove(); whqProcess('${escAttr(q.id)}')">${q.retType === 'defect' ? '불량' : '반품'} 처리</button></div></div>`;
     return `<div class="whq-it"><b>${esc(q.customer || (q.orderId == null ? '' : '거래처 미정'))}${q.customer || q.orderId != null ? ' · ' : ''}${esc(q.item)} ${esc(q.color || '')}</b>
       ${ps.length ? `<div class="whq-c">${esc(whqCutsText(q))}${q.sample ? ' <b style="color:#7a5bb0;">샘플</b>' : ''}</div>` : ''}
       ${mix ? `<div class="whq-c" style="color:var(--danger);">${esc(mix)}</div>` : ''}
       ${fx.length ? `<div class="whq-c" style="color:#4e3a78;">실마수 다름: ${fx.map(whqFixText).map(esc).join(' · ')}</div>` : ''}
-      ${q.memo ? `<div class="whq-c" style="color:#4e3a78;">메모: ${esc(q.memo)}</div>` : ''}
+      ${q.memo ? `<div class="whq-c" style="color:#4e3a78;">메모: ${esc(q.memo)}</div>` : ''}${!ps.length && q.photo ? '<div class="whq-c">야드 없이 노트 사진만</div>' : ''}${whqPhotoThumb(q)}
       <div class="whq-m">${esc(q.name || '창고')} · ${esc(whqTime(q))}${fixOnly ? ' · 재고 마수 고치기만' : q.orderId != null ? (o && !o.done ? '' : ' · <span style="color:var(--danger);">주문이 이미 끝남 → 매출로 넣기</span>') : ' · 주문 없이 나간 것'}</div>
       <div class="whq-a"><button type="button" onclick="whqVoid('${escAttr(q.id)}')">지우기</button>${fixOnly ? `<button type="button" class="p" onclick="whqApplyFixOnly('${escAttr(q.id)}')">재고 마수 고치기</button>` : `<button type="button" class="p" onclick="document.getElementById('whqModal').remove(); whqProcess('${escAttr(q.id)}')">출고 처리</button>`}</div></div>`;
   }).join('');
-  ov.innerHTML = `<div class="sm-box rx-box" style="max-width:520px;"><div class="rx-top"><h3>창고에서 온 출고</h3><button type="button" class="rx-close" onclick="document.getElementById('whqModal').remove()">✕</button></div>
+  ov.innerHTML = `<div class="sm-box rx-box" style="max-width:520px;"><div class="rx-top"><h3>창고에서 온 출고 · 반품</h3><button type="button" class="rx-close" onclick="document.getElementById('whqModal').remove()">✕</button></div>
     <p style="font-size:12.5px;color:var(--muted);margin:0 0 8px;">「출고 처리」를 누르면 출고 창이 창고에서 누른 절·야드로 채워져 열립니다. 단가를 넣고 저장해 주세요. 먼저 온 것부터 처리합니다.</p>
     ${rows || '<div style="padding:24px 0;text-align:center;color:var(--muted);">처리할 창고 출고가 없습니다</div>'}</div>`;
 }
 async function whqVoid(id) {
-  if (!(await uiConfirm('이 창고 출고를 지울까요? (재고·매출은 원래부터 안 바뀌어 있습니다)', { ok: '지우기', danger: true }))) return;
+  if (!(await uiConfirm('이 창고 출고를 지우시겠습니까?\n재고·매출은 원래부터 바뀌지 않았습니다.', { ok: '지우기', danger: true }))) return;
   await whqMark(id, 'void'); render(); if (document.getElementById('whqModal')) whqListOpen();
 }
 async function whqApplyFixOnly(id) {
@@ -12555,16 +12604,17 @@ async function whqApplyFixOnly(id) {
   const old = whqOlderBlocking(q); if (old) { await uiAlert(`먼저 온 창고 출고(${whqTime(old)} · ${old.item})부터 처리해 주세요. 같은 절이 들어 있습니다.`); return; }
   const fx = (q.fixes || []).filter(f => rolls.some(r => String(r.id) === String(f.r)));
   if (!fx.length) { showToast('고칠 절이 재고에 없습니다 (이미 나갔거나 지워짐)'); return; }
-  if (!(await uiConfirm(`${q.item} ${q.color}\n${fx.map(whqFixText).join('\n')}\n재고 마수를 실마수로 고칠까요?`, { ok: '고치기' }))) return;
+  if (!(await uiConfirm(`${q.item} ${q.color}\n${fx.map(whqFixText).join('\n')}\n재고 마수를 실마수로 고치시겠습니까?`, { ok: '고치기' }))) return;
   fx.forEach(f => { const r = rolls.find(x => String(x.id) === String(f.r)); if (r) r.qty = whR2(f.a); });
   await cleanupDepletedRolls(q.item, resolveInventoryColor(q.item, q.color), fx.map(f => +f.r));
   compactTangsForItemColor(q.item, resolveInventoryColor(q.item, q.color));
   await persistRolls();
   await whqMark(id, 'done'); showToast('재고 마수를 고쳤습니다'); render(); if (document.getElementById('whqModal')) whqListOpen();
 }
+function whqPhotoThumb(q) { return q.photo ? `<div class="whq-ph" onclick="whqPhotoView(whqItems.find(x => x.id === '${escAttr(q.id)}').photo)"><img src="${q.photo}" alt="노트 사진"><span>노트 사진 · 누르면 크게</span></div>` : ''; }
 function whqNoteHtml(q) {
   const fx = (q.fixes || []).filter(f => rolls.some(r => String(r.id) === String(f.r))), mix = whqMixText(q);
-  return `<div id="wh-note" style="font-size:13px;background:#efe9f7;color:#4e3a78;border-radius:8px;padding:8px 10px;margin:0 0 8px;font-weight:600;line-height:1.5;">창고 ${esc(q.name || '')} · ${esc(whqTime(q))}${q.sample ? ' · 샘플' : ''}${mix ? ` · <span style="color:var(--danger);">${esc(mix)}</span>` : ''}<br>${esc(whqCutsText(q))}${q.memo ? `<br>메모: ${esc(q.memo)}` : ''}
+  return `<div id="wh-note" style="font-size:13px;background:#efe9f7;color:#4e3a78;border-radius:8px;padding:8px 10px;margin:0 0 8px;font-weight:600;line-height:1.5;">창고 ${esc(q.name || '')} · ${esc(whqTime(q))}${q.sample ? ' · 샘플' : ''}${mix ? ` · <span style="color:var(--danger);">${esc(mix)}</span>` : ''}<br>${esc(whqCutsText(q) || '야드 없이 노트 사진만 · 사진을 보고 넣어 주세요')}${q.memo ? `<br>메모: ${esc(q.memo)}` : ''}${whqPhotoThumb(q)}
     ${fx.length ? `<label style="display:flex;gap:6px;align-items:flex-start;margin:6px 0 0;padding-top:6px;border-top:1px dashed #b9a6dc;font-weight:700;color:#4e3a78;"><input type="checkbox" id="wh-fix-apply" checked style="width:auto;margin-top:2px;"><span>실마수 다름 ${fx.length}건 · 재고 마수도 실마수로 고침<br><span style="font-weight:500;">${fx.map(whqFixText).map(esc).join('<br>')}</span></span></label>` : ''}</div>`;
 }
 let _whqRollPlan = null; // 주문 없이 나간 건 → 매출 창에서 창고가 누른 절에서 빼기 {total, plan:[{rollId, v}]}
@@ -12575,9 +12625,22 @@ function whqPlan(q) { // 절별로 합침 + 절 모르는 야드
 }
 async function whqProcess(id) {
   const q = whqItems.find(x => x.id === id); if (!q) return;
+  if (q.kind === 'ret') { // 반품·불량 받아옴 → 반품/불량 등록 창
+    if (!can('sales') || !salesAdminUnlocked) { showToast('반품·불량은 거래처 잔액이 바뀌어서 대표님·매니저가 처리해 주세요'); return; }
+    switchTab('sales'); openDefectReturnForCustomer(q.customer || '', q.retType === 'defect' ? 'defect' : 'return'); _whqPending = id;
+    const row = document.querySelector('#ret-multi-rows .ret-row');
+    if (row) {
+      row.querySelector('.ret-row-item').value = q.item || ''; row.querySelector('.ret-row-color').value = q.color || '';
+      if (q.cuts.length) row.querySelector('.ret-row-qty').value = whqSum(q.cuts); row.querySelector('.ret-row-unit').value = 'y';
+      row.querySelector('.ret-row-note').value = [q.cuts.length ? `창고 ${whqPieces(q).map(p => p.v).join('+')}y` : '', q.memo || ''].filter(Boolean).join(' · ').slice(0, 60);
+      updateReturnRowTangHint(row.querySelector('.ret-row-item'));
+    }
+    document.getElementById('returnModalTitle').insertAdjacentHTML('afterend', `<div id="wh-note" style="font-size:13px;background:#efe9f7;color:#4e3a78;border-radius:8px;padding:8px 10px;margin:0 0 8px;font-weight:600;line-height:1.5;">창고 ${esc(q.name || '')} · ${esc(whqTime(q))} · ${q.retType === 'defect' ? '불량' : '반품'} 받아옴<br>${q.cuts.length ? `${whqPieces(q).map(p => p.v + 'y').join(' · ')} = ${whqSum(q.cuts)}y (${q.cuts.length}절)` : '야드 없이 노트 사진만 · 사진을 보고 넣어 주세요'}${q.memo ? `<br>메모: ${esc(q.memo)}` : ''}${whqPhotoThumb(q)}<span style="font-weight:500;">단가를 넣고 「반영」을 눌러 주세요</span></div>`);
+    return;
+  }
   const old = whqOlderBlocking(q); if (old) { await uiAlert(`먼저 온 창고 출고(${whqTime(old)} · ${old.item} ${old.color || ''})부터 처리해 주세요. 같은 절이 들어 있어서 순서가 바뀌면 남은 마수가 틀어집니다.`); return; }
   const ps = whqPieces(q); const cuts = ps.map(p => p.v); const tot = whqSum(cuts);
-  if (!ps.length) { whqApplyFixOnly(id); return; }
+  if (!ps.length && !q.photo) { whqApplyFixOnly(id); return; }
   const o = q.orderId != null ? orders.find(x => String(x.id) === String(q.orderId) && !x.done) : null;
   document.querySelectorAll('#wh-note').forEach(n => n.remove());
   const fixA = {}; (q.fixes || []).forEach(f => { fixA[String(f.r)] = f.a; });
@@ -12613,7 +12676,7 @@ async function whqProcess(id) {
     switchTab('sales'); openSaleAddModal(); _whqPending = id;
     if (q.customer) document.getElementById('sale-edit-customer').value = q.customer;
     document.getElementById('sale-edit-item').value = q.item || ''; document.getElementById('sale-edit-color').value = q.color || '';
-    document.getElementById('sale-edit-yards').value = tot;
+    document.getElementById('sale-edit-yards').value = tot || '';
     document.getElementById('sale-edit-desc').insertAdjacentHTML('afterend', whqNoteHtml(q));
     const memo = [q.sample ? '샘플' : '', q.memo || ''].filter(Boolean).join(' · '); if (memo) document.getElementById('sale-edit-note').value = memo;
     _whqRollPlan = { item: q.item, color: q.color, total: tot, plan: [...plan.entries()].map(([k, v]) => ({ rollId: k, v })) };
@@ -12652,7 +12715,7 @@ async function whqAfterSave(modalId) { // 출고 창이 저장돼 닫혔으면 �
 function whOpen() {
   if (!featureOn('warehouse')) { showToast('설정 › 기능 선택에서 「창고 출고 화면」을 켜 주세요'); return; }
   if (!(can('carry') || can('stock'))) { permDeny('carry'); return; }
-  _wh = { open: true, view: 'list', q: '', ctx: null, pq: '', fixing: null };
+  _wh = { open: true, view: 'list', q: '', ctx: null, pq: '', fixing: null, entry: null, rq: '', retCust: '' };
   try { localStorage.setItem('whMode:' + SHOP_ID, '1'); } catch (e) {}
   whqEnsure(); whRender();
 }
@@ -12684,9 +12747,15 @@ function whOrderCard(o) {
   const sent = whqItems.filter(q => String(q.orderId) === String(o.id));
   const st = dueState(o), sm = whStockSum(whStock({ item: o.item, color: o.color, pieces: [], fixes: {} }));
   const short = (o.unit || 'y') === '절' ? sm.n < whRemain(o) : sm.y + 0.001 < whRemain(o);
-  return `<button type="button" class="wh-card${sent.length ? ' sent' : ''}" onclick="whStart('${escAttr(String(o.id))}')"><span class="c">${esc(o.customer || '')}${st === 'late' ? ' <i class="late">예정일 지남</i>' : st === 'today' ? ' <i>오늘</i>' : ''}${o.isSample ? ' <i class="smp">샘플</i>' : ''}</span><b>${esc(o.item || '')}${o.color ? ' · ' + esc(o.color) : ''}</b><span class="q">남은 주문 ${whRemain(o).toLocaleString()}${esc(o.unit || 'y')}</span><span class="st">재고 ${sm.n}절 · ${sm.y.toLocaleString()}y${short ? ' <i class="late">재고 부족</i>' : ''}</span>${sent.map(x => `<span class="s">보냄 · ${esc(whqCutsText(x))} <i>매장 확인 대기</i></span>`).join('')}</button>`;
+  return `<button type="button" class="wh-card${sent.length ? ' sent' : ''}" onclick="whStart('${escAttr(String(o.id))}')"><span class="c">${esc(o.customer || '')}${st === 'late' ? ' <i class="late">예정일 지남</i>' : st === 'today' ? ' <i>오늘</i>' : ''}${o.isSample ? ' <i class="smp">샘플</i>' : ''}</span><b>${esc(o.item || '')}${o.color ? ' · ' + esc(o.color) : ''}</b><span class="q">남은 주문 ${whRemain(o).toLocaleString()}${esc(o.unit || 'y')} · 재고 ${sm.n}절${short ? ' <i class="late">재고 부족</i>' : ''}</span>${sent.map(x => `<span class="s">보냄 · ${esc(whqCutsText(x) || '노트 사진')} <i>매장 확인 대기</i></span>`).join('')}</button>`;
 }
-function whRender() {
+function whRender() { // 다시 그려도(다른 기기 저장 등) 적고 있던 칸·커서 유지
+  const ae = document.activeElement, pane = document.getElementById('wh-pane');
+  const keep = ae && ae.id && pane && pane.contains(ae) && /^(INPUT|TEXTAREA)$/.test(ae.tagName) ? { id: ae.id, s: ae.selectionStart, e: ae.selectionEnd } : null;
+  whRenderInner();
+  if (keep) { const el = document.getElementById(keep.id); if (el && document.activeElement !== el) { el.focus(); try { el.setSelectionRange(keep.s, keep.e); } catch (e) {} } }
+}
+function whRenderInner() {
   if (!_wh.open) return;
   let p = document.getElementById('wh-pane');
   if (!p) { p = document.createElement('div'); p.id = 'wh-pane'; document.body.appendChild(p); }
@@ -12694,6 +12763,7 @@ function whRender() {
   const d = new Date(); const day = `${d.getMonth() + 1}월 ${d.getDate()}일 (${['일', '월', '화', '수', '목', '금', '토'][d.getDay()]})`;
   const focusQ = document.activeElement && document.activeElement.id === 'wh-q', focusP = document.activeElement && document.activeElement.id === 'wh-pq';
   if (_wh.view === 'cut' && _wh.ctx) { whRenderCut(p); return; }
+  if (whRenderRetLists(p)) return;
   if (_wh.view === 'pick') {
     const pq = _wh.pq.trim();
     const seen = new Map();
@@ -12701,7 +12771,7 @@ function whRender() {
     let list = [...seen.entries()].map(([k, y]) => { const [item, color] = k.split('\u0001'); return { item, color, y }; });
     if (pq) list = list.filter(x => matchesSearchWords(pq, x.item, x.color));
     list.sort((a, b) => a.item.localeCompare(b.item, 'ko') || a.color.localeCompare(b.color, 'ko'));
-    p.innerHTML = `<div class="wh-hd"><button type="button" class="wh-back" onclick="_wh.view='list'; whRender()">‹ 뒤로</button><h1>주문 없이 나간 것</h1><p>품번이나 컬러를 찾아서 눌러 주세요 · 실마수만 고칠 때도 여기서</p></div>
+    p.innerHTML = `<div class="wh-hd"><button type="button" class="wh-back" onclick="_wh.view='list'; whRender()">‹ 뒤로</button><h1>주문 없이 나간 것</h1><p>품번이나 컬러를 찾아 눌러 주세요 · 실마수만 고칠 때도 여기서 합니다</p></div>
       <div class="wh-body"><input id="wh-pq" class="wh-search" placeholder="품번 · 컬러 찾기" value="${escAttr(_wh.pq)}" oninput="_wh.pq=this.value; whRender()">
       ${pq ? list.slice(0, 40).map(x => `<button type="button" class="wh-card" onclick="whStartFree('${escAttr(x.item)}','${escAttr(x.color)}')"><b>${esc(x.item)} · ${esc(x.color)}</b><span class="q">재고 ${x.y.toLocaleString()}y</span></button>`).join('') || '<div class="wh-empty">찾는 원단이 없습니다</div>' : '<div class="wh-empty">위 칸에 품번이나 컬러를 적어 주세요</div>'}</div>`;
     if (focusP) { const i = document.getElementById('wh-pq'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }
@@ -12712,7 +12782,7 @@ function whRender() {
   const due = open.filter(o => ['late', 'today'].includes(dueState(o))).sort((a, b) => String(a.due).localeCompare(String(b.due)));
   const found = q ? open.filter(o => !due.includes(o) && matchesSearchWords(q, o.customer || '', o.item || '', o.color || '')).slice(0, 40) : [];
   const me = whMyUid();
-  const free = whqItems.filter(x => x.orderId == null);
+  const free = whqItems.filter(x => x.orderId == null && x.kind !== 'ret'), rets = whqItems.filter(x => x.kind === 'ret');
   p.innerHTML = `<div class="wh-hd"><button type="button" class="wh-back" onclick="whClose()">장부 화면 ›</button><h1>창고 출고</h1><p>${day}${ME && ME.name ? ' · ' + esc(ME.name) + '님' : ''}</p></div>
     <div class="wh-body">
       <div class="wh-sec">오늘 · 지난 출고 예정 ${due.length}건</div>
@@ -12721,85 +12791,230 @@ function whRender() {
       <input id="wh-q" class="wh-search" placeholder="거래처 · 품번 · 컬러" value="${escAttr(_wh.q)}" oninput="_wh.q=this.value; whRender()">
       ${q ? (found.map(whOrderCard).join('') || '<div class="wh-empty">진행 중인 주문 중에 없습니다</div>') : ''}
       ${free.length ? `<div class="wh-sec">주문 없이 보낸 것 (매장 확인 대기)</div>${free.map(x => `<div class="wh-card sent"><b>${esc(x.item)} · ${esc(x.color || '')}</b><span class="s">${esc(whqCutsText(x) || (x.fixes || []).map(whqFixText).join(' · '))}</span></div>`).join('')}` : ''}
-      ${whqItems.some(x => x.by && x.by === me) ? `<div class="wh-sec">내가 보낸 것 취소</div>${whqItems.filter(x => x.by === me).map(x => `<div class="wh-mine"><span>${esc(x.customer ? x.customer + ' · ' : '')}${esc(x.item)} ${esc(x.color || '')} · ${esc(whqTime(x))}</span><button type="button" onclick="whCancelSent('${escAttr(x.id)}')">취소</button></div>`).join('')}` : ''}
-      <button type="button" class="wh-big sub" onclick="_wh.view='pick'; _wh.pq=''; whRender(); setTimeout(()=>{const i=document.getElementById('wh-pq'); if(i) i.focus();},50)">+ 주문 없이 나간 것 · 실마수 고치기</button>
+      ${rets.length ? `<div class="wh-sec">보낸 반품 (매장 확인 대기)</div>${rets.map(x => `<div class="wh-card sent"><span class="c">${esc(x.customer || '')} <i class="ret">${x.retType === 'defect' ? '불량' : '반품'}</i></span><b>${esc(x.item)} · ${esc(x.color || '')}</b><span class="s">${whqPieces(x).map(p => p.v + 'y').join(' · ')} = ${whqSum(x.cuts)}y</span></div>`).join('')}` : ''}
+      ${whqItems.some(x => x.by && x.by === me) ? `<div class="wh-sec">보낸 것 (매장 처리 전) · 고치기 · 취소</div>${whqItems.filter(x => x.by === me).map(x => `<div class="wh-mine"><span>${x.kind === 'ret' ? (x.retType === 'defect' ? '[불량] ' : '[반품] ') : ''}${esc(x.customer ? x.customer + ' · ' : '')}${esc(x.item)} ${esc(x.color || '')} · ${esc(whqTime(x))}</span><button type="button" class="ed" onclick="whEditSent('${escAttr(x.id)}')">고치기</button><button type="button" onclick="whCancelSent('${escAttr(x.id)}')">취소</button></div>`).join('')}` : ''}
+      <div class="wh-row"><button type="button" class="wh-big sub" onclick="_wh.view='pick'; _wh.pq=''; whRender(); setTimeout(()=>{const i=document.getElementById('wh-pq'); if(i) i.focus();},50)">주문 없이 나간 것</button><button type="button" class="wh-big ret" onclick="whRetStart()">반품 받아옴</button></div>
     </div>`;
   if (focusQ) { const i = document.getElementById('wh-q'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }
 }
 async function whCancelSent(id) {
   const x = whqItems.find(q => q.id === id); if (!x) return;
-  if (!(await uiConfirm(`${x.item} ${x.color || ''}\n${whqCutsText(x)}\n보낸 것을 취소할까요? (매장에서 아직 처리 안 한 것만)`, { ok: '취소하기', danger: true }))) return;
+  if (!(await uiConfirm(`${x.item} ${x.color || ''}\n${whqCutsText(x)}\n보낸 것을 취소하시겠습니까? (매장에서 처리하기 전만 됩니다)`, { ok: '취소하기', danger: true }))) return;
   await whqMark(id, 'void'); showToast('취소했습니다'); whRender();
 }
-function whNewCtx(o) { return { orderId: null, customer: '', item: '', color: '', unit: 'y', remain: null, pieces: [], fixes: {}, sel: null, mode: 'cut', cur: '', sample: false, memo: '', ...o }; }
+// --- 반품 받아옴: 거래처 → 품번 → 절마다 야드 ---
+function whRetStart() { _wh.view = 'retCust'; _wh.rq = ''; whRender(); setTimeout(() => { const i = document.getElementById('wh-rq'); if (i) i.focus(); }, 50); }
+function whRetRecentCustomers() { // 최근에 출고한 거래처 (최근 순)
+  const m = new Map(); const now = Date.now();
+  for (const e of shipmentLog) { if (!e.customer || e.isReturn || e.isDefect || e.isFee || e.isPrepay) continue; const d = parseKDate(e.date); const t = d ? d.getTime() : 0; if (now - t > 120 * 864e5) continue; if (!m.has(e.customer) || m.get(e.customer) < t) m.set(e.customer, t); }
+  return [...m.entries()].sort((a, b) => b[1] - a[1]).map(x => x[0]);
+}
+function whRetItemsOf(cust) { // 그 거래처에 나간 품번·컬러 (최근 순)
+  const m = new Map();
+  for (const e of shipmentLog) { if (e.customer !== cust || !e.item || e.item === '이월' || e.isReturn || e.isDefect || e.isFee || e.isPrepay) continue; const k = e.item + '\u0001' + (e.color || ''); const d = parseKDate(e.date); const t = d ? d.getTime() : 0; const v = m.get(k) || { item: e.item, color: e.color || '', t: 0, date: '', y: 0 }; if (t >= v.t) { v.t = t; v.date = e.date; v.y = Number(e.yardsShipped || e.amount) || 0; } m.set(k, v); }
+  return [...m.values()].sort((a, b) => b.t - a.t);
+}
+function whRetPick(cust) { _wh.retCust = cust; _wh.view = 'retItem'; _wh.pq = ''; whRender(); }
+function whRetItem(item, color) { _wh.ctx = whNewCtx({ kind: 'ret', retType: 'return', customer: _wh.retCust || '', item, color }); _wh.view = 'cut'; _wh.fixing = null; _wh.entry = null; whRender(); }
+function whRenderRetLists(p) {
+  if (_wh.view === 'retCust') {
+    const rq = (_wh.rq || '').trim(); const recent = whRetRecentCustomers();
+    const list = rq ? [...new Set([...recent, ...customerList])].filter(c => matchesSearchWords(rq, c)).slice(0, 40) : recent.slice(0, 30);
+    p.innerHTML = `<div class="wh-hd"><button type="button" class="wh-back" onclick="_wh.view='list'; whRender()">‹ 뒤로</button><h1>반품 받아옴</h1><p>반품한 거래처를 눌러 주세요</p></div>
+      <div class="wh-body"><input id="wh-rq" class="wh-search" placeholder="거래처 찾기" value="${escAttr(_wh.rq || '')}" oninput="_wh.rq=this.value; whRender()">
+      ${rq ? '' : '<div class="wh-sec">최근에 출고한 거래처</div>'}
+      ${list.map(c => `<button type="button" class="wh-card" onclick="whRetPick('${escAttr(c)}')"><b>${esc(c)}</b></button>`).join('') || '<div class="wh-empty">찾는 거래처가 없습니다</div>'}</div>`;
+    const i = document.getElementById('wh-rq'); if (document.activeElement !== i && rq) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); }
+    return true;
+  }
+  if (_wh.view === 'retItem') {
+    const pq = (_wh.pq || '').trim(); const cust = _wh.retCust;
+    let list = whRetItemsOf(cust).map(x => ({ ...x, sub: `${x.date} 출고 ${x.y ? x.y + 'y' : ''}` }));
+    if (pq) {
+      const seen = new Set(list.map(x => x.item + '\u0001' + x.color));
+      const more = []; const g = new Map(); for (const r of rolls) { const k = r.item + '\u0001' + r.color; if (!seen.has(k) && !g.has(k)) g.set(k, { item: r.item, color: r.color, sub: '다른 품번' }); }
+      list = [...list, ...g.values()].filter(x => matchesSearchWords(pq, x.item, x.color));
+    }
+    p.innerHTML = `<div class="wh-hd"><button type="button" class="wh-back" onclick="whRetStart()">‹ 뒤로</button><h1>${esc(cust)} 반품</h1><p>돌아온 품번 · 컬러를 눌러 주세요</p></div>
+      <div class="wh-body"><input id="wh-pq" class="wh-search" placeholder="품번 · 컬러 찾기 (다른 품번도)" value="${escAttr(_wh.pq || '')}" oninput="_wh.pq=this.value; whRender()">
+      ${pq ? '' : '<div class="wh-sec">이 거래처에 나간 것 (최근 순)</div>'}
+      ${list.slice(0, 40).map(x => `<button type="button" class="wh-card" onclick="whRetItem('${escAttr(x.item)}','${escAttr(x.color)}')"><b>${esc(x.item)}${x.color ? ' · ' + esc(x.color) : ''}</b><span class="st">${esc(x.sub || '')}</span></button>`).join('') || '<div class="wh-empty">이 거래처에 나간 기록이 없습니다<br>위 칸에서 품번을 찾아 주세요</div>'}</div>`;
+    const i = document.getElementById('wh-pq'); if (pq) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); }
+    return true;
+  }
+  return false;
+}
+// --- 되돌리기 · 넣은 것 고치기 ---
+function whSnap() { const c = _wh.ctx; if (!c) return; (c.hist = c.hist || []).push(JSON.stringify({ pieces: c.pieces, fixes: c.fixes, sel: c.sel, mode: c.mode, cur: c.cur, retType: c.retType || null, sample: !!c.sample, photo: c.photo || '' })); if (c.hist.length > 60) c.hist.shift(); }
+function whUndo() {
+  const c = _wh.ctx; if (!c || !c.hist || !c.hist.length) { showToast('되돌릴 것이 없습니다'); return; }
+  const st = JSON.parse(c.hist.pop()); c.pieces = st.pieces; c.fixes = st.fixes; c.sel = st.sel; c.mode = st.mode; c.cur = st.cur; if (st.retType) c.retType = st.retType; c.sample = st.sample; c.photo = st.photo;
+  _wh.fixing = null; _wh.entry = null; showToast('되돌렸습니다'); whRender();
+}
+function whEntryOpen(i) { _wh.entry = i; whRender(); }
+function whEntrySheet() {
+  const c = _wh.ctx, i = _wh.entry, x = c.pieces[i]; if (!x) return '';
+  return `<div class="wh-dim" onclick="_wh.entry=null; whRender()"></div><div class="wh-sheet"><h3>${c.kind === 'ret' ? `${i + 1}번째 절 · ${x.v}y` : esc(whqPieceText(x))}</h3><p>잘못 넣었으면 고치거나 지워 주세요</p>
+    <button type="button" class="wh-big" onclick="whEntryEdit(${i})">고치기 (숫자 다시 넣기)</button>
+    <div class="wh-row"><button type="button" class="wh-big sub" onclick="_wh.entry=null; whRender()">닫기</button><button type="button" class="wh-big del" onclick="whEntryDel(${i})">지우기</button></div></div>`;
+}
+function whEntryEdit(i) {
+  const c = _wh.ctx; const x = c.pieces[i]; if (!x) return;
+  whSnap();
+  c.pieces.splice(i, 1); Object.keys(c.fixes).forEach(k => { if (c.fixes[k].auto === x.uid) delete c.fixes[k]; });
+  const st = c.kind === 'ret' ? [] : whStock(c);
+  c.sel = x.roll != null && st.some(s => s.k === String(x.roll) && !s.out) ? String(x.roll) : null;
+  if (c.kind !== 'ret') c.mode = x.whole ? 'whole' : 'cut';
+  c.cur = String(x.v); _wh.entry = null;
+  showToast('숫자를 고친 뒤 「다음 절」을 눌러 주세요'); whRender();
+}
+function whEntryDel(i) {
+  const c = _wh.ctx; const x = c.pieces[i]; if (!x) return;
+  whSnap();
+  c.pieces.splice(i, 1); Object.keys(c.fixes).forEach(k => { if (c.fixes[k].auto === x.uid) delete c.fixes[k]; });
+  _wh.entry = null; showToast('지웠습니다 · 잘못 지웠으면 「되돌리기」'); whRender();
+}
+async function whFixDel(k) {
+  const c = _wh.ctx; const f = c.fixes[k]; if (!f) return;
+  if (!(await uiConfirm(`탕${f.t} · 전산 ${f.s}y → 실 ${f.a}y\n실마수 고친 것을 지우시겠습니까?`, { ok: '지우기' }))) return;
+  whSnap(); delete c.fixes[k]; whRender();
+}
+async function whEditSent(id) { // 보낸 것 고치기: 매장으로 간 건 취소하고, 넣었던 그대로 다시 열기
+  const x = whqItems.find(q => q.id === id); if (!x) return;
+  if (!(await uiConfirm('보낸 것을 고칩니다.\n매장으로 간 것은 취소되고, 고친 뒤 「매장으로 보내기」를 다시 눌러야 합니다.', { ok: '고치기' }))) return;
+  await whqMark(id, 'void');
+  const pieces = whqPieces(x).map(p => ({ ...p, uid: ++_whUid, fixA: null }));
+  const fixes = {}; (x.fixes || []).forEach(f => { fixes[String(f.r)] = { a: f.a, t: f.t, s: f.s, auto: null }; });
+  const o = x.orderId != null ? orders.find(q => String(q.id) === String(x.orderId) && !q.done) : null;
+  if (x.kind === 'ret') { _wh.retCust = x.customer || ''; whRetItem(x.item, x.color); _wh.ctx.retType = x.retType || 'return'; }
+  else if (o) whStart(String(o.id));
+  else { whStartFree(x.item, x.color); _wh.ctx.customer = x.customer || ''; }
+  Object.assign(_wh.ctx, { pieces, fixes, sample: !!x.sample, memo: x.memo || '', photo: x.photo || '' });
+  showToast('넣었던 그대로 열었습니다 · 고친 뒤 다시 보내 주세요'); whRender();
+}
+function whNewCtx(o) { return { orderId: null, customer: '', item: '', color: '', unit: 'y', remain: null, pieces: [], fixes: {}, sel: null, mode: 'cut', cur: '', sample: false, memo: '', memoOpen: false, photo: '', ...o }; }
 function whStart(orderId) {
   const o = orders.find(x => String(x.id) === String(orderId)); if (!o) return;
   const isJ = (o.unit || 'y') === '절';
   _wh.ctx = whNewCtx({ orderId: o.id, customer: o.customer || '', item: o.item || '', color: o.color || '', unit: isJ ? '절' : 'y', remain: whRemain(o), mode: isJ ? 'whole' : 'cut', sample: !!o.isSample });
-  _wh.view = 'cut'; _wh.fixing = null; whRender(); window.scrollTo(0, 0); const p = document.getElementById('wh-pane'); if (p) p.scrollTop = 0;
+  _wh.view = 'cut'; _wh.fixing = null; _wh.entry = null; whRender(); window.scrollTo(0, 0); const p = document.getElementById('wh-pane'); if (p) p.scrollTop = 0;
 }
-function whStartFree(item, color) { _wh.ctx = whNewCtx({ item, color }); _wh.view = 'cut'; _wh.fixing = null; whRender(); }
+function whStartFree(item, color) { _wh.ctx = whNewCtx({ item, color }); _wh.view = 'cut'; _wh.fixing = null; _wh.entry = null; whRender(); }
 function whCalcLine(c, s) {
   const v = parseFloat(c.cur);
-  if (!s) return c.mode === 'whole' ? '재고 절을 누르면 그 절 마수가 들어갑니다' : (v > 0 ? '절을 안 누르면 매장에서 절을 정합니다' : '');
-  if (c.mode === 'whole') {
-    if (!(v > 0) || Math.abs(v - s.eff) < 0.001) return `탕${s.tang} · ${s.eff}y 절 통으로`;
-    return `<span class="fx">전산 ${s.eff}y · 실마수 ${v}y → 재고도 ${v}y로 고칩니다 (매장 확인)</span>`;
-  }
-  if (!(v > 0)) return `탕${s.tang} · ${s.eff}y 절에서 컷팅`;
-  if (v > s.eff + 0.001) return `<span class="bad">전산 ${s.eff}y보다 많습니다 → 「실마수 고치기」를 먼저 눌러 주세요</span>`;
-  if (Math.abs(v - s.eff) < 0.001) return `${s.eff}y 다 나감 → 절출고로 들어갑니다`;
-  return `${s.eff}y 절에서 ${v}y 컷팅 → <b>${whR2(s.eff - v)}y 남음</b>`;
+  if (!s) return '';
+  if (!(v > 0)) return `탕${s.tang} · ${s.eff}y 절 · 통으로 나가면 바로 「절출고로 넣기」`;
+  if (Math.abs(v - s.eff) < 0.001) return `${s.eff}y 그대로 → 절출고`;
+  if (v > s.eff + 0.001) return `<span class="fx">전산 ${s.eff}y보다 깁니다 · 절출고면 실마수 ${v}y로 고칩니다</span>`;
+  return `컷팅이면 ${s.eff}y에서 ${v}y → <b>${whR2(s.eff - v)}y 남음</b> · 절출고면 실마수 ${v}y`;
+}
+function whToolsHtml(c, withSample) {
+  return `<div class="wh-tools">
+    <button type="button" class="${c.photo ? 'on' : ''}" onclick="whPhotoPick()">노트 사진${c.photo ? ' ✓' : ''}</button>
+    ${withSample ? `<button type="button" class="${c.sample ? 'on' : ''}" onclick="whSnap(); _wh.ctx.sample=!_wh.ctx.sample; whRender()">샘플${c.sample ? ' ✓' : ''}</button>` : ''}
+    <button type="button" class="${c.memo.trim() ? 'on' : ''}" onclick="_wh.ctx.memoOpen=!_wh.ctx.memoOpen; whRender(); if(_wh.ctx.memoOpen) setTimeout(()=>{const i=document.getElementById('wh-memo'); if(i) i.focus();},30)">메모${c.memo.trim() ? ' ✓' : ''}</button>
+    <button type="button" onclick="whUndo()"${c.hist && c.hist.length ? '' : ' disabled'}>↶ 되돌리기</button></div>
+    ${c.memoOpen || c.memo.trim() ? `<input id="wh-memo" class="wh-search" style="margin:8px 0 0;" maxlength="60" placeholder="${c.kind === 'ret' ? '메모 예: 얼룩 불량, 색 다름' : '메모 예: 끝단 얼룩, 퀵으로 보냄'}" value="${escAttr(c.memo)}" oninput="_wh.ctx.memo=this.value">` : ''}
+    <input type="file" id="wh-photo-in" accept="image/*" capture="environment" style="display:none;" onchange="whPhotoGot(this)">`;
+}
+function whPhotoHtml(c) {
+  return c.photo ? `<div class="wh-photo"><img src="${c.photo}" alt="노트 사진" onclick="whqPhotoView(_wh.ctx.photo)"><span>노트 사진 1장</span><button type="button" onclick="whPhotoPick()">다시 찍기</button><button type="button" class="x" onclick="whSnap(); _wh.ctx.photo=''; whRender()">빼기</button></div>` : '';
 }
 function whRenderCut(p) {
+  if (_wh.ctx.kind === 'ret') { whRenderRet(p); return; }
   const c = _wh.ctx; const fm = document.activeElement && document.activeElement.id === 'wh-memo';
   const st = whStock(c); const sm = whStockSum(st); const sel = st.find(s => s.k === String(c.sel)) || null; if (!sel) c.sel = null;
   const sum = whqSum(c.pieces.map(x => x.v)); const n = c.pieces.length;
   const tangs = [...new Set(st.map(s => s.tang))].sort((a, b) => a - b);
   const already = c.orderId != null ? whqItems.filter(q => String(q.orderId) === String(c.orderId)) : [];
-  const chip = s => {
-    const lab = s.out ? (s.wasPend ? '보낸 것' : '절출고') : s.cut ? `${s.start}y에서 컷팅` : s.fixed ? `실마수 (전산 ${s.b0}y)` : s.pend ? '보낸 것 반영' : '';
-    return `<button type="button" class="wh-ch${s.k === String(c.sel) ? ' sel' : ''}${s.out ? ' out' : ''}${s.cut ? ' cut' : ''}${s.fixed && !s.cut ? ' fixd' : ''}" onclick="whSel('${escAttr(s.k)}')">${s.out ? (s.wasPend ? s.orig : s.start) : s.eff}y${lab ? `<small>${esc(lab)}</small>` : ''}</button>`;
-  };
+  const chip = s => `<button type="button" class="wh-ch${s.k === String(c.sel) ? ' sel' : ''}${s.out ? ' out' : ''}${s.cut ? ' cut' : ''}${s.fixed && !s.cut ? ' fixd' : ''}" onclick="whSel('${escAttr(s.k)}')">${s.out ? (s.wasPend ? s.orig : s.start) : s.eff}y</button>`;
   let orderLine = '';
-  if (c.orderId != null && c.remain != null) {
-    if (c.unit === '절') orderLine = n ? `${n}절 넣음 · 주문 ${c.remain}절${n === c.remain ? ' <span class="ok">다 채움 ✓</span>' : n > c.remain ? ` <span class="bad">${n - c.remain}절 더</span>` : ` · 남은 ${c.remain - n}절`}` : '';
-    else { const d2 = whR2(c.remain - sum); orderLine = n ? (Math.abs(d2) < 0.01 ? '<span class="ok">주문 다 채움 ✓</span>' : d2 > 0 ? `남은 주문 ${d2}y` : `<span class="warnt">주문보다 ${-d2}y 더</span>`) : ''; }
+  if (c.orderId != null && c.remain != null && n) {
+    if (c.unit === '절') orderLine = n === c.remain ? '<span class="ok">주문 다 채움 ✓</span>' : n > c.remain ? `<span class="warnt">주문보다 ${n - c.remain}절 더</span>` : `남은 주문 ${c.remain - n}절`;
+    else { const d2 = whR2(c.remain - sum); orderLine = Math.abs(d2) < 0.01 ? '<span class="ok">주문 다 채움 ✓</span>' : d2 > 0 ? `남은 주문 ${d2.toLocaleString()}y` : `<span class="warnt">주문보다 ${(-d2).toLocaleString()}y 더</span>`; }
   }
   const manualFix = Object.entries(c.fixes).filter(([k, f]) => !f.auto);
-  const mix = new Set(c.pieces.map(x => x.tang).filter(t => t != null)).size > 1;
-  p.innerHTML = `<div class="wh-hd"><button type="button" class="wh-back" onclick="whCutBack()">‹ 뒤로</button><h1>${esc(c.item)}${c.color ? ' · ' + esc(c.color) : ''}</h1><p>${c.orderId != null ? `${esc(c.customer)} · 남은 주문 ${c.remain}${esc(c.unit)}` : '주문 없이 나간 것'}</p></div>
+  const mixT = [...new Set(c.pieces.map(x => x.tang).filter(t => t != null))].sort((a, b) => a - b);
+  p.innerHTML = `<div class="wh-hd"><button type="button" class="wh-back" onclick="whCutBack()">‹ 뒤로</button><h1>${esc(c.item)}${c.color ? ' · ' + esc(c.color) : ''}</h1><p>${c.orderId != null ? `${esc(c.customer)} · 남은 주문 ${Number(c.remain).toLocaleString()}${esc(c.unit)}` : '주문 없이 나간 것'}${c.sample ? ' · 샘플' : ''}</p></div>
     <div class="wh-body">
-      ${already.length ? `<div class="wh-alr">이미 보낸 것: ${already.map(x => esc(whqCutsText(x))).join(' / ')} (매장 확인 대기) · 재고에 반영해서 보여 줍니다</div>` : ''}
+      ${already.length ? `<div class="wh-alr">이미 보낸 것: ${already.map(x => esc(whqCutsText(x) || '노트 사진')).join(' / ')} (매장 확인 대기)</div>` : ''}
       ${c.orderId == null ? `<input id="wh-cust" class="wh-search" placeholder="거래처 (아시면)" value="${escAttr(c.customer)}" oninput="_wh.ctx.customer=this.value">` : ''}
-      <button type="button" class="wh-sample${c.sample ? ' on' : ''}" onclick="_wh.ctx.sample=!_wh.ctx.sample; whRender()">${c.sample ? '✓ ' : ''}샘플로 나감</button>
-      <div class="wh-stk"><div class="h">재고 <span><b>${sm.n}절 · ${sm.y.toLocaleString()}y</b>${n || c.pieces.length ? ' 남음' : ''}${sm.tangs ? ` · 탕 ${sm.tangs}개` : ''}</span></div>
-        ${st.length ? `<div class="wh-stk-b">${tangs.map(t => `<div class="wh-tg"><span class="n">탕${t}</span><div class="wh-chips">${st.filter(s => s.tang === t).map(chip).join('')}</div></div>`).join('')}</div>` : '<div class="wh-empty" style="padding:8px 4px;font-size:15px;">재고에 이 컬러 절이 없습니다<br>야드만 넣으면 매장에서 정합니다</div>'}
+      <div class="wh-stk"><div class="h">재고 <span><b>${sm.n}절 · ${sm.y.toLocaleString()}y</b>${n ? ' 남음' : ''}${sm.tangs ? ` · 탕 ${sm.tangs}개` : ''}</span></div>
+        ${st.length ? `<div class="wh-stk-b">${tangs.map(t => `<div class="wh-tg"><span class="n">탕${t}</span><div class="wh-chips">${st.filter(s => s.tang === t).map(chip).join('')}</div></div>`).join('')}</div>` : '<div class="wh-empty" style="padding:6px 2px;font-size:14px;">재고에 이 컬러 절이 없습니다 · 야드만 넣어 주세요</div>'}
       </div>
-      ${n ? `<div class="wh-lab">넣은 것 (누르면 지움)</div><div class="wh-ents">${c.pieces.map((x, i) => `<button type="button" onclick="whCutDel(${i})">${esc(whqPieceText(x))}${x.fixA != null ? ` <small>실마수</small>` : ''}</button>`).join('')}</div>
-        <div class="wh-sum"><span>${n}건 · 합계 ${sum.toLocaleString()}y</span><span>${orderLine}</span></div>` : ''}
-      ${mix ? `<div class="wh-warn">탕이 섞여 나갑니다 (${[...new Set(c.pieces.map(x => x.tang).filter(t => t != null))].sort((a, b) => a - b).map(t => '탕' + t).join(' + ')}) · 매장에 같이 알립니다</div>` : ''}
-      ${manualFix.length ? `<div class="wh-warn">실마수 고침: ${manualFix.map(([k, f]) => `탕${f.t} · 전산 ${f.s}y → 실 ${f.a}y`).join(' · ')}</div>` : ''}
-      <div class="wh-selinfo">${sel ? `<span>탕${sel.tang} · ${sel.eff}y 절</span><button type="button" onclick="whFixOpen()">실마수 고치기</button>` : `<span class="h">${st.length ? '뺀 절을 먼저 눌러 주세요' : ''}</span>`}</div>
-      <div class="wh-seg"><button type="button" class="${c.mode === 'cut' ? 'on' : ''}" onclick="whMode('cut')">컷팅</button><button type="button" class="${c.mode === 'whole' ? 'on' : ''}" onclick="whMode('whole')">절출고</button></div>
+      <div class="wh-selinfo">${sel ? `<span>탕${sel.tang} · ${sel.eff}y 절</span><button type="button" onclick="whFixOpen()">실마수 고치기</button>` : st.length ? '<span class="h">자른 절을 누르면 매장 처리가 정확해집니다 (안 눌러도 됨)</span>' : ''}</div>
+      ${c.pieces.length ? `<div class="wh-ents">${c.pieces.map((x, i) => `<button type="button" onclick="whEntryOpen(${i})"><span>${i + 1}. ${esc(whqPieceText(x))}${x.fixA != null ? ' <small>실마수</small>' : ''}</span><em>고치기</em></button>`).join('')}</div>
+        <div class="wh-sum"><span>합계 ${sum.toLocaleString()}y</span><span>${orderLine}</span></div>` : ''}
+      ${mixT.length > 1 ? `<div class="wh-warn">탕이 섞여 나갑니다 (${mixT.map(t => '탕' + t).join(' + ')}) · 매장에 같이 알립니다</div>` : ''}
+      ${manualFix.map(([k, f]) => `<button type="button" class="wh-warn wh-fixline" onclick="whFixDel('${escAttr(k)}')">실마수 고침: 탕${f.t} · 전산 ${f.s}y → 실 ${f.a}y <small>누르면 지움</small></button>`).join('')}
+      ${whPhotoHtml(c)}
       <div class="wh-disp">${c.cur ? esc(c.cur) : '<span style="color:#bbb;">0</span>'}<small> y</small></div>
       <div class="wh-calc">${whCalcLine(c, sel)}</div>
       ${whPad()}
-      <div class="wh-row"><button type="button" class="wh-big sub" onclick="whNextCut()">다음 절</button><button type="button" class="wh-big" onclick="whSend()">매장으로 보내기</button></div>
-      <input id="wh-memo" class="wh-search" style="margin-top:12px;" maxlength="60" placeholder="메모 (선택) 예: 끝단 얼룩, 퀵으로 보냄" value="${escAttr(c.memo)}" oninput="_wh.ctx.memo=this.value">
+      <div class="wh-add"><button type="button" onclick="whAdd('cut')">컷팅으로 넣기</button><button type="button" onclick="whAdd('whole')">절출고로 넣기</button></div>
+      ${whToolsHtml(c, true)}
+      <button type="button" class="wh-big" onclick="whSend()">매장으로 보내기</button>
     </div>
-    ${_wh.fixing ? whFixSheet(st) : ''}`;
-  if (fm) { const i = document.getElementById('wh-memo'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }
+    ${_wh.fixing ? whFixSheet(st) : ''}${_wh.entry != null ? whEntrySheet() : ''}`;
+  if (fm) { const i = document.getElementById('wh-memo'); if (i) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); } }
+}
+function whRenderRet(p) {
+  const c = _wh.ctx; const fm = document.activeElement && document.activeElement.id === 'wh-memo';
+  const n = c.pieces.length, sum = whqSum(c.pieces.map(x => x.v));
+  p.innerHTML = `<div class="wh-hd ret"><button type="button" class="wh-back" onclick="whCutBack()">‹ 뒤로</button><h1>${esc(c.item)}${c.color ? ' · ' + esc(c.color) : ''}</h1><p>${esc(c.customer)} · 받아옴</p></div>
+    <div class="wh-body">
+      <div class="wh-seg"><button type="button" class="${c.retType !== 'defect' ? 'on' : ''}" onclick="whSnap(); _wh.ctx.retType='return'; whRender()">반품</button><button type="button" class="${c.retType === 'defect' ? 'on' : ''}" onclick="whSnap(); _wh.ctx.retType='defect'; whRender()">불량</button></div>
+      ${n ? `<div class="wh-ents">${c.pieces.map((x, i) => `<button type="button" onclick="whEntryOpen(${i})"><span>${i + 1}. ${x.v}y</span><em>고치기</em></button>`).join('')}</div>
+        <div class="wh-sum"><span>${n}절 · 합계 ${sum.toLocaleString()}y</span><span></span></div>` : '<div class="wh-calc" style="text-align:left;">절마다 야드를 넣어 주세요 · 단가와 처리는 매장에서 합니다</div>'}
+      ${whPhotoHtml(c)}
+      <div class="wh-disp">${c.cur ? esc(c.cur) : '<span style="color:#bbb;">0</span>'}<small> y</small></div>
+      ${whPad()}
+      <div class="wh-add"><button type="button" onclick="whAdd('cut')">넣기</button></div>
+      ${whToolsHtml(c, false)}
+      <button type="button" class="wh-big" onclick="whSend()">매장으로 보내기</button>
+    </div>${_wh.entry != null ? whEntrySheet() : ''}`;
+  if (fm) { const i = document.getElementById('wh-memo'); if (i) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); } }
+}
+async function whAdd(mode) { // 숫자 → 「컷팅으로 넣기 / 절출고로 넣기」 한 번
+  const c = _wh.ctx; c.mode = mode;
+  const s = c.sel != null ? whStock(c).find(x => x.k === String(c.sel)) : null;
+  let snapped = false;
+  if (mode === 'whole' && !(parseFloat(c.cur) > 0) && s) { whSnap(); snapped = true; c.cur = String(s.eff); } // 절만 누르고 절출고 → 그 절 마수 (되돌리면 빈 숫자로)
+  const v = parseFloat(c.cur);
+  if (mode === 'whole' && s && v > 0 && Math.abs(v - s.eff) > Math.max(3, s.eff * 0.1)) { // 전산과 많이 다르면 한 번 더 확인 (컷팅을 잘못 누른 경우)
+    if (!(await uiConfirm(`전산 ${s.eff}y 절을 ${v}y로 절출고합니다\n실마수가 ${v}y 맞습니까? 잘라서 나갔으면 「컷팅으로 넣기」를 눌러 주세요`, { ok: '절출고 맞음' }))) return;
+  }
+  whNextCut(false, snapped);
+}
+// --- 노트 사진: 줄여서(긴 변 1280, 600KB 안쪽) 장부에 같이 저장 ---
+function whPhotoPick() { const i = document.getElementById('wh-photo-in'); if (i) { i.value = ''; i.click(); } }
+function whPhotoGot(inp) {
+  const f = inp.files && inp.files[0]; if (!f) return;
+  const rd = new FileReader();
+  rd.onload = () => { const im = new Image(); im.onload = () => {
+    let mx = 1280, q = 0.7, url = '';
+    for (let k = 0; k < 6; k++) {
+      const sc = Math.min(1, mx / Math.max(im.width, im.height)); const cv = document.createElement('canvas'); cv.width = Math.round(im.width * sc); cv.height = Math.round(im.height * sc);
+      cv.getContext('2d').drawImage(im, 0, 0, cv.width, cv.height); url = cv.toDataURL('image/jpeg', q);
+      if (url.length < 600000) break; mx = Math.round(mx * 0.8); q = Math.max(0.45, q - 0.07);
+    }
+    if (url.length >= 900000) { showToast('사진이 너무 큽니다. 가까이에서 다시 찍어 주세요'); return; }
+    whSnap(); _wh.ctx.photo = url; whRender(); showToast('노트 사진을 넣었습니다');
+  }; im.onerror = () => showToast('사진을 읽지 못했습니다'); im.src = rd.result; };
+  rd.readAsDataURL(f);
+}
+function whqPhotoView(src) {
+  if (!src) return;
+  const ov = document.createElement('div'); ov.className = 'wh-pv'; ov.innerHTML = `<img src="${src}" alt="노트 사진"><button type="button">닫기</button>`;
+  ov.onclick = () => ov.remove(); document.body.appendChild(ov);
 }
 function whPad() { return `<div class="wh-kp">${['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(k => `<button type="button" onclick="whKey('${k}')">${k}</button>`).join('')}<button type="button" class="g" onclick="whKey('del')">지우기</button><button type="button" onclick="whKey('0')">0</button><button type="button" class="g" onclick="whKey('.')">.</button></div>`; }
 function whSel(k) {
   const c = _wh.ctx; const s = whStock(c).find(x => x.k === String(k)); if (!s) return;
   if (s.out) { showToast(s.wasPend ? '이미 보낸 절입니다 (매장 확인 대기)' : '이미 절출고로 넣은 절입니다'); return; }
   if (String(c.sel) === s.k) return; // 이미 고른 절 (다시 눌러도 그대로)
-  c.sel = s.k; c.cur = c.mode === 'whole' ? String(s.eff) : '';
-  whRender();
+  c.sel = s.k; whRender();
 }
-function whMode(m) { const c = _wh.ctx; c.mode = m; const s = c.sel != null ? whStock(c).find(x => x.k === String(c.sel)) : null; c.cur = m === 'whole' && s ? String(s.eff) : ''; whRender(); }
 function whKey(k) {
   const tgt = _wh.fixing || _wh.ctx; if (!tgt) return;
   if (k === 'del') tgt.cur = tgt.cur.slice(0, -1);
@@ -12808,14 +13023,15 @@ function whKey(k) {
   whRender();
 }
 let _whUid = 0;
-function whNextCut(silent) {
+function whNextCut(silent, noSnap) {
   const c = _wh.ctx; const v = parseFloat(c.cur);
   if (!(v > 0)) { if (!silent) showToast('야드를 먼저 넣어 주세요'); return false; }
   const s = c.sel != null ? whStock(c).find(x => x.k === String(c.sel)) : null;
+  if (s && c.mode !== 'whole' && v > s.eff + 0.001) { showToast(`이 절은 전산 ${s.eff}y입니다. 실제로 더 길면 「실마수 고치기」를 먼저 눌러 주세요`); return false; }
+  if (!noSnap) whSnap();
   const uid = ++_whUid;
   if (s) {
     let whole = c.mode === 'whole';
-    if (!whole && v > s.eff + 0.001) { showToast(`이 절은 전산 ${s.eff}y입니다. 실제로 더 길면 「실마수 고치기」를 먼저 눌러 주세요`); return false; }
     if (!whole && Math.abs(v - s.eff) < 0.001) whole = true;
     if (whole && Math.abs(v - s.eff) > 0.001) { // 절출고 실마수 다름 → 이 절은 이번에 보낸 것 앞에서 실제로 (이번에 뺀 것 + 지금 값)
       const before = whR2(c.pieces.filter(x => String(x.roll) === s.k).reduce((a, x) => a + x.v, 0));
@@ -12829,15 +13045,15 @@ function whNextCut(silent) {
 }
 async function whCutDel(i) {
   const c = _wh.ctx; const x = c.pieces[i]; if (!x) return;
-  if (!(await uiConfirm(`${whqPieceText(x)}\n지울까요?`, { ok: '지우기' }))) return;
-  c.pieces.splice(i, 1);
+  if (!(await uiConfirm(`${whqPieceText(x)}\n지우시겠습니까?`, { ok: '지우기' }))) return;
+  whSnap(); c.pieces.splice(i, 1);
   Object.keys(c.fixes).forEach(k => { if (c.fixes[k].auto === x.uid) delete c.fixes[k]; });
   whRender();
 }
 async function whCutBack() {
   const c = _wh.ctx;
-  if ((c.pieces.length || c.cur || Object.keys(c.fixes).length) && !(await uiConfirm('넣은 것을 보내지 않고 나갈까요?', { ok: '나가기' }))) return;
-  _wh.view = c.orderId == null ? 'pick' : 'list'; _wh.ctx = null; _wh.fixing = null; whRender();
+  if ((c.pieces.length || c.cur || Object.keys(c.fixes).length) && !(await uiConfirm('넣은 것을 보내지 않고 나가시겠습니까?', { ok: '나가기' }))) return;
+  _wh.view = c.kind === 'ret' ? 'retItem' : c.orderId == null ? 'pick' : 'list'; _wh.ctx = null; _wh.fixing = null; _wh.entry = null; whRender();
 }
 function whFixOpen() { const c = _wh.ctx; if (c.sel == null) return; _wh.fixing = { k: String(c.sel), cur: '' }; whRender(); }
 function whFixClose() { _wh.fixing = null; whRender(); }
@@ -12855,25 +13071,31 @@ function whFixSave() {
   const s = whStock(c).find(x => x.k === f.k); if (!s) { _wh.fixing = null; whRender(); return; }
   const before = whR2(c.pieces.filter(x => String(x.roll) === s.k).reduce((a, x) => a + x.v, 0));
   const a = whR2(before + v);
+  whSnap();
   if (Math.abs(a - s.b0) < 0.001) delete c.fixes[s.k]; else c.fixes[s.k] = { a, t: s.tang, s: s.b0, auto: null };
   _wh.fixing = null; if (c.mode === 'whole') c.cur = String(v);
   showToast(`탕${s.tang} · 실마수 ${v}y로 표시했습니다`); whRender();
 }
 async function whSend() {
-  const c = _wh.ctx;
-  if (c.cur && parseFloat(c.cur) > 0 && !whNextCut(true)) { whRender(); return; }
+  const c = _wh.ctx; if (!c || _wh.sending) return;
+  if (c.cur && parseFloat(c.cur) > 0) { showToast(`넣지 않은 숫자 ${c.cur}y가 있습니다 · 「${c.kind === 'ret' ? '넣기' : '컷팅으로 넣기 / 절출고로 넣기'}」를 먼저 눌러 주세요`); return; }
   const fx = Object.values(c.fixes);
-  if (!c.pieces.length && !fx.length) { showToast('넣은 야드가 없습니다'); return; }
+  if (!c.pieces.length && !fx.length && !c.photo) { showToast('야드를 넣거나 노트 사진을 찍어 주세요'); return; }
   whRender();
   const sum = whqSum(c.pieces.map(x => x.v));
-  const lines = [`${c.customer ? c.customer + ' · ' : ''}${c.item} ${c.color}${c.sample ? ' · 샘플' : ''}`];
-  c.pieces.forEach(x => lines.push('· ' + whqPieceText(x)));
+  const lines = [`${c.kind === 'ret' ? (c.retType === 'defect' ? '[불량 받아옴] ' : '[반품 받아옴] ') : ''}${c.customer ? c.customer + ' · ' : ''}${c.item} ${c.color}${c.sample ? ' · 샘플' : ''}`];
+  c.pieces.forEach((x, i) => lines.push('· ' + (c.kind === 'ret' ? `${i + 1}번째 절 ${x.v}y` : whqPieceText(x))));
   if (c.pieces.length) lines.push(`합계 ${sum}y (${c.pieces.length}건)${c.orderId != null && c.unit === 'y' && c.remain != null && Math.abs(c.remain - sum) > 0.01 ? ` · 남은 주문 ${c.remain}y` : ''}`);
   Object.entries(c.fixes).forEach(([k, f]) => lines.push(`실마수: 탕${f.t} · 전산 ${f.s}y → ${f.a}y`));
+  if (c.photo) lines.push('노트 사진 1장');
   if (c.memo.trim()) lines.push('메모: ' + c.memo.trim());
-  if (!(await uiConfirm(lines.join('\n') + '\n매장으로 보낼까요?', { ok: '보내기' }))) return;
-  const ok = await whqAdd(c); if (!ok) return;
-  showToast('매장으로 보냈습니다'); _wh.view = 'list'; _wh.ctx = null; _wh.q = ''; whRender();
+  if (!(await uiConfirm(lines.join('\n') + '\n매장으로 보내시겠습니까?', { ok: '보내기' }))) return;
+  if (_wh.sending) return;
+  _wh.sending = true; showToast('보내는 중입니다');
+  let ok = false; try { ok = await whqAdd(c); } finally { _wh.sending = false; }
+  if (!ok) return;
+  const wasRet = c.kind === 'ret';
+  showToast('매장으로 보냈습니다'); _wh.ctx = null; _wh.q = ''; _wh.entry = null; _wh.view = wasRet ? 'retItem' : 'list'; whRender();
 }
 // ===== 출고 예정일 (이월 건마다 거래처에게 알려 주는 날짜) =====
 // o.due = 'YYYY-MM-DD' (선택). 앱 「출고 예정」 화면·입고 안내 창에서 적음 → 거래처 장부 링크 이월 탭에 "11/30(월) 출고 예정"
@@ -14770,7 +14992,7 @@ async function renderCustomerLedgerTable() {
   if (memoWrap) {
     const custMemos = depositMemos.filter(m => String(m.customer).trim() === t_c);
     memoWrap.innerHTML = `
-      <div style="border:1px solid #fff3d6; background:#fffdf5; border-radius:8px; padding:8px 10px; margin-bottom:10px;">
+      <div style="border:1px solid #fbeee6; background:#fffdf5; border-radius:8px; padding:8px 10px; margin-bottom:10px;">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <div style="font-weight:700; font-size:13px; color:#a15c1e;">${esc(customer)} 메모</div>
           <button onclick="addDepositMemo('${escAttr(customer)}')" style="border:none;background:var(--b-warn);color:#a15c1e;border-radius:6px;padding:4px 8px;font-size:11px;">+ 메모 추가</button>
@@ -14855,7 +15077,7 @@ async function renderCustomerLedgerTable() {
         </tr>
       </thead>
       <tbody>
-        <tr style="background:#fffbe6;">
+        <tr style="background:#fbf3ee;">
           <td colspan="5" style="padding:8px 6px; font-size:13px; font-weight:600;">[이월]</td>
           <td style="padding:8px 6px; font-size:13px; text-align:right; font-weight:600;">${openingBalance.toLocaleString()}</td>
         </tr>
@@ -15721,7 +15943,7 @@ function renderExpenseCalendar() {
     const rec = byDay.get(d);
     const isSelected = expenseSelectedDate === dateStr;
     cellsHtml += `
-      <div onclick="pickExpenseDate('${dateStr}')" style="cursor:pointer; border-radius:6px; padding:4px 2px; text-align:center; background:${isSelected ? '#2c5f7c' : (rec ? '#fdf6e3' : 'transparent')}; color:${isSelected ? '#fff' : 'var(--text)'};">
+      <div onclick="pickExpenseDate('${dateStr}')" style="cursor:pointer; border-radius:6px; padding:4px 2px; text-align:center; background:${isSelected ? '#2c5f7c' : (rec ? '#fbf1ea' : 'transparent')}; color:${isSelected ? '#fff' : 'var(--text)'};">
         <div style="font-size:12px; font-weight:${rec ? '700' : '400'};">${d}</div>
         ${rec ? `<div style="font-size:9px; line-height:1.3;">${rec.expense > 0 ? `<div style="color:${isSelected ? '#ffd6d6' : 'var(--danger)'};">-${(rec.expense / 10000).toFixed(0)}만</div>` : ''}${rec.income > 0 ? `<div style="color:${isSelected ? '#c9f0d8' : '#2f6b46'};">+${(rec.income / 10000).toFixed(0)}만</div>` : ''}</div>` : ''}
       </div>`;
@@ -15991,7 +16213,7 @@ async function renderRepCommView() {
   }
   list.appendChild(pickBox);
 
-  if (archived === null) { const w = document.createElement('div'); w.style.cssText = 'font-size:12px; color:#8a5300; background:#fff4e5; border-radius:8px; padding:8px 12px; margin-bottom:10px;'; w.textContent = '⚠️ 보관함을 못 불러와서 이 달 출고량이 일부 빠졌을 수 있습니다. 잠시 후 다시 열어 주세요.'; list.appendChild(w); }
+  if (archived === null) { const w = document.createElement('div'); w.style.cssText = 'font-size:12px; color:#a1441e; background:#fbeee6; border-radius:8px; padding:8px 12px; margin-bottom:10px;'; w.textContent = '⚠️ 보관함을 못 불러와서 이 달 출고량이 일부 빠졌을 수 있습니다. 잠시 후 다시 열어 주세요.'; list.appendChild(w); }
   if (cfg.customers.length === 0) { const w = document.createElement('div'); w.style.cssText = 'font-size:12px; color:var(--danger); margin-bottom:10px;'; w.textContent = '담당 거래처가 아직 없습니다. 위 "담당 거래처 지정"에서 체크해 주세요.'; list.appendChild(w); }
 
   const r = repCommCompute(entries, cfg);
@@ -16016,7 +16238,7 @@ async function renderRepCommView() {
     ${cfg.taxPct > 0 ? row(`공제 (${cfg.taxPct}%)`, `- ${repWon((base + comm) * cfg.taxPct / 100)}`) : ''}
     ${row('최종 지급액 (세후)', repWon((base + comm) * (1 - cfg.taxPct / 100)), true)}
     ${cfg.taxPct > 0 ? '' : '<div style="font-size:11px; color:#a15c1e; margin-top:6px;">공제율이 아직 없어서 세후 금액이 세전과 같게 나옵니다. "조건 수정"에서 공제율을 입력해 주세요.</div>'}
-    ${pending > 0.5 ? `<div style="font-size:11px; color:#8a5300; margin-top:6px;">아직 입금 안 된 출고분 수당 ${repWon(pending)} - 입금되면 이 달 화면에 자동 반영됩니다</div>` : ''}
+    ${pending > 0.5 ? `<div style="font-size:11px; color:#a1441e; margin-top:6px;">아직 입금 안 된 출고분 수당 ${repWon(pending)} - 입금되면 이 달 화면에 자동 반영됩니다</div>` : ''}
     ${cfg.stage !== 2 && own > 0 ? `<div style="font-size:11px; color:var(--muted); margin-top:4px;">2단계 전환 기준: 3개월 연속 월 5,000마 이상</div>` : ''}
     <div style="font-size:11px; color:var(--muted); margin-top:4px;">반품·불량·샘플·수수료는 제외합니다.</div>`;
   list.appendChild(sum);
@@ -16986,7 +17208,7 @@ function renderUnpaidSummaryListOld() {
     </div>
   `;
   const inactiveBanner = inactiveRows.length === 0 ? '' : `
-    <div style="background:#fdf0e0; border:1px solid #e8c98a; border-radius:10px; padding:10px 12px; margin-bottom:10px;">
+    <div style="background:#fdf0e0; border:1px solid #ecc9b4; border-radius:10px; padding:10px 12px; margin-bottom:10px;">
       <div style="font-weight:700; font-size:13px; color:#a15c1e; margin-bottom:6px;">미수금 있는데 최근 거래가 뜸한 거래처 (${inactiveRows.length}건)</div>
       ${inactiveRows.map(r => `
         <div style="display:flex; justify-content:space-between; align-items:center; padding:5px 0; font-size:12px;">
@@ -18440,7 +18662,7 @@ function buildChinaOrderCard(o) {
         <button onclick="event.stopPropagation(); ${isReceived ? `toggleChinaOrderStatus(${o.id})` : `openChinaReceiveModal(${o.id})`}" style="border:none;background:var(--b-sub);color:var(--text);border-radius:6px;padding:5px 8px;font-size:11px;">${isReceived ? '대기로' : '입고 처리'}</button>
       </div>
     </div>
-    ${o.note ? `<div style="font-size:12px; color:#a15c1e; font-weight:700; margin-top:5px; background:#fff3d6; border-radius:5px; padding:4px 8px; display:inline-block;">${esc(o.note)}</div>` : ''}
+    ${o.note ? `<div style="font-size:12px; color:#a15c1e; font-weight:700; margin-top:5px; background:#fbeee6; border-radius:5px; padding:4px 8px; display:inline-block;">${esc(o.note)}</div>` : ''}
   `;
   return card;
 }
@@ -18494,7 +18716,7 @@ function renderChinaOrdersByItem(filtered) {
               <button onclick="event.stopPropagation(); ${isReceived ? `toggleChinaOrderStatus(${o.id})` : `openChinaReceiveModal(${o.id})`}" style="border:none;background:var(--b-sub);color:var(--text);border-radius:6px;padding:5px 8px;font-size:11px;">${isReceived ? '대기로' : '입고 처리'}</button>
             </div>
           </div>
-          ${o.note ? `<div style="font-size:12px; color:#a15c1e; font-weight:700; margin-top:5px; background:#fff3d6; border-radius:5px; padding:4px 8px; display:inline-block;">${esc(o.note)}</div>` : ''}
+          ${o.note ? `<div style="font-size:12px; color:#a15c1e; font-weight:700; margin-top:5px; background:#fbeee6; border-radius:5px; padding:4px 8px; display:inline-block;">${esc(o.note)}</div>` : ''}
         `;
         row.onclick = () => openChinaOrderEditModal(o.id);
         rowsWrap.appendChild(row);
@@ -19600,7 +19822,12 @@ function findInventoryRolls(item, color) {
 function openOrderReceiveModal(id) {
   const o = orders.find(x => x.id === id);
   if (!o) return;
-  _whqPending = null; document.querySelectorAll('#wh-note').forEach(n => n.remove());
+  _whqPending = null; document.querySelectorAll('#wh-note, #wh-hint').forEach(n => n.remove());
+  setTimeout(() => { // 이 주문에 창고에서 보낸 게 있으면 알려 주고 그대로 채우기
+    if (_whqPending || !featureOn('warehouse') || !document.getElementById('orderReceiveModal').classList.contains('open') || pendingReceiveOrderId !== o.id) return;
+    const q = whqItems.find(x => String(x.orderId) === String(o.id)); if (!q) return;
+    document.getElementById('or-desc').insertAdjacentHTML('afterend', `<div id="wh-hint" style="font-size:13px;background:#efe9f7;color:#4e3a78;border-radius:8px;padding:8px 10px;margin:0 0 8px;font-weight:600;line-height:1.5;">창고에서 보낸 것이 있습니다 (${esc(whqTime(q))})<br>${esc(whqCutsText(q))}<br><button type="button" onclick="whqProcess('${escAttr(q.id)}')" style="margin-top:6px;border:none;background:#7a5bb0;color:#fff;border-radius:8px;padding:7px 12px;font-weight:700;">창고에서 보낸 대로 채우기</button></div>`);
+  }, 0);
   pendingReceiveOrderId = id;
   const remain = (o.orderQty && o.orderQty > o.received) ? Math.round((o.orderQty - o.received) * 100) / 100 : 0;
   document.getElementById('orderReceiveTitle').textContent = '출고 처리';
@@ -20384,6 +20611,7 @@ function _updateReturnRowTangHintBase(fromEl) {
   }
 }
 function resetReturnRows(item, color, unit, note) {
+  _whqPending = null; document.querySelectorAll('#wh-note').forEach(n => n.remove());
   document.getElementById('ret-multi-rows').innerHTML = '';
   { const tx = document.getElementById('ret-tax'); if (tx) tx.checked = false; }
   addReturnRow(item, color, unit, note);
@@ -20913,6 +21141,7 @@ async function confirmReturn() {
   } finally {
     _saveReturnInProgress = false; // 성공/실패/중간에 뭘 하든, 함수가 끝나는 순간 바로 풀림 (다음 저장을 막지 않게)
   }
+  await whqAfterSave('returnModal');
 }
 async function confirmReturnInner() {
   const type = document.querySelector('input[name="ret-type"]:checked').value;
@@ -21761,7 +21990,7 @@ function swbRecalc() {
   const res = swbRead(); if (!res) return;
   const rowEls = Array.from(document.querySelectorAll('#swb-list .swb-row'));
   let nName = 0, nNum = 0, nChina = 0, nRows = 0;
-  const HL = '#fffbe6', HLB = '#e8b923', BAD = '#fdecea', BADB = '#c0392b';
+  const HL = '#fbf3ee', HLB = '#d98e4a', BAD = '#fdecea', BADB = '#c0392b';
   const paint = (input, state) => { input.style.background = state === 'bad' ? BAD : state === 'chg' ? HL : '#fff'; input.style.borderColor = state === 'bad' ? BADB : state === 'chg' ? HLB : 'var(--border)'; input.style.color = state === 'bad' ? BADB : ''; };
   for (const r of res.rows) {
     const el = rowEls[r.i];
